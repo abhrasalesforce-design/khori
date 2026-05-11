@@ -1,0 +1,44 @@
+<%- include('../partials/header') %>
+
+<div class="page-container">
+  <h1><%= product ? 'Edit Product' : 'New Product' %></h1>
+  <% if (error && error.length) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+  <form method="POST" action="<%= product ? '/admin/products/edit/' + product.id : '/admin/products/new' %>" enctype="multipart/form-data" class="product-form">
+    <div class="form-row">
+      <label>Product Name *</label>
+      <input type="text" name="name" value="<%= product ? product.name : '' %>" required>
+    </div>
+    <div class="form-row">
+      <label>Description</label>
+      <textarea name="description" rows="4"><%= product ? product.description : '' %></textarea>
+    </div>
+    <div class="form-row two-col">
+      <div>
+        <label>Price (₹) *</label>
+        <input type="number" name="price" value="<%= product ? product.price : '' %>" step="0.01" min="0" required>
+      </div>
+      <div>
+        <label>Stock</label>
+        <input type="number" name="stock" value="<%= product ? product.stock : '0' %>" min="0">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Category</label>
+      <input type="text" name="category" value="<%= product ? product.category : '' %>" placeholder="e.g. pottery, textile, jewellery">
+    </div>
+    <div class="form-row">
+      <label>Product Image</label>
+      <% if (product && product.image !== 'placeholder.jpg') { %>
+        <img src="/uploads/<%= product.image %>" width="100" style="display:block;margin-bottom:8px;">
+      <% } %>
+      <input type="file" name="image" accept="image/*">
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn-primary"><%= product ? 'Save Changes' : 'Add Product' %></button>
+      <a href="/admin" class="btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>

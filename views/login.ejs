@@ -1,0 +1,15 @@
+<%- include('partials/header') %>
+
+<div class="auth-container">
+  <h1>Welcome Back</h1>
+  <% if (error && error.length) { %><div class="alert alert-error"><%= error %></div><% } %>
+  <% if (success && success.length) { %><div class="alert alert-success"><%= success %></div><% } %>
+  <form method="POST" action="/login" class="auth-form">
+    <input type="email" name="email" placeholder="Email address" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <button type="submit" class="btn-primary">Login</button>
+  </form>
+  <p class="auth-link">Don't have an account? <a href="/register">Register</a></p>
+</div>
+
+<%- include('partials/footer') %>

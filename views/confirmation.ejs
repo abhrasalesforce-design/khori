@@ -1,0 +1,27 @@
+<%- include('partials/header') %>
+
+<div class="page-container confirmation">
+  <div class="confirm-icon">✅</div>
+  <h1>Order Confirmed!</h1>
+  <p>Thank you, <strong><%= order.name %></strong>. Your order #<%= order.id %> has been placed.</p>
+  <p>We'll ship to: <em><%= order.address %>, <%= order.city %>, <%= order.zip %>, <%= order.country %></em></p>
+
+  <div class="order-items-summary">
+    <h2>Items Ordered</h2>
+    <% items.forEach(item => { %>
+      <div class="confirm-item">
+        <img src="/uploads/<%= item.image %>" alt="<%= item.product_name %>" onerror="this.src='/images/placeholder.jpg'">
+        <span><%= item.product_name %> × <%= item.quantity %></span>
+        <span>₹<%= (item.price * item.quantity).toFixed(2) %></span>
+      </div>
+    <% }) %>
+    <div class="confirm-total"><strong>Total: ₹<%= order.total.toFixed(2) %></strong></div>
+  </div>
+
+  <div class="confirm-actions">
+    <a href="/orders" class="btn-primary">View My Orders</a>
+    <a href="/" class="btn-outline">Continue Shopping</a>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

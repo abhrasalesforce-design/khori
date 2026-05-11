@@ -1,0 +1,49 @@
+<%- include('partials/header') %>
+
+<section class="hero">
+  <h1>Handmade with Heart</h1>
+  <p>Discover unique handcrafted pieces made with love.</p>
+</section>
+
+<section class="shop-controls">
+  <form method="GET" action="/" class="search-form">
+    <input type="text" name="search" placeholder="Search products..." value="<%= search || '' %>">
+    <button type="submit">Search</button>
+  </form>
+  <div class="categories">
+    <a href="/" class="cat-btn <%= !category ? 'active' : '' %>">All</a>
+    <% categories.forEach(cat => { %>
+      <a href="/?category=<%= cat %>" class="cat-btn <%= category === cat ? 'active' : '' %>"><%= cat %></a>
+    <% }) %>
+  </div>
+</section>
+
+<section class="product-grid">
+  <% if (products.length === 0) { %>
+    <div class="empty">No products found.</div>
+  <% } else { %>
+    <% products.forEach(product => { %>
+      <div class="product-card">
+        <a href="/product/<%= product.id %>">
+          <img src="/uploads/<%= product.image %>" alt="<%= product.name %>" onerror="this.src='/images/placeholder.jpg'">
+          <div class="product-info">
+            <h3><%= product.name %></h3>
+            <p class="price">₹<%= product.price.toFixed(2) %></p>
+            <p class="stock <%= product.stock === 0 ? 'out' : '' %>">
+              <%= product.stock > 0 ? `${product.stock} in stock` : 'Out of stock' %>
+            </p>
+          </div>
+        </a>
+        <% if (product.stock > 0) { %>
+          <form method="POST" action="/cart/add">
+            <input type="hidden" name="product_id" value="<%= product.id %>">
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="btn-add">Add to Cart</button>
+          </form>
+        <% } %>
+      </div>
+    <% }) %>
+  <% } %>
+</section>
+
+<%- include('partials/footer') %>

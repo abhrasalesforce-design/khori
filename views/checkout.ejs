@@ -1,0 +1,70 @@
+<%- include('partials/header') %>
+
+<div class="page-container">
+  <h1>Checkout</h1>
+  <div class="checkout-layout">
+    <form id="checkout-form" method="POST" action="/checkout/place">
+      <div class="form-section">
+        <h2>Shipping Details</h2>
+        <div class="form-row">
+          <input type="text" name="name" placeholder="Full Name" value="<%= user.name %>" required>
+        </div>
+        <div class="form-row">
+          <input type="email" name="email" placeholder="Email" value="<%= user.email %>" required>
+        </div>
+        <div class="form-row">
+          <input type="text" name="address" placeholder="Street Address" required>
+        </div>
+        <div class="form-row two-col">
+          <input type="text" name="city" placeholder="City" required>
+          <input type="text" name="zip" placeholder="ZIP / Postal Code" required>
+        </div>
+        <div class="form-row">
+          <input type="text" name="country" placeholder="Country" required>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2>Payment</h2>
+        <% if (paypalClientId && paypalClientId !== 'YOUR_PAYPAL_CLIENT_ID_HERE') { %>
+          <input type="hidden" name="paypal_order_id" id="paypal-order-id">
+          <div id="paypal-button-container"></div>
+          <script src="https://www.paypal.com/sdk/js?client-id=<%= paypalClientId %>&currency=USD"></script>
+          <script>
+            paypal.Buttons({
+              createOrder: function(data, actions) {
+                return actions.order.create({ purchase_units: [{ amount: { value: '<%= total.toFixed(2) %>' } }] });
+              },
+              onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                  document.getElementById('paypal-order-id').value = details.id;
+                  document.getElementById('checkout-form').submit();
+                });
+              }
+            }).render('#paypal-button-container');
+          </script>
+        <% } else { %>
+          <div class="paypal-placeholder">
+            <p>💳 PayPal payment will appear here once configured.</p>
+            <p class="hint">Add your PayPal Client ID to <code>.env</code> to enable payments.</p>
+            <button type="submit" class="btn-primary">Place Order (Test Mode)</button>
+          </div>
+        <% } %>
+      </div>
+    </form>
+
+    <div class="order-summary">
+      <h2>Your Order</h2>
+      <% items.forEach(item => { %>
+        <div class="summary-item">
+          <span><%= item.name %> × <%= item.quantity %></span>
+          <span>₹<%= item.subtotal.toFixed(2) %></span>
+        </div>
+      <% }) %>
+      <div class="summary-divider"></div>
+      <div class="summary-total"><span>Total</span><span>₹<%= total.toFixed(2) %></span></div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

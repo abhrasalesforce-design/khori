@@ -1,0 +1,5 @@
+node_modules/
+khori.db
+.env
+public/uploads/*
+!public/uploads/.gitkeep

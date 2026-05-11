@@ -1,0 +1,31 @@
+<%- include('partials/header') %>
+
+<div class="product-detail">
+  <div class="product-image">
+    <img src="/uploads/<%= product.image %>" alt="<%= product.name %>" onerror="this.src='/images/placeholder.jpg'">
+  </div>
+  <div class="product-content">
+    <p class="breadcrumb"><a href="/">Shop</a> › <%= product.name %></p>
+    <h1><%= product.name %></h1>
+    <p class="price-large">₹<%= product.price.toFixed(2) %></p>
+    <p class="description"><%= product.description || 'No description available.' %></p>
+    <p class="stock-info <%= product.stock === 0 ? 'out' : '' %>">
+      <%= product.stock > 0 ? `${product.stock} in stock` : 'Out of stock' %>
+    </p>
+
+    <% if (product.stock > 0) { %>
+      <form method="POST" action="/cart/add" class="add-form">
+        <input type="hidden" name="product_id" value="<%= product.id %>">
+        <div class="qty-row">
+          <label>Quantity</label>
+          <input type="number" name="quantity" value="1" min="1" max="<%= product.stock %>">
+        </div>
+        <button type="submit" class="btn-primary">Add to Cart</button>
+      </form>
+    <% } else { %>
+      <button class="btn-disabled" disabled>Out of Stock</button>
+    <% } %>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

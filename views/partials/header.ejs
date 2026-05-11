@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khori – Handmade Crafts</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">🪡 Khori</a>
+    <nav>
+      <a href="/">Shop</a>
+      <% if (user) { %>
+        <a href="/orders">My Orders</a>
+        <% if (user.is_admin) { %><a href="/admin">Admin</a><% } %>
+        <a href="/logout">Logout (<%= user.name %>)</a>
+      <% } else { %>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+      <% } %>
+      <a href="/cart" class="cart-link">🛒 Cart</a>
+    </nav>
+  </div>
+</header>
+<main>
