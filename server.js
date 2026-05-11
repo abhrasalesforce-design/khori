@@ -14,11 +14,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+let sessionStore;
+if (process.env.DATABASE_URL) {
+  const pgSession = require('connect-pg-simple')(session);
+  const { Pool } = require('pg');
+  const pgPool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+  sessionStore = new pgSession({ pool: pgPool, createTableIfMissing: true });
+}
+
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  store: sessionStore,
+  secret: process.env.SESSION_SECRET || 'khori_dev_secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 1000 * 60 * 60 * 24 }
+  cookie: { maxAge: 1000 * 60 * 60 * 24, secure: !!process.env.DATABASE_URL }
 }));
 app.use(flash());
 
