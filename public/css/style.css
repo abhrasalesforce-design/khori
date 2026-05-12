@@ -277,15 +277,20 @@ main { min-height: calc(100vh - 140px); }
 
 .hero-carousel h1 {
   font-size: clamp(2.6rem, 5.5vw, 4.2rem);
-  color: var(--black);
+  color: #744577;
   margin-bottom: 20px;
   font-weight: 700;
 }
-.hero-carousel h1 em { font-style: italic; color: var(--text-muted); }
+.hero-carousel h1 em { font-style: italic; color: #744577; opacity: 0.75; }
+
+.hero-eyebrow {
+  color: #744577;
+  opacity: 0.7;
+}
 
 .hero-slide-inner p {
   font-size: 0.97rem;
-  color: var(--text-muted);
+  color: #744577;
   max-width: 440px;
   margin: 0 auto 32px;
   font-weight: 300;
@@ -296,7 +301,7 @@ main { min-height: calc(100vh - 140px); }
   font-family: 'Playfair Display', serif;
   font-style: italic;
   font-size: 1.05rem !important;
-  color: var(--black) !important;
+  color: #744577 !important;
   font-weight: 600;
   margin-bottom: 12px !important;
 }
@@ -304,7 +309,7 @@ main { min-height: calc(100vh - 140px); }
 .hero-cta {
   display: inline-block;
   padding: 15px 38px;
-  background: var(--black);
+  background: #744577;
   color: var(--white);
   font-size: 0.75rem;
   font-weight: 600;
@@ -313,7 +318,9 @@ main { min-height: calc(100vh - 140px); }
   transition: background 0.2s;
   opacity: 1 !important;
 }
-.hero-cta:hover { background: var(--text); opacity: 1 !important; }
+.hero-cta:hover { background: #5a3460; opacity: 1 !important; }
+
+.hero-slide-inner strong { color: #744577; font-weight: 700; }
 
 /* About slide — allow two paragraphs to fit */
 .hero-slide-about .hero-slide-inner {
