@@ -16,8 +16,8 @@
 
     <!-- Desktop nav -->
     <nav class="desktop-nav">
+      <a href="/#shop">Art Works</a>
       <a href="/#overview">Overview</a>
-      <a href="/#shop">Shop</a>
       <a href="/#artforms">Art Forms</a>
       <% if (user) { %>
         <a href="/orders">My Orders</a>
@@ -32,48 +32,37 @@
 
     <!-- Hamburger button -->
     <button class="hamburger" id="hamburger" aria-label="Menu">
-      <span></span><span></span><span></span>
+      <span class="ham-line"></span>
+      <span class="ham-line"></span>
+      <span class="ham-label">MENU</span>
     </button>
   </div>
 
-  <!-- Mobile menu -->
+  <!-- Full-screen mobile menu -->
   <div class="mobile-menu" id="mobileMenu">
-    <nav class="mobile-nav">
-      <a href="/#overview" class="mobile-nav-link" onclick="closeMenu()">
-        <span class="mnav-icon">🏠</span> Overview
-      </a>
-      <a href="/#shop" class="mobile-nav-link" onclick="closeMenu()">
-        <span class="mnav-icon">🛍️</span> Shop
-      </a>
-      <a href="/#artforms" class="mobile-nav-link" onclick="closeMenu()">
-        <span class="mnav-icon">🎨</span> Art Forms
-      </a>
-      <div class="mnav-divider"></div>
-      <% if (user) { %>
-        <a href="/orders" class="mobile-nav-link" onclick="closeMenu()">
-          <span class="mnav-icon">📦</span> My Orders
-        </a>
-        <% if (user.is_admin) { %>
-          <a href="/admin" class="mobile-nav-link" onclick="closeMenu()">
-            <span class="mnav-icon">⚙️</span> Admin
-          </a>
+    <div class="mobile-menu-inner">
+      <nav class="mobile-nav">
+        <a href="/#shop" class="mobile-nav-link" onclick="closeMenu()">Art Works</a>
+        <a href="/#overview" class="mobile-nav-link" onclick="closeMenu()">Overview</a>
+        <a href="/#artforms" class="mobile-nav-link" onclick="closeMenu()">Art Forms</a>
+        <% if (user) { %>
+          <a href="/orders" class="mobile-nav-link" onclick="closeMenu()">My Orders</a>
+          <% if (user.is_admin) { %>
+            <a href="/admin" class="mobile-nav-link" onclick="closeMenu()">Admin</a>
+          <% } %>
+          <a href="/logout" class="mobile-nav-link">Logout</a>
+        <% } else { %>
+          <a href="/login" class="mobile-nav-link" onclick="closeMenu()">Login</a>
+          <a href="/register" class="mobile-nav-link" onclick="closeMenu()">Register</a>
         <% } %>
-        <a href="/logout" class="mobile-nav-link">
-          <span class="mnav-icon">👋</span> Logout (<%= user.name %>)
-        </a>
-      <% } else { %>
-        <a href="/login" class="mobile-nav-link" onclick="closeMenu()">
-          <span class="mnav-icon">👤</span> Login
-        </a>
-        <a href="/register" class="mobile-nav-link" onclick="closeMenu()">
-          <span class="mnav-icon">✨</span> Register
-        </a>
-      <% } %>
-      <div class="mnav-divider"></div>
-      <a href="/cart" class="mobile-nav-link mobile-cart" onclick="closeMenu()">
-        <span class="mnav-icon">🛒</span> Cart
-      </a>
-    </nav>
+      </nav>
+      <div class="mobile-menu-footer">
+        <a href="/cart" class="mobile-cart-btn" onclick="closeMenu()">View Cart</a>
+        <% if (user) { %>
+          <p class="mobile-user-name"><%= user.name %></p>
+        <% } %>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -90,7 +79,6 @@
     mobileMenu.classList.remove('open');
     document.body.classList.remove('menu-open');
   }
-  // Close on outside click
   document.addEventListener('click', (e) => {
     if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) closeMenu();
   });
