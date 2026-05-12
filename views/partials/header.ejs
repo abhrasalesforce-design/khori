@@ -4,23 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Khori – Handmade Crafts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 <header>
   <div class="header-inner">
-    <a href="/" class="logo">🪡 Khori</a>
+    <a href="/" class="logo">Khori</a>
     <nav>
       <a href="/">Shop</a>
       <% if (user) { %>
         <a href="/orders">My Orders</a>
         <% if (user.is_admin) { %><a href="/admin">Admin</a><% } %>
-        <a href="/logout">Logout (<%= user.name %>)</a>
+        <a href="/logout">Logout</a>
       <% } else { %>
         <a href="/login">Login</a>
         <a href="/register">Register</a>
       <% } %>
-      <a href="/cart" class="cart-link">🛒 Cart</a>
+      <a href="/cart" class="cart-link">Cart</a>
     </nav>
   </div>
 </header>
