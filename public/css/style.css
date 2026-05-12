@@ -52,7 +52,7 @@ header {
 .header-inner {
   max-width: 1300px; margin: 0 auto;
   padding: 0 48px;
-  height: 72px;
+  height: 84px;
   display: flex; align-items: center; justify-content: space-between;
 }
 
@@ -62,10 +62,13 @@ header {
   opacity: 1;
 }
 .logo img {
-  height: 52px;
+  height: 68px;
   width: auto;
   object-fit: contain;
   display: block;
+  background: #ffffff;
+  padding: 4px 8px;
+  border-radius: 4px;
 }
 .logo:hover { opacity: 0.85; }
 
