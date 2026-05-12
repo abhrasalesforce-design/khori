@@ -249,10 +249,21 @@
   </div>
 
   <div class="shop-controls">
-    <div class="categories">
-      <a href="/" class="cat-btn <%= !category ? 'active' : '' %>">All</a>
+    <div class="hex-nav">
+      <a href="/" class="hex-nav-item <%= !category ? 'active' : '' %>">
+        <div class="hex-nav-cell">
+          <span class="hex-nav-icon">🏠</span>
+          <span class="hex-nav-label">All</span>
+        </div>
+      </a>
+      <% const catIcons = { pottery: '🏺', textile: '🧵', woodwork: '🪵', decor: '🪔', basket: '🧺', jewellery: '💎', painting: '🖌️', clay: '🪆' }; %>
       <% categories.forEach(cat => { %>
-        <a href="/?category=<%= cat %>" class="cat-btn <%= category === cat ? 'active' : '' %>"><%= cat %></a>
+        <a href="/?category=<%= cat %>" class="hex-nav-item <%= category === cat ? 'active' : '' %>">
+          <div class="hex-nav-cell">
+            <span class="hex-nav-icon"><%= catIcons[cat] || '✦' %></span>
+            <span class="hex-nav-label"><%= cat %></span>
+          </div>
+        </a>
       <% }) %>
     </div>
   </div>
