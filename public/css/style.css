@@ -817,9 +817,13 @@ main { min-height: calc(100vh - 140px); }
 .cart-layout { display: grid; grid-template-columns: 1fr 360px; gap: 48px; align-items: start; }
 
 .cart-item {
-  display: flex; align-items: center; gap: 20px;
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 0 16px;
   padding: 20px 0;
   border-bottom: 1px solid var(--border);
+  align-items: start;
 }
 
 .cart-item img {
@@ -827,23 +831,41 @@ main { min-height: calc(100vh - 140px); }
   object-fit: cover;
   background: var(--blush);
   flex-shrink: 0;
+  grid-row: 1 / 3;
 }
 
-.cart-item-info { flex: 1; }
+.cart-item-info { grid-column: 2; grid-row: 1; }
 .cart-item-info h3 { font-size: 0.95rem; margin-bottom: 4px; }
 .cart-item-info h3 a { color: var(--black); }
 .cart-item-info p { font-size: 0.82rem; color: var(--text-muted); }
 
+.cart-item-actions {
+  grid-column: 2; grid-row: 2;
+  display: flex; align-items: center; gap: 12px;
+  margin-top: 10px; flex-wrap: wrap;
+}
+
+.cart-subtotal {
+  grid-column: 3; grid-row: 1;
+  font-weight: 600; font-size: 0.95rem;
+  text-align: right; white-space: nowrap;
+}
+
+.cart-item-remove {
+  grid-column: 3; grid-row: 2;
+  text-align: right; margin-top: 10px;
+}
+
 .qty-form { display: flex; gap: 0; align-items: center; }
 .qty-form input {
-  width: 52px; padding: 7px 8px;
+  width: 48px; padding: 7px 8px;
   border: 1px solid var(--border);
   text-align: center; font-size: 0.9rem;
   background: var(--surface);
   outline: none;
 }
 .qty-form button {
-  padding: 7px 12px;
+  padding: 7px 10px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-left: none;
@@ -853,10 +875,9 @@ main { min-height: calc(100vh - 140px); }
   letter-spacing: 0.08em;
   text-transform: uppercase;
   transition: background 0.2s;
+  white-space: nowrap;
 }
 .qty-form button:hover { background: var(--lavender); }
-
-.cart-subtotal { min-width: 80px; text-align: right; font-weight: 500; font-size: 0.95rem; }
 
 .cart-summary {
   background: var(--blush);
@@ -1118,12 +1139,12 @@ footer {
   .hero { padding: 80px 24px; }
   .hero h1 { font-size: 2.4rem; }
   .product-detail { grid-template-columns: 1fr; gap: 40px; padding: 40px 20px; }
-  .cart-layout, .checkout-layout { grid-template-columns: 1fr; }
+  .checkout-layout { grid-template-columns: 1fr; }
   .honeycomb-grid { padding: 20px; }
   .hex-wrap { width: 160px; }
   .hex { width: 160px; height: 146px; }
   .shop-controls, .shop-section-header { padding-left: 20px; padding-right: 20px; }
-  .page-container { padding: 0 20px; }
+  .page-container { padding: 0 16px; margin: 40px auto; }
   .footer-inner { grid-template-columns: 1fr; gap: 32px; }
   .two-col { grid-template-columns: 1fr; }
   .confirm-actions { flex-direction: column; }
@@ -1134,6 +1155,22 @@ footer {
   .artforms-section { padding: 60px 0; }
   .artforms-header { padding: 0 24px; }
   .artform-card { flex: 0 0 calc(50% - 10px); min-width: 200px; height: 280px; }
+
+  /* Cart mobile */
+  .cart-layout { grid-template-columns: 1fr; gap: 24px; }
+  .cart-item {
+    grid-template-columns: 72px 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 0 12px;
+    padding: 16px 0;
+  }
+  .cart-item img { width: 72px; height: 72px; grid-row: 1 / 4; }
+  .cart-item-info { grid-column: 2; grid-row: 1; }
+  .cart-item-actions { grid-column: 2; grid-row: 2; margin-top: 8px; }
+  .cart-subtotal { grid-column: 2; grid-row: 3; text-align: left; margin-top: 6px; font-size: 0.9rem; }
+  .cart-item-remove { grid-column: 2; grid-row: 3; text-align: right; margin-top: 0; }
+  .cart-summary { position: static; padding: 24px 20px; }
+  .cart-summary .btn-primary, .cart-summary .btn-outline { padding: 14px; font-size: 0.8rem; }
 }
 
 @media (max-width: 480px) {
@@ -1146,4 +1183,12 @@ footer {
   .hero h1 { font-size: 2rem; }
   .artform-card { flex: 0 0 calc(100% - 0px); min-width: 240px; }
   .intro-stats { gap: 20px; }
+  .page-container h1 { font-size: 1.5rem; margin-bottom: 24px; padding-bottom: 16px; }
+  .cart-item img { width: 64px; height: 64px; }
+  .cart-item-info h3 { font-size: 0.85rem; }
+  .qty-form input { width: 40px; font-size: 0.85rem; }
+  .cart-subtotal { font-size: 0.85rem; }
+  .btn-remove { font-size: 0.75rem; }
+  .summary-row { font-size: 0.85rem; }
+  .footer-inner { padding: 0 20px 40px; }
 }
