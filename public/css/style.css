@@ -34,7 +34,7 @@ h1, h2, h3, h4 {
   font-family: 'Playfair Display', Georgia, serif;
   font-weight: 700;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.06em;
 }
 
 a { color: inherit; text-decoration: none; transition: opacity 0.2s; }
@@ -170,12 +170,12 @@ body.menu-open { overflow: hidden; }
 .mobile-nav-link {
   display: block;
   text-align: center;
-  padding: 18px 0;
+  padding: 14px 0;
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: clamp(1.8rem, 6vw, 2.6rem);
+  font-size: clamp(1.2rem, 4.5vw, 1.8rem);
   font-weight: 700;
   color: var(--black);
-  letter-spacing: -0.01em;
+  letter-spacing: 0.08em;
   border-bottom: 1px solid rgba(0,0,0,0.08);
   width: 100%;
   max-width: 420px;
@@ -748,6 +748,23 @@ main { min-height: calc(100vh - 140px); }
   line-height: 1.9;
   font-size: 0.95rem;
   margin-bottom: 28px;
+}
+
+.product-dimension {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+.product-dimension span {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .stock-info {

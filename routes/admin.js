@@ -71,15 +71,15 @@ router.get('/products/new', requireAdmin, (req, res) => {
 
 router.post('/products/new', requireAdmin, upload.single('image'), async (req, res) => {
   try {
-    const { name, description, price, stock, category } = req.body;
+    const { name, description, price, stock, category, dimension } = req.body;
     if (!name || !price) {
       req.flash('error', 'Name and price are required.');
       return res.redirect('/admin/products/new');
     }
     const image = await saveImage(req.file);
     await db.run(
-      'INSERT INTO products (name, description, price, stock, image, category) VALUES (?, ?, ?, ?, ?, ?)',
-      [name, description, parseFloat(price), parseInt(stock) || 0, image, category || 'general']
+      'INSERT INTO products (name, description, price, stock, image, category, dimension) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [name, description, parseFloat(price), parseInt(stock) || 0, image, category || 'general', dimension || null]
     );
     res.redirect('/admin');
   } catch (err) {
@@ -97,13 +97,13 @@ router.get('/products/edit/:id', requireAdmin, async (req, res) => {
 
 router.post('/products/edit/:id', requireAdmin, upload.single('image'), async (req, res) => {
   try {
-    const { name, description, price, stock, category } = req.body;
+    const { name, description, price, stock, category, dimension } = req.body;
     const product = await db.get('SELECT * FROM products WHERE id = ?', [req.params.id]);
     if (!product) return res.redirect('/admin');
     const image = req.file ? await saveImage(req.file) : product.image;
     await db.run(
-      'UPDATE products SET name=?, description=?, price=?, stock=?, image=?, category=? WHERE id=?',
-      [name, description, parseFloat(price), parseInt(stock) || 0, image, category || 'general', req.params.id]
+      'UPDATE products SET name=?, description=?, price=?, stock=?, image=?, category=?, dimension=? WHERE id=?',
+      [name, description, parseFloat(price), parseInt(stock) || 0, image, category || 'general', dimension || null, req.params.id]
     );
     res.redirect('/admin');
   } catch (err) {

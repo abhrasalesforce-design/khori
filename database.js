@@ -52,6 +52,7 @@ async function initDb() {
       stock INTEGER DEFAULT 0,
       image TEXT DEFAULT 'placeholder.jpg',
       category TEXT DEFAULT 'general',
+      dimension TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     CREATE TABLE IF NOT EXISTS orders (
@@ -82,8 +83,12 @@ async function initDb() {
 
   if (isPostgres) {
     await pool.query(schema);
+    // Add dimension column if it doesn't exist (safe migration)
+    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS dimension TEXT`);
   } else {
     sqliteDb.exec(schema.replace(/SERIAL PRIMARY KEY/g, 'INTEGER PRIMARY KEY AUTOINCREMENT').replace(/TIMESTAMP/g, 'DATETIME'));
+    // Add dimension column to SQLite if missing
+    try { sqliteDb.exec(`ALTER TABLE products ADD COLUMN dimension TEXT`); } catch (_) {}
   }
 }
 

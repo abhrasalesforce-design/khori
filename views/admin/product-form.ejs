@@ -28,6 +28,10 @@
       <input type="text" name="category" value="<%= product ? product.category : '' %>" placeholder="e.g. pottery, textile, jewellery">
     </div>
     <div class="form-row">
+      <label>Dimensions</label>
+      <input type="text" name="dimension" value="<%= product ? (product.dimension || '') : '' %>" placeholder="e.g. 12 cm × 8 cm × 6 cm">
+    </div>
+    <div class="form-row">
       <label>Product Image</label>
       <% if (product && product.image !== 'placeholder.jpg') { %>
         <img src="/uploads/<%= product.image %>" width="100" style="display:block;margin-bottom:8px;">

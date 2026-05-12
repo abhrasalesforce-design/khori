@@ -8,7 +8,11 @@
     <p class="breadcrumb"><a href="/">Shop</a> › <%= product.name %></p>
     <h1><%= product.name %></h1>
     <p class="price-large">₹<%= product.price.toFixed(2) %></p>
+    <div class="divider"></div>
     <p class="description"><%= product.description || 'No description available.' %></p>
+    <% if (product.dimension) { %>
+      <p class="product-dimension"><span>Dimensions</span><%= product.dimension %></p>
+    <% } %>
     <p class="stock-info <%= product.stock === 0 ? 'out' : '' %>">
       <%= product.stock > 0 ? `${product.stock} in stock` : 'Out of stock' %>
     </p>
