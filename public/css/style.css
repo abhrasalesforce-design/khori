@@ -52,7 +52,7 @@ header {
 .header-inner {
   max-width: 1300px; margin: 0 auto;
   padding: 0 48px;
-  height: 84px;
+  height: 96px;
   display: flex; align-items: center; justify-content: space-between;
 }
 
@@ -62,13 +62,13 @@ header {
   opacity: 1;
 }
 .logo img {
-  height: 60px;
+  height: 76px;
   width: auto;
-  max-width: 220px;
+  max-width: 280px;
   object-fit: contain;
   display: block;
   background: #ffffff;
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: 4px;
 }
 .logo:hover { opacity: 0.85; }
@@ -125,7 +125,7 @@ header {
 /* ===== Mobile Menu ===== */
 .mobile-menu {
   position: fixed;
-  top: 84px; left: 0; right: 0; bottom: 0;
+  top: 96px; left: 0; right: 0; bottom: 0;
   background: var(--white);
   z-index: 150;
   transform: translateX(100%);
@@ -871,7 +871,7 @@ main { min-height: calc(100vh - 140px); }
 .cart-summary {
   background: var(--blush);
   padding: 32px;
-  position: sticky; top: 90px;
+  position: sticky; top: 104px;
 }
 .cart-summary h2 {
   font-size: 1.1rem;
@@ -932,7 +932,7 @@ main { min-height: calc(100vh - 140px); }
 
 .order-summary {
   background: var(--blush); padding: 32px;
-  position: sticky; top: 90px;
+  position: sticky; top: 104px;
 }
 .order-summary h2 {
   font-size: 1rem; letter-spacing: 0.1em;
@@ -1167,7 +1167,7 @@ footer {
 
 @media (max-width: 480px) {
   .header-inner { padding: 0 16px; }
-  .logo img { height: 48px; }
+  .logo img { height: 54px; max-width: 180px; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .hero h1 { font-size: 2rem; }
   .product-grid { grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px; }
