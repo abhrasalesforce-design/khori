@@ -229,6 +229,29 @@ main { min-height: calc(100vh - 140px); }
   line-height: 1.9; margin-bottom: 16px;
 }
 
+.bengali {
+  font-family: 'Noto Sans Bengali', 'Hind Siliguri', serif;
+  font-size: 1.1em;
+  color: var(--black);
+}
+
+.intro-tagline {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem !important;
+  font-style: italic;
+  color: var(--black) !important;
+  font-weight: 600;
+  margin-bottom: 20px !important;
+}
+
+.intro-closing {
+  font-style: italic;
+  color: var(--text) !important;
+  border-left: 3px solid var(--rose);
+  padding-left: 16px;
+  margin-top: 8px;
+}
+
 .intro-stats {
   display: flex; gap: 40px; margin-top: 40px;
   padding-top: 32px; border-top: 1px solid var(--border);
