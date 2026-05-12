@@ -1,31 +1,25 @@
 <%- include('partials/header') %>
 
+<!-- ===== Hero ===== -->
 <section class="hero">
   <div class="hero-inner">
     <span class="hero-eyebrow">New Collection 2026</span>
     <h1>Crafted by<br><em>Hand</em>, Made<br>with Heart</h1>
     <p>Discover unique handmade pieces that bring warmth, story, and soul into your home.</p>
-    <a href="#shop" class="hero-cta">Explore Collection</a>
+    <a href="#overview" class="hero-cta">Explore</a>
   </div>
 </section>
 
 <div class="marquee-strip">
   <div class="marquee-inner">
-    <span>Handmade Crafts</span>
-    <span>Free Shipping</span>
-    <span>Unique Pieces</span>
-    <span>Made with Love</span>
-    <span>Artisan Quality</span>
-    <span>Handmade Crafts</span>
-    <span>Free Shipping</span>
-    <span>Unique Pieces</span>
-    <span>Made with Love</span>
-    <span>Artisan Quality</span>
+    <span>Handmade Crafts</span><span>Free Shipping</span><span>Unique Pieces</span>
+    <span>Made with Love</span><span>Artisan Quality</span><span>Handmade Crafts</span>
+    <span>Free Shipping</span><span>Unique Pieces</span><span>Made with Love</span><span>Artisan Quality</span>
   </div>
 </div>
 
-<!-- ===== Company Intro ===== -->
-<section class="company-intro">
+<!-- ===== Overview / Company Intro ===== -->
+<section class="company-intro" id="overview">
   <div class="intro-inner">
     <div class="intro-text">
       <span class="intro-eyebrow">Who We Are</span>
@@ -36,18 +30,9 @@
       <p>At Hathekhori, we celebrate the beauty of beginnings. From handcrafted creations to artistic inspirations, our brand is rooted in tradition while embracing creativity for every generation.</p>
       <p class="intro-closing">This is more than just an art and craft store — it is a space where creativity takes its first step, <em>again and again.</em></p>
       <div class="intro-stats">
-        <div class="intro-stat">
-          <span class="stat-n">50+</span>
-          <span class="stat-l">Artisans</span>
-        </div>
-        <div class="intro-stat">
-          <span class="stat-n">200+</span>
-          <span class="stat-l">Products</span>
-        </div>
-        <div class="intro-stat">
-          <span class="stat-n">8</span>
-          <span class="stat-l">Art Forms</span>
-        </div>
+        <div class="intro-stat"><span class="stat-n">50+</span><span class="stat-l">Artisans</span></div>
+        <div class="intro-stat"><span class="stat-n">200+</span><span class="stat-l">Products</span></div>
+        <div class="intro-stat"><span class="stat-n">8</span><span class="stat-l">Art Forms</span></div>
       </div>
     </div>
     <div class="intro-visual">
@@ -59,8 +44,57 @@
   </div>
 </section>
 
+<!-- ===== Shop ===== -->
+<section id="shop">
+  <div class="shop-section-header">
+    <h2>Our Products</h2>
+    <form method="GET" action="/" class="search-form">
+      <input type="text" name="search" placeholder="Search..." value="<%= search || '' %>">
+      <button type="submit">Search</button>
+    </form>
+  </div>
+
+  <div class="shop-controls">
+    <div class="categories">
+      <a href="/#shop" class="cat-btn <%= !category ? 'active' : '' %>">All</a>
+      <% categories.forEach(cat => { %>
+        <a href="/?category=<%= cat %>#shop" class="cat-btn <%= category === cat ? 'active' : '' %>"><%= cat %></a>
+      <% }) %>
+    </div>
+  </div>
+
+  <% if (products.length === 0) { %>
+    <div class="empty"><p>No products found.</p><a href="/" class="btn-primary">View All</a></div>
+  <% } else { %>
+  <div class="product-grid">
+    <% products.forEach(product => { %>
+      <div class="product-card">
+        <a href="/product/<%= product.id %>">
+          <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>" alt="<%= product.name %>" onerror="this.src='/images/placeholder.jpg'">
+          <div class="product-info">
+            <p class="product-category"><%= product.category %></p>
+            <h3><%= product.name %></h3>
+            <p class="price">₹<%= product.price.toFixed(2) %></p>
+            <p class="stock <%= product.stock === 0 ? 'out' : '' %>">
+              <%= product.stock > 0 ? `${product.stock} in stock` : 'Out of stock' %>
+            </p>
+          </div>
+        </a>
+        <% if (product.stock > 0) { %>
+          <form method="POST" action="/cart/add">
+            <input type="hidden" name="product_id" value="<%= product.id %>">
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="btn-add">Add to Cart</button>
+          </form>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+  <% } %>
+</section>
+
 <!-- ===== Art Forms Carousel ===== -->
-<section class="artforms-section">
+<section class="artforms-section" id="artforms">
   <div class="artforms-header">
     <span class="intro-eyebrow">What We Celebrate</span>
     <h2>The Art Forms</h2>
@@ -78,7 +112,7 @@
             <h3>Pottery</h3>
             <span class="artform-origin">Bengal · Bihar</span>
             <p>Shaped on the wheel from river clay, each pot carries the fingerprints of its maker. Terracotta vessels painted with folk motifs — timeless, earthy, alive.</p>
-            <a href="/?category=pottery" class="artform-btn">Shop Pottery →</a>
+            <a href="/?category=pottery#shop" class="artform-btn">Shop Pottery →</a>
           </div>
         </div>
 
@@ -88,7 +122,7 @@
             <h3>Textile</h3>
             <span class="artform-origin">Bengal · Rajasthan</span>
             <p>Block-printed fabrics, handwoven cotton, macramé knotted with patience — stories told in thread, colour, and pattern.</p>
-            <a href="/?category=textile" class="artform-btn">Shop Textiles →</a>
+            <a href="/?category=textile#shop" class="artform-btn">Shop Textiles →</a>
           </div>
         </div>
 
@@ -98,7 +132,7 @@
             <h3>Woodwork</h3>
             <span class="artform-origin">Bengal · Orissa</span>
             <p>Carved from mango and sheesham wood by chisels passed down through families. Each piece holds the grain of the tree.</p>
-            <a href="/?category=woodwork" class="artform-btn">Shop Woodwork →</a>
+            <a href="/?category=woodwork#shop" class="artform-btn">Shop Woodwork →</a>
           </div>
         </div>
 
@@ -108,7 +142,7 @@
             <h3>Decor</h3>
             <span class="artform-origin">Pan India</span>
             <p>Brass wind chimes, hand-painted lamps, woven baskets — objects that fill your home with warmth and quiet beauty.</p>
-            <a href="/?category=decor" class="artform-btn">Shop Decor →</a>
+            <a href="/?category=decor#shop" class="artform-btn">Shop Decor →</a>
           </div>
         </div>
 
@@ -118,7 +152,7 @@
             <h3>Basket Weaving</h3>
             <span class="artform-origin">Bengal · Assam</span>
             <p>Woven from jute, bamboo, and cane using centuries-old patterns. Functional, sustainable, and crafted with rhythm.</p>
-            <a href="/?category=basket" class="artform-btn">Shop Baskets →</a>
+            <a href="/?category=basket#shop" class="artform-btn">Shop Baskets →</a>
           </div>
         </div>
 
@@ -128,7 +162,7 @@
             <h3>Jewellery</h3>
             <span class="artform-origin">Bengal · Rajasthan</span>
             <p>Handcrafted in silver, brass, and beads — each ornament is shaped by flame and file, carrying culture in every curve.</p>
-            <a href="/?category=jewellery" class="artform-btn">Shop Jewellery →</a>
+            <a href="/?category=jewellery#shop" class="artform-btn">Shop Jewellery →</a>
           </div>
         </div>
 
@@ -138,7 +172,7 @@
             <h3>Painting</h3>
             <span class="artform-origin">Bengal · Madhubani</span>
             <p>Folk paintings in vivid colours — Patachitra, Madhubani, Kalighat — each stroke a prayer, each canvas a world of its own.</p>
-            <a href="/?category=painting" class="artform-btn">Shop Paintings →</a>
+            <a href="/?category=painting#shop" class="artform-btn">Shop Paintings →</a>
           </div>
         </div>
 
@@ -148,7 +182,7 @@
             <h3>Clay Craft</h3>
             <span class="artform-origin">Bengal · Bishnupur</span>
             <p>Miniature clay figurines, Bankura horses, Durga idols — shaped by hand and fired in earth kilns, full of festive spirit.</p>
-            <a href="/?category=clay" class="artform-btn">Shop Clay Craft →</a>
+            <a href="/?category=clay#shop" class="artform-btn">Shop Clay Craft →</a>
           </div>
         </div>
 
@@ -156,7 +190,6 @@
     </div>
     <button class="carousel-btn carousel-next" aria-label="Next">&#8594;</button>
   </div>
-
   <div class="carousel-dots" id="carouselDots"></div>
 </section>
 
@@ -178,7 +211,6 @@
 
   const total = cards.length;
 
-  // Build dots
   function buildDots() {
     dotsContainer.innerHTML = '';
     const pages = Math.ceil(total / getVisible());
@@ -216,88 +248,18 @@
     goTo(current);
   }
 
-  function startAuto() {
-    stopAuto();
-    autoTimer = setInterval(next, 2500);
-  }
-
-  function stopAuto() {
-    clearInterval(autoTimer);
-  }
+  function startAuto() { stopAuto(); autoTimer = setInterval(next, 2500); }
+  function stopAuto() { clearInterval(autoTimer); }
 
   document.querySelector('.carousel-next').addEventListener('click', () => { stopAuto(); next(); startAuto(); });
   document.querySelector('.carousel-prev').addEventListener('click', () => { stopAuto(); prev(); startAuto(); });
-
   carousel.addEventListener('mouseenter', stopAuto);
   carousel.addEventListener('mouseleave', startAuto);
-
   window.addEventListener('resize', () => { buildDots(); goTo(0); });
 
   buildDots();
   startAuto();
 })();
 </script>
-
-<!-- ===== Shop ===== -->
-<div id="shop">
-  <div class="shop-section-header">
-    <h2>All Products</h2>
-    <form method="GET" action="/" class="search-form">
-      <input type="text" name="search" placeholder="Search..." value="<%= search || '' %>">
-      <button type="submit">Search</button>
-    </form>
-  </div>
-
-  <div class="shop-controls">
-    <div class="hex-nav">
-      <a href="/" class="hex-nav-item <%= !category ? 'active' : '' %>">
-        <div class="hex-nav-cell">
-          <span class="hex-nav-icon">🏠</span>
-          <span class="hex-nav-label">All</span>
-        </div>
-      </a>
-      <% const catIcons = { pottery: '🏺', textile: '🧵', woodwork: '🪵', decor: '🪔', basket: '🧺', jewellery: '💎', painting: '🖌️', clay: '🪆' }; %>
-      <% categories.forEach(cat => { %>
-        <a href="/?category=<%= cat %>" class="hex-nav-item <%= category === cat ? 'active' : '' %>">
-          <div class="hex-nav-cell">
-            <span class="hex-nav-icon"><%= catIcons[cat] || '✦' %></span>
-            <span class="hex-nav-label"><%= cat %></span>
-          </div>
-        </a>
-      <% }) %>
-    </div>
-  </div>
-
-  <% if (products.length === 0) { %>
-    <div class="empty"><p>No products found.</p><a href="/" class="btn-primary">View All</a></div>
-  <% } else { %>
-  <section class="honeycomb-grid">
-    <% products.forEach(product => { %>
-      <div class="hex-wrap">
-        <div class="hex">
-          <div class="hex-inner">
-            <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>" alt="<%= product.name %>" onerror="this.src='/images/placeholder.jpg'">
-            <div class="hex-overlay">
-              <p class="hex-category"><%= product.category %></p>
-              <h3><%= product.name %></h3>
-              <p class="hex-price">₹<%= product.price.toFixed(2) %></p>
-              <% if (product.stock > 0) { %>
-                <form method="POST" action="/cart/add">
-                  <input type="hidden" name="product_id" value="<%= product.id %>">
-                  <input type="hidden" name="quantity" value="1">
-                  <button type="submit" class="hex-btn">Add to Cart</button>
-                </form>
-              <% } else { %>
-                <span class="hex-out">Out of Stock</span>
-              <% } %>
-            </div>
-          </div>
-        </div>
-        <a href="/product/<%= product.id %>" class="hex-link" aria-label="<%= product.name %>"></a>
-      </div>
-    <% }) %>
-  </section>
-  <% } %>
-</div>
 
 <%- include('partials/footer') %>

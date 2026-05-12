@@ -13,8 +13,12 @@
 <header>
   <div class="header-inner">
     <a href="/" class="logo"><img src="/images/logo.png" alt="Hate Khori"></a>
-    <nav>
-      <a href="/">Shop</a>
+
+    <!-- Desktop nav -->
+    <nav class="desktop-nav">
+      <a href="/#overview">Overview</a>
+      <a href="/#shop">Shop</a>
+      <a href="/#artforms">Art Forms</a>
       <% if (user) { %>
         <a href="/orders">My Orders</a>
         <% if (user.is_admin) { %><a href="/admin">Admin</a><% } %>
@@ -25,6 +29,71 @@
       <% } %>
       <a href="/cart" class="cart-link">Cart</a>
     </nav>
+
+    <!-- Hamburger button -->
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <nav class="mobile-nav">
+      <a href="/#overview" class="mobile-nav-link" onclick="closeMenu()">
+        <span class="mnav-icon">🏠</span> Overview
+      </a>
+      <a href="/#shop" class="mobile-nav-link" onclick="closeMenu()">
+        <span class="mnav-icon">🛍️</span> Shop
+      </a>
+      <a href="/#artforms" class="mobile-nav-link" onclick="closeMenu()">
+        <span class="mnav-icon">🎨</span> Art Forms
+      </a>
+      <div class="mnav-divider"></div>
+      <% if (user) { %>
+        <a href="/orders" class="mobile-nav-link" onclick="closeMenu()">
+          <span class="mnav-icon">📦</span> My Orders
+        </a>
+        <% if (user.is_admin) { %>
+          <a href="/admin" class="mobile-nav-link" onclick="closeMenu()">
+            <span class="mnav-icon">⚙️</span> Admin
+          </a>
+        <% } %>
+        <a href="/logout" class="mobile-nav-link">
+          <span class="mnav-icon">👋</span> Logout (<%= user.name %>)
+        </a>
+      <% } else { %>
+        <a href="/login" class="mobile-nav-link" onclick="closeMenu()">
+          <span class="mnav-icon">👤</span> Login
+        </a>
+        <a href="/register" class="mobile-nav-link" onclick="closeMenu()">
+          <span class="mnav-icon">✨</span> Register
+        </a>
+      <% } %>
+      <div class="mnav-divider"></div>
+      <a href="/cart" class="mobile-nav-link mobile-cart" onclick="closeMenu()">
+        <span class="mnav-icon">🛒</span> Cart
+      </a>
+    </nav>
   </div>
 </header>
+
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+    document.body.classList.toggle('menu-open');
+  });
+  function closeMenu() {
+    hamburger.classList.remove('open');
+    mobileMenu.classList.remove('open');
+    document.body.classList.remove('menu-open');
+  }
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) closeMenu();
+  });
+</script>
+
 <main>
