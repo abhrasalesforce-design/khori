@@ -257,34 +257,36 @@
     </div>
   </div>
 
-  <section class="product-grid">
-    <% if (products.length === 0) { %>
-      <div class="empty"><p>No products found.</p><a href="/" class="btn-primary">View All</a></div>
-    <% } else { %>
-      <% products.forEach(product => { %>
-        <div class="product-card">
-          <a href="/product/<%= product.id %>">
+  <% if (products.length === 0) { %>
+    <div class="empty"><p>No products found.</p><a href="/" class="btn-primary">View All</a></div>
+  <% } else { %>
+  <section class="honeycomb-grid">
+    <% products.forEach(product => { %>
+      <div class="hex-wrap">
+        <div class="hex">
+          <div class="hex-inner">
             <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>" alt="<%= product.name %>" onerror="this.src='/images/placeholder.jpg'">
-            <div class="product-info">
-              <p class="product-category"><%= product.category %></p>
+            <div class="hex-overlay">
+              <p class="hex-category"><%= product.category %></p>
               <h3><%= product.name %></h3>
-              <p class="price">₹<%= product.price.toFixed(2) %></p>
-              <p class="stock <%= product.stock === 0 ? 'out' : '' %>">
-                <%= product.stock > 0 ? `${product.stock} in stock` : 'Out of stock' %>
-              </p>
+              <p class="hex-price">₹<%= product.price.toFixed(2) %></p>
+              <% if (product.stock > 0) { %>
+                <form method="POST" action="/cart/add">
+                  <input type="hidden" name="product_id" value="<%= product.id %>">
+                  <input type="hidden" name="quantity" value="1">
+                  <button type="submit" class="hex-btn">Add to Cart</button>
+                </form>
+              <% } else { %>
+                <span class="hex-out">Out of Stock</span>
+              <% } %>
             </div>
-          </a>
-          <% if (product.stock > 0) { %>
-            <form method="POST" action="/cart/add">
-              <input type="hidden" name="product_id" value="<%= product.id %>">
-              <input type="hidden" name="quantity" value="1">
-              <button type="submit" class="btn-add">Add to Cart</button>
-            </form>
-          <% } %>
+          </div>
         </div>
-      <% }) %>
-    <% } %>
+        <a href="/product/<%= product.id %>" class="hex-link" aria-label="<%= product.name %>"></a>
+      </div>
+    <% }) %>
   </section>
+  <% } %>
 </div>
 
 <%- include('partials/footer') %>
