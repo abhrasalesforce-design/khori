@@ -4,6 +4,7 @@ const path = require('path');
 
 // Use PostgreSQL on Railway (DATABASE_URL set automatically), SQLite locally
 const isPostgres = !!process.env.DATABASE_URL;
+console.log('DATABASE MODE:', isPostgres ? 'PostgreSQL ✅' : 'SQLite ⚠️ (data will not persist on Railway)');
 
 let pool;
 let sqliteDb;
