@@ -57,15 +57,17 @@ header {
 }
 
 .logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--black);
+  display: flex;
+  align-items: center;
   opacity: 1;
 }
-.logo:hover { opacity: 1; }
+.logo img {
+  height: 52px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+.logo:hover { opacity: 0.85; }
 
 nav {
   display: flex; align-items: center; gap: 32px;
@@ -765,10 +767,15 @@ footer {
 }
 
 .footer-brand .footer-logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.4rem; font-weight: 700;
-  letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--white); display: block; margin-bottom: 16px;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+.footer-brand .footer-logo img {
+  height: 64px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
 }
 
 .footer-brand p { color: rgba(255,255,255,0.4); font-size: 0.85rem; line-height: 1.8; max-width: 280px; }
