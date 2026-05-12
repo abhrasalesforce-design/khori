@@ -10,9 +10,28 @@ let pool;
 let sqliteDb;
 
 if (isPostgres) {
-  pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false },
+    connectionTimeoutMillis: 10000,
+    idleTimeoutMillis: 30000,
+    max: 5
+  });
+  pool.on('error', (err) => console.error('PostgreSQL pool error:', err.message));
 } else {
   sqliteDb = new Database(path.join(__dirname, 'khori.db'));
+}
+
+async function testConnection() {
+  if (!isPostgres) return;
+  try {
+    const client = await pool.connect();
+    console.log('PostgreSQL connected successfully ✅');
+    client.release();
+  } catch (err) {
+    console.error('PostgreSQL connection failed ❌:', err.message);
+    console.error('DATABASE_URL starts with:', process.env.DATABASE_URL?.substring(0, 30));
+  }
 }
 
 async function initDb() {
@@ -108,4 +127,4 @@ function toPostgres(sql) {
   return sql.replace(/\?/g, () => `$${++i}`);
 }
 
-module.exports = { db, initDb };
+module.exports = { db, initDb, testConnection };

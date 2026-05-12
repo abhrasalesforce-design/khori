@@ -3,7 +3,7 @@ const express = require('express');
 const session = require('express-session');
 const flash = require('connect-flash');
 const path = require('path');
-const { initDb } = require('./database');
+const { initDb, testConnection } = require('./database');
 
 const app = express();
 
@@ -40,6 +40,7 @@ app.use('/admin', require('./routes/admin'));
 const PORT = process.env.PORT || 3000;
 
 async function start() {
+  await testConnection();
   await initDb();
   await autoSeed();
   app.listen(PORT, () => console.log(`Khori running at http://localhost:${PORT}`));
