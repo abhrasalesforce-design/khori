@@ -14,6 +14,10 @@ const upload = multer({
 async function saveImage(file) {
   if (!file) return 'placeholder.jpg';
 
+  console.log('CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME ? 'set' : 'NOT SET');
+  console.log('CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? 'set' : 'NOT SET');
+  console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? 'set' : 'NOT SET');
+
   if (process.env.CLOUDINARY_CLOUD_NAME) {
     const cloudinary = require('cloudinary').v2;
     cloudinary.config({
@@ -24,7 +28,14 @@ async function saveImage(file) {
     const result = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream(
         { folder: 'khori-products' },
-        (error, result) => error ? reject(error) : resolve(result)
+        (error, result) => {
+          if (error) {
+            console.error('Cloudinary upload error:', error);
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        }
       ).end(file.buffer);
     });
     return result.secure_url;
