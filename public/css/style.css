@@ -315,33 +315,14 @@ main { min-height: calc(100vh - 140px); }
 }
 .hero-cta:hover { background: var(--text); opacity: 1 !important; }
 
-/* Stats row inside slide 2 */
-.hero-stats {
-  display: flex;
-  justify-content: center;
-  gap: 48px;
-  margin-top: 36px;
-  padding-top: 28px;
-  border-top: 1px solid var(--border);
+/* About slide — allow two paragraphs to fit */
+.hero-slide-about .hero-slide-inner {
+  max-width: 640px;
+  overflow-y: auto;
+  max-height: calc(100vh - 160px);
+  padding-bottom: 16px;
 }
-.hero-stat { text-align: center; }
-.hero-stat-n {
-  display: block;
-  font-family: 'Playfair Display', serif;
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--black);
-  letter-spacing: 0.04em;
-}
-.hero-stat-l {
-  display: block;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-top: 4px;
-}
+.hero-slide-about .hero-slide-inner p { margin-bottom: 16px; }
 
 /* Prev / Next arrows */
 .hero-prev, .hero-next {
