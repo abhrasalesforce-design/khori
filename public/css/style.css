@@ -204,6 +204,8 @@ main { min-height: calc(100vh - 140px); }
   background: var(--white);
   padding: 100px 48px;
   border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
 }
 
 .intro-inner {
@@ -271,18 +273,33 @@ main { min-height: calc(100vh - 140px); }
 .intro-visual { display: flex; justify-content: center; align-items: center; }
 
 .intro-img-block {
-  background: linear-gradient(135deg, var(--blush), var(--lavender));
-  padding: 48px 40px 40px;
-  text-align: center;
   position: relative;
   width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.intro-welcome-img {
+  width: 100%;
+  height: 520px;
+  object-fit: cover;
+  display: block;
+}
+
+.intro-img-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(255,255,255,0.97) 60%, transparent 100%);
+  padding: 32px 32px 28px;
+  text-align: center;
 }
 
 .intro-logo-img {
-  width: 100%; max-width: 320px;
-  margin: 0 auto 20px;
+  width: 100%; max-width: 280px;
+  margin: 0 auto 12px;
   background: white;
-  padding: 16px 20px;
+  padding: 12px 16px;
+  display: block;
 }
 
 .intro-tag {
