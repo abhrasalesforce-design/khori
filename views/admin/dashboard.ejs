@@ -20,7 +20,7 @@
       <tbody>
         <% products.forEach(p => { %>
           <tr>
-            <td><img src="/uploads/<%= p.image %>" alt="<%= p.name %>" width="50" onerror="this.src='/images/placeholder.jpg'"></td>
+            <td><img src="<%= p.image && p.image.startsWith('http') ? p.image : '/uploads/' + p.image %>" alt="<%= p.name %>" width="50" onerror="this.src='/images/placeholder.jpg'"></td>
             <td><%= p.name %></td>
             <td>₹<%= p.price.toFixed(2) %></td>
             <td><%= p.stock %></td>

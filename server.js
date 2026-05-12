@@ -48,14 +48,24 @@ async function start() {
 async function autoSeed() {
   const { db } = require('./database');
   const bcrypt = require('bcrypt');
-  const existing = await db.get('SELECT id FROM users WHERE email = ?', ['admin@khori.com']);
-  if (existing) return;
 
-  const hash = await bcrypt.hash('admin123', 10);
-  await db.run(
-    'INSERT INTO users (name, email, password, is_admin) VALUES (?, ?, ?, 1)',
-    ['Admin', 'admin@khori.com', hash]
-  );
+  // Only create admin if not exists
+  const existingAdmin = await db.get('SELECT id FROM users WHERE email = ?', ['admin@khori.com']);
+  if (!existingAdmin) {
+    const hash = await bcrypt.hash('admin123', 10);
+    await db.run(
+      'INSERT INTO users (name, email, password, is_admin) VALUES (?, ?, ?, 1)',
+      ['Admin', 'admin@khori.com', hash]
+    );
+    console.log('Admin account created: admin@khori.com / admin123');
+  }
+
+  // Only seed products if database is completely empty
+  const productCount = await db.get('SELECT COUNT(*) as count FROM products');
+  if (productCount && productCount.count > 0) {
+    console.log(`Skipping seed — ${productCount.count} products already exist.`);
+    return;
+  }
 
   const products = [
     ['Hand-painted Clay Pot', 'Beautiful terracotta pot hand-painted with traditional motifs.', 450, 12, 'pottery'],
@@ -72,7 +82,7 @@ async function autoSeed() {
       [name, description, price, stock, category, 'placeholder.jpg']
     );
   }
-  console.log('Auto-seed complete. Admin: admin@khori.com / admin123');
+  console.log('Demo products seeded for first run.');
 }
 
 start().catch(err => {

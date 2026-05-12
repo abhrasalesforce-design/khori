@@ -5,14 +5,30 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-const uploadsDir = path.join(__dirname, '../public/uploads');
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+let upload;
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+if (process.env.CLOUDINARY_CLOUD_NAME) {
+  const cloudinary = require('cloudinary').v2;
+  const { CloudinaryStorage } = require('multer-storage-cloudinary');
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+  const storage = new CloudinaryStorage({
+    cloudinary,
+    params: { folder: 'khori-products', allowed_formats: ['jpg', 'jpeg', 'png', 'webp'] },
+  });
+  upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+} else {
+  const uploadsDir = path.join(__dirname, '../public/uploads');
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadsDir),
+    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
+  });
+  upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+}
 
 function requireAdmin(req, res, next) {
   if (!req.session.user || !req.session.user.is_admin) return res.redirect('/login');
@@ -41,7 +57,7 @@ router.post('/products/new', requireAdmin, upload.single('image'), async (req, r
     req.flash('error', 'Name and price are required.');
     return res.redirect('/admin/products/new');
   }
-  const image = req.file ? req.file.filename : 'placeholder.jpg';
+  const image = req.file ? (req.file.path || req.file.filename) : 'placeholder.jpg';
   await db.run('INSERT INTO products (name, description, price, stock, image, category) VALUES (?, ?, ?, ?, ?, ?)', [name, description, parseFloat(price), parseInt(stock) || 0, image, category || 'general']);
   res.redirect('/admin');
 });
@@ -56,7 +72,7 @@ router.post('/products/edit/:id', requireAdmin, upload.single('image'), async (r
   const { name, description, price, stock, category } = req.body;
   const product = await db.get('SELECT * FROM products WHERE id = ?', [req.params.id]);
   if (!product) return res.redirect('/admin');
-  const image = req.file ? req.file.filename : product.image;
+  const image = req.file ? (req.file.path || req.file.filename) : product.image;
   await db.run('UPDATE products SET name=?, description=?, price=?, stock=?, image=?, category=? WHERE id=?', [name, description, parseFloat(price), parseInt(stock) || 0, image, category || 'general', req.params.id]);
   res.redirect('/admin');
 });

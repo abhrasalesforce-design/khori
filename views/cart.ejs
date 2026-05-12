@@ -13,7 +13,7 @@
       <div class="cart-items">
         <% items.forEach(item => { %>
           <div class="cart-item">
-            <img src="/uploads/<%= item.image %>" alt="<%= item.name %>" onerror="this.src='/images/placeholder.jpg'">
+            <img src="<%= item.image && item.image.startsWith('http') ? item.image : '/uploads/' + item.image %>" alt="<%= item.name %>" onerror="this.src='/images/placeholder.jpg'">
             <div class="cart-item-info">
               <h3><a href="/product/<%= item.id %>"><%= item.name %></a></h3>
               <p>₹<%= item.price.toFixed(2) %> each</p>

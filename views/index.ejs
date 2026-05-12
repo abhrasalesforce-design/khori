@@ -264,7 +264,7 @@
       <% products.forEach(product => { %>
         <div class="product-card">
           <a href="/product/<%= product.id %>">
-            <img src="/uploads/<%= product.image %>" alt="<%= product.name %>" onerror="this.src='/images/placeholder.jpg'">
+            <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>" alt="<%= product.name %>" onerror="this.src='/images/placeholder.jpg'">
             <div class="product-info">
               <p class="product-category"><%= product.category %></p>
               <h3><%= product.name %></h3>
