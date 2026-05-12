@@ -5,29 +5,36 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-let upload;
+// Always use memory storage — upload to Cloudinary or save to disk after
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
 
-if (process.env.CLOUDINARY_CLOUD_NAME) {
-  const cloudinary = require('cloudinary').v2;
-  const { CloudinaryStorage } = require('multer-storage-cloudinary');
-  cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
-  const storage = new CloudinaryStorage({
-    cloudinary,
-    params: { folder: 'khori-products', allowed_formats: ['jpg', 'jpeg', 'png', 'webp'] },
-  });
-  upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
-} else {
-  const uploadsDir = path.join(__dirname, '../public/uploads');
-  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadsDir),
-    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
-  });
-  upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+async function saveImage(file) {
+  if (!file) return 'placeholder.jpg';
+
+  if (process.env.CLOUDINARY_CLOUD_NAME) {
+    const cloudinary = require('cloudinary').v2;
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        { folder: 'khori-products' },
+        (error, result) => error ? reject(error) : resolve(result)
+      ).end(file.buffer);
+    });
+    return result.secure_url;
+  } else {
+    const uploadsDir = path.join(__dirname, '../public/uploads');
+    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+    const filename = Date.now() + path.extname(file.originalname);
+    fs.writeFileSync(path.join(uploadsDir, filename), file.buffer);
+    return filename;
+  }
 }
 
 function requireAdmin(req, res, next) {
@@ -52,14 +59,23 @@ router.get('/products/new', requireAdmin, (req, res) => {
 });
 
 router.post('/products/new', requireAdmin, upload.single('image'), async (req, res) => {
-  const { name, description, price, stock, category } = req.body;
-  if (!name || !price) {
-    req.flash('error', 'Name and price are required.');
-    return res.redirect('/admin/products/new');
+  try {
+    const { name, description, price, stock, category } = req.body;
+    if (!name || !price) {
+      req.flash('error', 'Name and price are required.');
+      return res.redirect('/admin/products/new');
+    }
+    const image = await saveImage(req.file);
+    await db.run(
+      'INSERT INTO products (name, description, price, stock, image, category) VALUES (?, ?, ?, ?, ?, ?)',
+      [name, description, parseFloat(price), parseInt(stock) || 0, image, category || 'general']
+    );
+    res.redirect('/admin');
+  } catch (err) {
+    console.error('Add product error:', err);
+    req.flash('error', 'Failed to save product. Please try again.');
+    res.redirect('/admin/products/new');
   }
-  const image = req.file ? (req.file.path || req.file.filename) : 'placeholder.jpg';
-  await db.run('INSERT INTO products (name, description, price, stock, image, category) VALUES (?, ?, ?, ?, ?, ?)', [name, description, parseFloat(price), parseInt(stock) || 0, image, category || 'general']);
-  res.redirect('/admin');
 });
 
 router.get('/products/edit/:id', requireAdmin, async (req, res) => {
@@ -69,12 +85,21 @@ router.get('/products/edit/:id', requireAdmin, async (req, res) => {
 });
 
 router.post('/products/edit/:id', requireAdmin, upload.single('image'), async (req, res) => {
-  const { name, description, price, stock, category } = req.body;
-  const product = await db.get('SELECT * FROM products WHERE id = ?', [req.params.id]);
-  if (!product) return res.redirect('/admin');
-  const image = req.file ? (req.file.path || req.file.filename) : product.image;
-  await db.run('UPDATE products SET name=?, description=?, price=?, stock=?, image=?, category=? WHERE id=?', [name, description, parseFloat(price), parseInt(stock) || 0, image, category || 'general', req.params.id]);
-  res.redirect('/admin');
+  try {
+    const { name, description, price, stock, category } = req.body;
+    const product = await db.get('SELECT * FROM products WHERE id = ?', [req.params.id]);
+    if (!product) return res.redirect('/admin');
+    const image = req.file ? await saveImage(req.file) : product.image;
+    await db.run(
+      'UPDATE products SET name=?, description=?, price=?, stock=?, image=?, category=? WHERE id=?',
+      [name, description, parseFloat(price), parseInt(stock) || 0, image, category || 'general', req.params.id]
+    );
+    res.redirect('/admin');
+  } catch (err) {
+    console.error('Edit product error:', err);
+    req.flash('error', 'Failed to update product. Please try again.');
+    res.redirect('/admin/products/edit/' + req.params.id);
+  }
 });
 
 router.post('/products/delete/:id', requireAdmin, async (req, res) => {
