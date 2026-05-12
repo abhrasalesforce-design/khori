@@ -22,12 +22,17 @@ if (process.env.DATABASE_URL) {
   sessionStore = new pgSession({ pool: pgPool, createTableIfMissing: true });
 }
 
+app.set('trust proxy', 1);
 app.use(session({
   store: sessionStore,
   secret: process.env.SESSION_SECRET || 'khori_dev_secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 1000 * 60 * 60 * 24, secure: !!process.env.DATABASE_URL }
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax'
+  }
 }));
 app.use(flash());
 
@@ -36,6 +41,19 @@ app.use('/', require('./routes/products'));
 app.use('/', require('./routes/cart'));
 app.use('/', require('./routes/orders'));
 app.use('/admin', require('./routes/admin'));
+
+// One-time admin reset — remove after use
+app.get('/setup-admin-khori2026', async (req, res) => {
+  const { db } = require('./database');
+  const bcrypt = require('bcrypt');
+  const hash = await bcrypt.hash('admin123', 10);
+  await db.run('DELETE FROM users WHERE email = ?', ['admin@khori.com']);
+  await db.run(
+    'INSERT INTO users (name, email, password, is_admin) VALUES (?, ?, ?, 1)',
+    ['Admin', 'admin@khori.com', hash]
+  );
+  res.send('Admin account created. Login: admin@khori.com / admin123 — Visit <a href="/login">/login</a>');
+});
 
 const PORT = process.env.PORT || 3000;
 
