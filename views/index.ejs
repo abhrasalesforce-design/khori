@@ -1,14 +1,73 @@
 <%- include('partials/header') %>
 
-<!-- ===== Hero ===== -->
-<section class="hero">
-  <div class="hero-inner">
-    <span class="hero-eyebrow">New Collection 2026</span>
-    <h1>Crafted by<br><em>Hand</em>, Made<br>with Heart</h1>
-    <p>Discover unique handmade pieces that bring warmth, story, and soul into your home.</p>
-    <a href="#shop" class="hero-cta">Explore</a>
+<!-- ===== Hero Carousel ===== -->
+<section class="hero-carousel" id="heroCarousel">
+
+  <!-- Slide 1 — New Collection -->
+  <div class="hero-slide active" style="background: linear-gradient(135deg, var(--blush) 0%, var(--lavender) 50%, var(--rose) 100%);">
+    <div class="hero-slide-inner">
+      <span class="hero-eyebrow">New Collection 2026</span>
+      <h1>Crafted by<br><em>Hand</em>, Made<br>with Heart</h1>
+      <p>Discover unique handmade pieces that bring warmth, story, and soul into your home.</p>
+      <a href="#shop" class="hero-cta">Explore Collection</a>
+    </div>
   </div>
+
+  <!-- Slide 2 — Who We Are -->
+  <div class="hero-slide" style="background-image: linear-gradient(rgba(253,248,245,0.78), rgba(253,248,245,0.78)), url('/images/salt.jpeg'); background-size: cover; background-position: center;">
+    <div class="hero-slide-inner hero-slide-about">
+      <span class="hero-eyebrow">Who We Are</span>
+      <h1>Welcome to <span class="bengali">হাতেখড়ি</span></h1>
+      <p class="hero-tagline-italic">Every journey begins with a first stroke.</p>
+      <p>In Bengali culture, Hathekhori marks a child's very first step into learning and self-expression. At Hathekhori, we celebrate the beauty of beginnings — handcrafted creations rooted in tradition, made for every generation.</p>
+      <div class="hero-stats">
+        <div class="hero-stat"><span class="hero-stat-n">50+</span><span class="hero-stat-l">Artisans</span></div>
+        <div class="hero-stat"><span class="hero-stat-n">200+</span><span class="hero-stat-l">Products</span></div>
+        <div class="hero-stat"><span class="hero-stat-n">8</span><span class="hero-stat-l">Art Forms</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <button class="hero-prev" aria-label="Previous slide">&#8592;</button>
+  <button class="hero-next" aria-label="Next slide">&#8594;</button>
+
+  <!-- Dots -->
+  <div class="hero-dots">
+    <button class="hero-dot active" data-index="0"></button>
+    <button class="hero-dot" data-index="1"></button>
+  </div>
+
+  <!-- Slide counter -->
+  <div class="hero-counter"><span class="hero-counter-cur">01</span><span class="hero-counter-sep">/</span><span class="hero-counter-tot">02</span></div>
 </section>
+
+<script>
+(function() {
+  const slides = document.querySelectorAll('.hero-slide');
+  const dots   = document.querySelectorAll('.hero-dot');
+  const cur    = document.querySelector('.hero-counter-cur');
+  let idx = 0, timer;
+
+  function go(n) {
+    slides[idx].classList.remove('active');
+    dots[idx].classList.remove('active');
+    idx = (n + slides.length) % slides.length;
+    slides[idx].classList.add('active');
+    dots[idx].classList.add('active');
+    cur.textContent = String(idx + 1).padStart(2, '0');
+  }
+
+  function start() { timer = setInterval(() => go(idx + 1), 5000); }
+  function stop()  { clearInterval(timer); }
+
+  document.querySelector('.hero-next').addEventListener('click', () => { stop(); go(idx + 1); start(); });
+  document.querySelector('.hero-prev').addEventListener('click', () => { stop(); go(idx - 1); start(); });
+  dots.forEach(d => d.addEventListener('click', () => { stop(); go(+d.dataset.index); start(); }));
+
+  start();
+})();
+</script>
 
 <div class="marquee-strip">
   <div class="marquee-inner">
@@ -65,32 +124,6 @@
     <% }) %>
   </div>
   <% } %>
-</section>
-
-<!-- ===== Overview / Company Intro ===== -->
-<section class="company-intro" id="overview">
-  <div class="intro-inner">
-    <div class="intro-text">
-      <span class="intro-eyebrow">Who We Are</span>
-      <h2>Welcome to <span class="bengali">হাতেখড়ি</span><br><em>(Hathekhori)</em></h2>
-      <p class="intro-tagline">Every journey begins with a first stroke.</p>
-      <p>In Bengali culture, Hathekhori symbolizes a child's very first step into learning, creativity, and self-expression — the moment when a hand first holds chalk to create something meaningful.</p>
-      <p>We chose the name <strong>হাতেখড়ি</strong> because art and craft begin the same way: with curiosity, imagination, and the courage to create. What starts as a simple idea slowly transforms into stories, colors, emotions, and handmade expressions.</p>
-      <p>At Hathekhori, we celebrate the beauty of beginnings. From handcrafted creations to artistic inspirations, our brand is rooted in tradition while embracing creativity for every generation.</p>
-      <p class="intro-closing">This is more than just an art and craft store — it is a space where creativity takes its first step, <em>again and again.</em></p>
-      <div class="intro-stats">
-        <div class="intro-stat"><span class="stat-n">50+</span><span class="stat-l">Artisans</span></div>
-        <div class="intro-stat"><span class="stat-n">200+</span><span class="stat-l">Products</span></div>
-        <div class="intro-stat"><span class="stat-n">8</span><span class="stat-l">Art Forms</span></div>
-      </div>
-    </div>
-    <div class="intro-visual">
-      <div class="intro-img-block">
-        <img src="/images/logo.png" alt="Hathe Khori" class="intro-logo-img">
-        <div class="intro-tag">Founded in Tradition</div>
-      </div>
-    </div>
-  </div>
 </section>
 
 <!-- ===== Art Forms Carousel ===== -->
