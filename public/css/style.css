@@ -1334,7 +1334,7 @@ footer {
   .hamburger { display: flex; }
   .header-inner { justify-content: center; position: relative; }
   .hamburger { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); }
-  .logo img { width: 65vw; max-width: 65vw; min-width: unset; }
+  .logo img { width: 60vw; max-width: 60vw; min-width: unset; }
   .product-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 0 20px; }
   .shop-section-header { margin-top: 48px; }
 }
