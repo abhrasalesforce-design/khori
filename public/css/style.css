@@ -1357,7 +1357,10 @@ footer {
   .search-form { display: flex; }
 
   .page-container { padding: 0 16px; margin: 40px auto; }
-  .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+  .footer-inner { grid-template-columns: 1fr 1fr; gap: 28px; }
+  .footer-brand { grid-column: 1 / -1; text-align: center; display: flex; flex-direction: column; align-items: center; }
+  .footer-brand .footer-logo img { width: 65vw; max-width: 65vw; height: auto; }
+  .footer-brand p { max-width: 300px; }
   .two-col { grid-template-columns: 1fr; }
   .confirm-actions { flex-direction: column; }
   .admin-container { padding: 0 20px; }
