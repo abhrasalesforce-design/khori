@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const compression = require('compression');
 const session = require('express-session');
 const flash = require('connect-flash');
 const path = require('path');
@@ -7,10 +8,18 @@ const { initDb, testConnection } = require('./database');
 
 const app = express();
 
+// Gzip all responses
+app.use(compression());
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Static files with long cache for images/fonts/css/js
+app.use('/images', express.static(path.join(__dirname, 'public/images'), { maxAge: '30d', immutable: true }));
+app.use('/css', express.static(path.join(__dirname, 'public/css'), { maxAge: '7d' }));
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads'), { maxAge: '30d', immutable: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 

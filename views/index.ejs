@@ -4,7 +4,7 @@
 <section class="hero-carousel" id="heroCarousel">
 
   <!-- Slide 1 — Welcome to Hathekhori -->
-  <div class="hero-slide active hero-cream">
+  <div class="hero-slide active hero-cream" id="heroSlide1">
     <div class="hero-slide-inner hero-slide-about">
       <span class="hero-eyebrow">Welcome to হাতেখড়ি</span>
       <h1><em>Hathekhori</em></h1>
@@ -100,7 +100,7 @@
     <% products.forEach(product => { %>
       <div class="product-card">
         <a href="/product/<%= product.id %>">
-          <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>" alt="<%= product.name %>" onerror="this.src='/images/placeholder.jpg'">
+          <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>" alt="<%= product.name %>" loading="lazy" decoding="async" onerror="this.src='/images/placeholder.jpg'">
           <div class="product-info">
             <p class="product-category"><%= product.category %></p>
             <h3><%= product.name %></h3>

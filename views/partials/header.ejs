@@ -3,19 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Khori – Handmade Crafts</title>
+  <meta name="description" content="Hathekhori — handmade crafts rooted in Bengali tradition. Shop pottery, textiles, decor, jewellery and more, crafted by artisans across India.">
+  <meta name="theme-color" content="#F6F4E8">
+  <title>Hathekhori – Handmade Crafts</title>
+
+  <!-- Preconnect for fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Hind+Siliguri:wght@400;600&family=Great+Vibes&display=swap" rel="stylesheet">
+
+  <!-- Non-render-blocking font load -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Hind+Siliguri:wght@400;600&family=Great+Vibes&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Hind+Siliguri:wght@400;600&family=Great+Vibes&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Hind+Siliguri:wght@400;600&family=Great+Vibes&display=swap" rel="stylesheet"></noscript>
+
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 <header>
   <div class="header-inner">
-    <a href="/" class="logo"><img src="/images/logo.png" alt="Hate Khori"></a>
+    <a href="/" class="logo">
+      <picture>
+        <source srcset="/images/logo.webp" type="image/webp">
+        <img src="/images/logo.png" alt="Hathekhori – Handmade Crafts" width="900" height="297" loading="eager" fetchpriority="high">
+      </picture>
+    </a>
 
     <!-- Desktop nav -->
-    <nav class="desktop-nav">
+    <nav class="desktop-nav" aria-label="Main navigation">
       <a href="/#shop">Art Works</a>
       <a href="/#heroCarousel">Overview</a>
       <a href="/#artforms">Art Forms</a>
@@ -31,7 +45,7 @@
     </nav>
 
     <!-- Hamburger button -->
-    <button class="hamburger" id="hamburger" aria-label="Menu">
+    <button class="hamburger" id="hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobileMenu">
       <span class="ham-line"></span>
       <span class="ham-line"></span>
       <span class="ham-label">MENU</span>
@@ -39,9 +53,9 @@
   </div>
 
   <!-- Full-screen mobile menu -->
-  <div class="mobile-menu" id="mobileMenu">
+  <div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="Navigation menu">
     <div class="mobile-menu-inner">
-      <nav class="mobile-nav">
+      <nav class="mobile-nav" aria-label="Mobile navigation">
         <a href="/#shop" class="mobile-nav-link" onclick="closeMenu()">Craft Collection</a>
         <a href="/#heroCarousel" class="mobile-nav-link" onclick="closeMenu()">Overview</a>
         <a href="/#artforms" class="mobile-nav-link" onclick="closeMenu()">Art Forms</a>
@@ -70,14 +84,18 @@
   const hamburger = document.getElementById('hamburger');
   const mobileMenu = document.getElementById('mobileMenu');
   hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('open');
+    const open = hamburger.classList.toggle('open');
     mobileMenu.classList.toggle('open');
     document.body.classList.toggle('menu-open');
+    hamburger.setAttribute('aria-expanded', open);
+    hamburger.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
   });
   function closeMenu() {
     hamburger.classList.remove('open');
     mobileMenu.classList.remove('open');
     document.body.classList.remove('menu-open');
+    hamburger.setAttribute('aria-expanded', 'false');
+    hamburger.setAttribute('aria-label', 'Open navigation menu');
   }
   document.addEventListener('click', (e) => {
     if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) closeMenu();

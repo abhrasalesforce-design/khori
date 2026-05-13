@@ -2,7 +2,12 @@
 <footer>
   <div class="footer-inner">
     <div class="footer-brand">
-      <a href="/" class="footer-logo"><img src="/images/logo.png" alt="Hate Khori"></a>
+      <a href="/" class="footer-logo">
+        <picture>
+          <source srcset="/images/logo.webp" type="image/webp">
+          <img src="/images/logo.png" alt="Hathekhori – Handmade Crafts" width="900" height="297" loading="lazy" decoding="async">
+        </picture>
+      </a>
       <p>Handmade with love and intention. Every piece tells a story of craft, culture, and care.</p>
     </div>
     <div class="footer-col">
@@ -21,9 +26,18 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <p>&copy; 2026 Khori. All rights reserved.</p>
+    <p>&copy; 2026 Hathekhori. All rights reserved.</p>
     <p>Handmade with love</p>
   </div>
 </footer>
+
+<script>
+  // WebP support detection for CSS background fallbacks
+  (function(){
+    var i = new Image();
+    i.onload = i.onerror = function(){ document.documentElement.classList.add(i.height===1?'webp':'no-webp'); };
+    i.src = 'data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAQAcJZACdAEO/gHOAAA=';
+  })();
+</script>
 </body>
 </html>

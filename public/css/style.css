@@ -276,9 +276,13 @@ main { min-height: calc(100vh - 140px); }
 }
 
 .hero-cream {
-  background-image: linear-gradient(rgba(246,244,232,0.82), rgba(246,244,232,0.82)), url('/images/salt.jpeg');
+  background-image: linear-gradient(rgba(246,244,232,0.82), rgba(246,244,232,0.82)), url('/images/salt.webp');
   background-size: cover;
   background-position: center;
+}
+/* Fallback for browsers without WebP support */
+.no-webp .hero-cream {
+  background-image: linear-gradient(rgba(246,244,232,0.82), rgba(246,244,232,0.82)), url('/images/salt.jpeg');
 }
 
 .hero-carousel h1 {
@@ -443,10 +447,13 @@ main { min-height: calc(100vh - 140px); }
   background-color: #fdf8f5;
   background-image:
     linear-gradient(rgba(253,248,245,0.82), rgba(253,248,245,0.82)),
-    url('/images/salt.jpeg');
+    url('/images/salt.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+}
+.no-webp .company-intro {
+  background-image: linear-gradient(rgba(253,248,245,0.82), rgba(253,248,245,0.82)), url('/images/salt.jpeg');
 }
 
 .intro-inner {

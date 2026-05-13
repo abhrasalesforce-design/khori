@@ -2,7 +2,7 @@
 
 <div class="product-detail">
   <div class="product-image">
-    <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>" alt="<%= product.name %>" onerror="this.src='/images/placeholder.jpg'">
+    <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>" alt="<%= product.name %>" loading="eager" decoding="async" onerror="this.src='/images/placeholder.jpg'">
   </div>
   <div class="product-content">
     <p class="breadcrumb"><a href="/">Shop</a> › <%= product.name %></p>
