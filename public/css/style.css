@@ -666,6 +666,27 @@ main { min-height: calc(100vh - 140px); }
 
 /* ===== Shop Section ===== */
 #shop { padding-top: 0; }
+#shop h2,
+#shop .product-category,
+#shop .product-info h3,
+#shop .price,
+#shop .stock,
+#shop .cat-btn,
+#shop .search-form input,
+#shop .search-form button,
+#shop .btn-add,
+#shop .empty p {
+  color: #9B8EC7;
+}
+#shop .cat-btn { border-color: #9B8EC7; }
+#shop .cat-btn.active { background: #9B8EC7; color: #fff; border-color: #9B8EC7; }
+#shop .cat-btn:hover { background: rgba(155,142,199,0.12); color: #9B8EC7; opacity: 1; }
+#shop .search-form button { background: #9B8EC7; color: #fff; border-color: #9B8EC7; }
+#shop .search-form button:hover { background: #7b6eaa; }
+#shop .search-form input { border-color: rgba(155,142,199,0.4); }
+#shop .search-form input:focus { border-color: #9B8EC7; }
+#shop .btn-add { background: rgba(155,142,199,0.15); color: #9B8EC7; border: none; }
+#shop .btn-add:hover { background: #9B8EC7; color: #fff; }
 
 /* ===== Shop Controls ===== */
 .shop-section-header {
