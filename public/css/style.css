@@ -62,9 +62,9 @@ header {
   opacity: 1;
 }
 .logo img {
-  width: 35vw;
-  max-width: 420px;
-  min-width: 140px;
+  width: 20vw;
+  max-width: 280px;
+  min-width: 120px;
   height: auto;
   object-fit: contain;
   display: block;
@@ -83,10 +83,10 @@ header {
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text);
+  color: #758A93;
   transition: color 0.2s;
 }
-.desktop-nav a:hover { color: var(--black); opacity: 1; }
+.desktop-nav a:hover { color: #5c6e76; opacity: 1; }
 
 .cart-link {
   background: var(--black);
@@ -1288,9 +1288,10 @@ footer {
   margin-bottom: 16px;
 }
 .footer-brand .footer-logo img {
-  height: 64px;
-  width: auto;
-  max-width: 200px;
+  width: 20vw;
+  max-width: 260px;
+  min-width: 120px;
+  height: auto;
   object-fit: contain;
   background: #ffffff;
   padding: 6px 12px;
