@@ -55,7 +55,7 @@
     cur.textContent = String(idx + 1).padStart(2, '0');
   }
 
-  function start() { timer = setInterval(() => go(idx + 1), 5000); }
+  function start() { timer = setInterval(() => go(idx + 1), 12000); }
   function stop()  { clearInterval(timer); }
 
   document.querySelector('.hero-next').addEventListener('click', () => { stop(); go(idx + 1); start(); });
