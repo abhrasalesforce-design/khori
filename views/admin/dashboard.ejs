@@ -37,6 +37,20 @@
     </table>
   </div>
 
+  <% if (totalPages > 1) { %>
+  <nav class="pagination" style="padding: 24px 0 8px;">
+    <% if (currentPage > 1) { %>
+      <a href="/admin?page=<%= currentPage - 1 %>" class="page-btn page-prev">&#8592;</a>
+    <% } %>
+    <% for (let p = 1; p <= totalPages; p++) { %>
+      <a href="/admin?page=<%= p %>" class="page-btn <%= p === currentPage ? 'active' : '' %>"><%= p %></a>
+    <% } %>
+    <% if (currentPage < totalPages) { %>
+      <a href="/admin?page=<%= currentPage + 1 %>" class="page-btn page-next">&#8594;</a>
+    <% } %>
+  </nav>
+  <% } %>
+
   <h2>Orders</h2>
   <div class="admin-table-wrap">
     <table class="admin-table">

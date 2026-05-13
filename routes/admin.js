@@ -54,15 +54,25 @@ function requireAdmin(req, res, next) {
 }
 
 router.get('/', requireAdmin, async (req, res) => {
-  const products = await db.all('SELECT * FROM products ORDER BY created_at DESC');
+  const ua = req.headers['user-agent'] || '';
+  const isMobile = /Mobile|Android|iPhone|iPad|iPod/i.test(ua);
+  const perPage = isMobile ? 10 : 30;
+  const currentPage = Math.max(1, parseInt(req.query.page) || 1);
+  const offset = (currentPage - 1) * perPage;
+
+  const countRow = await db.get('SELECT COUNT(*) as total FROM products');
+  const totalProducts = countRow ? countRow.total : 0;
+  const totalPages = Math.ceil(totalProducts / perPage);
+
+  const products = await db.all('SELECT * FROM products ORDER BY created_at DESC LIMIT ? OFFSET ?', [perPage, offset]);
   const orders = await db.all('SELECT o.*, u.name AS user_name FROM orders o LEFT JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC');
   const stats = {
-    totalProducts: products.length,
+    totalProducts,
     totalOrders: orders.length,
     totalRevenue: orders.filter(o => o.status === 'paid').reduce((s, o) => s + o.total, 0),
     pendingOrders: orders.filter(o => o.status === 'pending').length
   };
-  res.render('admin/dashboard', { products, orders, stats, user: req.session.user });
+  res.render('admin/dashboard', { products, orders, stats, user: req.session.user, currentPage, totalPages });
 });
 
 router.get('/products/new', requireAdmin, (req, res) => {
