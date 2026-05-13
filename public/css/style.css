@@ -275,29 +275,33 @@ main { min-height: calc(100vh - 140px); }
   display: block;
 }
 
-.hero-cream { background: #F6F4E8; }
+.hero-cream {
+  background-image: linear-gradient(rgba(246,244,232,0.82), rgba(246,244,232,0.82)), url('/images/salt.jpeg');
+  background-size: cover;
+  background-position: center;
+}
 
 .hero-carousel h1 {
   font-family: 'Great Vibes', cursive;
   font-size: clamp(2.4rem, 5vw, 3.6rem);
-  color: #C0E1D2;
+  color: #546B41;
   margin-bottom: 16px;
   font-weight: 400;
   letter-spacing: 0.02em;
   line-height: 1.3;
 }
-.hero-carousel h1 em { font-style: italic; color: #C0E1D2; }
+.hero-carousel h1 em { font-style: italic; color: #546B41; }
 
 .hero-eyebrow {
   font-size: 0.65rem;
   letter-spacing: 0.22em;
-  color: #C0E1D2;
-  opacity: 0.85;
+  color: #546B41;
+  opacity: 0.8;
 }
 
 .hero-slide-inner p {
   font-size: 0.88rem;
-  color: #C0E1D2;
+  color: #546B41;
   max-width: 480px;
   margin: 0 auto 28px;
   font-weight: 400;
@@ -308,7 +312,7 @@ main { min-height: calc(100vh - 140px); }
   font-family: 'Great Vibes', cursive;
   font-style: normal;
   font-size: 1.5rem !important;
-  color: #C0E1D2 !important;
+  color: #546B41 !important;
   font-weight: 400;
   margin-bottom: 14px !important;
   letter-spacing: 0.02em;
@@ -318,8 +322,8 @@ main { min-height: calc(100vh - 140px); }
   display: inline-block;
   padding: 13px 34px;
   background: transparent;
-  color: #C0E1D2;
-  border: 1.5px solid #C0E1D2;
+  color: #546B41;
+  border: 1.5px solid #546B41;
   font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.18em;
@@ -327,9 +331,9 @@ main { min-height: calc(100vh - 140px); }
   transition: background 0.2s, color 0.2s;
   opacity: 1 !important;
 }
-.hero-cta:hover { background: #C0E1D2; color: #F6F4E8; opacity: 1 !important; }
+.hero-cta:hover { background: #546B41; color: #F6F4E8; opacity: 1 !important; }
 
-.hero-slide-inner strong { color: #C0E1D2; font-weight: 600; }
+.hero-slide-inner strong { color: #546B41; font-weight: 600; }
 
 /* About slide — allow two paragraphs to fit */
 .hero-slide-about .hero-slide-inner {
@@ -1330,7 +1334,7 @@ footer {
   .hamburger { display: flex; }
   .header-inner { justify-content: center; position: relative; }
   .hamburger { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); }
-  .logo img { width: 80vw; max-width: 80vw; min-width: unset; }
+  .logo img { width: 70vw; max-width: 70vw; min-width: unset; }
   .product-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 0 20px; }
   .shop-section-header { margin-top: 48px; }
 }
@@ -1383,7 +1387,7 @@ footer {
 
 @media (max-width: 480px) {
   .header-inner { padding: 0 16px; height: 80px; }
-  .logo img { width: 80vw; max-width: 80vw; }
+  .logo img { width: 70vw; max-width: 70vw; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .hero-carousel h1 { font-size: 1.8rem; }
   .hero-carousel { max-height: 560px; }
