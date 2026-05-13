@@ -120,6 +120,30 @@
       </div>
     <% }) %>
   </div>
+
+  <% if (totalPages > 1) { %>
+  <nav class="pagination" aria-label="Products pagination">
+    <% const buildUrl = (p) => {
+      let u = '/?page=' + p;
+      if (category) u += '&category=' + encodeURIComponent(category);
+      if (search)   u += '&search=' + encodeURIComponent(search);
+      return u + '#shop';
+    } %>
+
+    <% if (currentPage > 1) { %>
+      <a href="<%= buildUrl(currentPage - 1) %>" class="page-btn page-prev">&#8592;</a>
+    <% } %>
+
+    <% for (let p = 1; p <= totalPages; p++) { %>
+      <a href="<%= buildUrl(p) %>" class="page-btn <%= p === currentPage ? 'active' : '' %>"><%= p %></a>
+    <% } %>
+
+    <% if (currentPage < totalPages) { %>
+      <a href="<%= buildUrl(currentPage + 1) %>" class="page-btn page-next">&#8594;</a>
+    <% } %>
+  </nav>
+  <% } %>
+
   <% } %>
 </section>
 
