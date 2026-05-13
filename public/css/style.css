@@ -682,7 +682,7 @@ main { min-height: calc(100vh - 140px); }
 #shop .empty p {
   color: #9B8EC7;
 }
-#shop .product-info h3 { color: #DC9B9B; }
+#shop .product-info h3 { color: #9B8EC7; }
 #shop .cat-btn { border-color: #9B8EC7; }
 #shop .cat-btn.active { background: #9B8EC7; color: #fff; border-color: #9B8EC7; }
 #shop .cat-btn:hover { background: rgba(155,142,199,0.12); color: #9B8EC7; opacity: 1; }
