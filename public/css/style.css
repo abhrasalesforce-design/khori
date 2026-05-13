@@ -1332,9 +1332,14 @@ footer {
 @media (max-width: 860px) {
   .desktop-nav { display: none; }
   .hamburger { display: flex; }
-  .header-inner { justify-content: center; position: relative; }
+  .header-inner {
+    justify-content: center;
+    position: relative;
+    height: auto;
+    padding: 14px 20px;
+  }
   .hamburger { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); }
-  .logo img { width: 60vw; max-width: 60vw; min-width: unset; }
+  .logo img { width: 60vw; max-width: 60vw; min-width: unset; height: auto; }
   .product-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 0 20px; }
   .shop-section-header { margin-top: 48px; }
 }
@@ -1389,7 +1394,7 @@ footer {
 }
 
 @media (max-width: 480px) {
-  .header-inner { padding: 0 16px; height: 80px; }
+  .header-inner { padding: 12px 16px; height: auto; }
   .logo img { width: 70vw; max-width: 70vw; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .hero-carousel h1 { font-size: 1.8rem; }
