@@ -401,7 +401,7 @@ main { min-height: calc(100vh - 140px); }
 
 /* ===== Marquee strip ===== */
 .marquee-strip {
-  background: var(--rose);
+  background: #99AD7A;
   padding: 12px 0;
   overflow: hidden;
   white-space: nowrap;
@@ -419,7 +419,7 @@ main { min-height: calc(100vh - 140px); }
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text);
+  color: #546B41;
   padding: 0 40px;
 }
 
@@ -1334,7 +1334,7 @@ footer {
   .hamburger { display: flex; }
   .header-inner { justify-content: center; position: relative; }
   .hamburger { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); }
-  .logo img { width: 70vw; max-width: 70vw; min-width: unset; }
+  .logo img { width: 65vw; max-width: 65vw; min-width: unset; }
   .product-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 0 20px; }
   .shop-section-header { margin-top: 48px; }
 }
