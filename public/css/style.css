@@ -1171,17 +1171,18 @@ main { min-height: calc(100vh - 140px); }
 .paypal-placeholder code { background: rgba(255,255,255,0.6); padding: 2px 6px; }
 
 .order-summary {
-  background: var(--blush); padding: 32px;
+  background: rgba(137,138,196,0.08); padding: 32px;
   position: sticky; top: 104px;
 }
 .order-summary h2 {
   font-size: 1rem; letter-spacing: 0.1em;
   text-transform: uppercase; margin-bottom: 24px;
-  padding-bottom: 16px; border-bottom: 1px solid rgba(0,0,0,0.08);
+  padding-bottom: 16px; border-bottom: 1px solid rgba(137,138,196,0.2);
+  color: #898AC4;
 }
-.summary-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.88rem; }
-.summary-divider { border-top: 1px solid rgba(0,0,0,0.1); margin: 16px 0; }
-.summary-total { display: flex; justify-content: space-between; font-weight: 700; font-size: 1rem; }
+.summary-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.88rem; color: #898AC4; }
+.summary-divider { border-top: 1px solid rgba(137,138,196,0.2); margin: 16px 0; }
+.summary-total { display: flex; justify-content: space-between; font-weight: 700; font-size: 1rem; color: #898AC4; }
 
 /* ===== Order Confirmation ===== */
 .confirmation { text-align: center; max-width: 680px; margin: 80px auto; padding: 0 48px; }
