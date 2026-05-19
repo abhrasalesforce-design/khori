@@ -1285,10 +1285,11 @@ main { min-height: calc(100vh - 140px); }
   color: var(--text);
   letter-spacing: 0.02em;
   transition: background 0.2s, border-color 0.2s;
-  margin-bottom: 4px;
+  margin: 0 auto 4px auto;
   text-align: center;
   opacity: 1 !important;
 }
+.auth-divider { margin: 18px auto; width: 100%; }
 .btn-google:hover { background: var(--surface); border-color: #aaa; opacity: 1 !important; }
 
 .auth-divider {
