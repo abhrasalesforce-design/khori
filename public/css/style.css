@@ -83,10 +83,10 @@ header {
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #758A93;
+  color: #6F826A;
   transition: color 0.2s;
 }
-.desktop-nav a:hover { color: #5c6e76; opacity: 1; }
+.desktop-nav a:hover { color: #556358; opacity: 1; }
 
 .cart-link {
   background: var(--black);
@@ -175,7 +175,7 @@ body.menu-open { overflow: hidden; }
   font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(1.2rem, 4.5vw, 1.8rem);
   font-weight: 700;
-  color: #758A93;
+  color: #6F826A;
   letter-spacing: 0.08em;
   border-bottom: 1px solid rgba(0,0,0,0.08);
   width: 100%;
@@ -196,7 +196,7 @@ body.menu-open { overflow: hidden; }
 .mobile-cart-btn {
   display: inline-block;
   padding: 14px 40px;
-  background: #758A93;
+  background: #6F826A;
   color: var(--white);
   font-size: 0.75rem;
   font-weight: 700;
@@ -554,9 +554,9 @@ main { min-height: calc(100vh - 140px); }
   padding: 0 48px;
   text-align: center;
 }
-.artforms-header .intro-eyebrow { color: #758A93; opacity: 0.75; }
-.artforms-header h2 { font-size: 2.2rem; color: #758A93; margin-bottom: 12px; }
-.artforms-header p { color: #758A93; font-size: 0.95rem; opacity: 0.8; }
+.artforms-header .intro-eyebrow { color: #6F826A; opacity: 0.75; }
+.artforms-header h2 { font-size: 2.2rem; color: #6F826A; margin-bottom: 12px; }
+.artforms-header p { color: #6F826A; font-size: 0.95rem; opacity: 0.8; }
 
 .artforms-carousel-wrap {
   display: flex; align-items: center; gap: 0;
@@ -611,19 +611,19 @@ main { min-height: calc(100vh - 140px); }
 .artform-card:hover .artform-icon { transform: scale(1.15); }
 
 .artform-inner h3 {
-  font-size: 1.15rem; color: #758A93;
+  font-size: 1.15rem; color: #6F826A;
   margin-bottom: 6px;
 }
 
 .artform-origin {
   font-size: 0.68rem; font-weight: 600;
   letter-spacing: 0.12em; text-transform: uppercase;
-  color: #758A93; margin-bottom: 14px;
+  color: #6F826A; margin-bottom: 14px;
   display: block; opacity: 0.7;
 }
 
 .artform-inner p {
-  font-size: 0.82rem; color: #758A93;
+  font-size: 0.82rem; color: #6F826A;
   line-height: 1.75;
   margin-bottom: 20px;
   display: -webkit-box;
@@ -636,8 +636,8 @@ main { min-height: calc(100vh - 140px); }
   display: inline-block;
   font-size: 0.72rem; font-weight: 700;
   letter-spacing: 0.1em; text-transform: uppercase;
-  color: #758A93;
-  border-bottom: 1.5px solid #758A93;
+  color: #6F826A;
+  border-bottom: 1.5px solid #6F826A;
   padding-bottom: 2px;
   transition: opacity 0.2s;
   opacity: 1 !important;
