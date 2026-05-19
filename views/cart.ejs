@@ -39,7 +39,7 @@
       <div class="cart-summary">
         <h2>Order Summary</h2>
         <div class="summary-row"><span>Subtotal</span><span>₹<%= subtotal.toFixed(2) %></span></div>
-        <div class="summary-row"><span>Shipping</span><span>₹<%= shipping.toFixed(2) %></span></div>
+        <div class="summary-row"><span>Shipping</span><span><%= shipping === 0 ? 'Free' : '₹' + shipping.toFixed(2) %></span></div>
         <div class="summary-row total-row"><span>Total</span><span>₹<%= total.toFixed(2) %></span></div>
         <% if (user) { %>
           <a href="/checkout" class="btn-primary full-width">Proceed to Checkout</a>
