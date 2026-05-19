@@ -1270,6 +1270,42 @@ main { min-height: calc(100vh - 140px); }
 .auth-link { margin-top: 20px; font-size: 0.85rem; color: var(--text-muted); text-align: center; }
 .auth-link a { color: var(--black); font-weight: 600; text-decoration: underline; }
 
+.btn-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 16px;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.02em;
+  transition: background 0.2s, border-color 0.2s;
+  margin-bottom: 4px;
+  opacity: 1 !important;
+}
+.btn-google:hover { background: var(--surface); border-color: #aaa; opacity: 1 !important; }
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.auth-divider::before, .auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
 /* ===== Alerts ===== */
 .alert { padding: 14px 18px; margin-bottom: 20px; font-size: 0.85rem; letter-spacing: 0.02em; }
 .alert-error { background: #fde8e8; color: #a03030; border-left: 3px solid #c0676a; }

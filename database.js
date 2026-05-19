@@ -40,8 +40,9 @@ async function initDb() {
       id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL,
+      password TEXT,
       is_admin INTEGER DEFAULT 0,
+      google_id TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     CREATE TABLE IF NOT EXISTS products (
@@ -83,12 +84,14 @@ async function initDb() {
 
   if (isPostgres) {
     await pool.query(schema);
-    // Add dimension column if it doesn't exist (safe migration)
     await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS dimension TEXT`);
+    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id TEXT`);
+    // Allow null passwords for OAuth users
+    await pool.query(`ALTER TABLE users ALTER COLUMN password DROP NOT NULL`).catch(() => {});
   } else {
     sqliteDb.exec(schema.replace(/SERIAL PRIMARY KEY/g, 'INTEGER PRIMARY KEY AUTOINCREMENT').replace(/TIMESTAMP/g, 'DATETIME'));
-    // Add dimension column to SQLite if missing
     try { sqliteDb.exec(`ALTER TABLE products ADD COLUMN dimension TEXT`); } catch (_) {}
+    try { sqliteDb.exec(`ALTER TABLE users ADD COLUMN google_id TEXT`); } catch (_) {}
   }
 }
 

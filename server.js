@@ -3,6 +3,7 @@ const express = require('express');
 const compression = require('compression');
 const session = require('express-session');
 const flash = require('connect-flash');
+const passport = require('passport');
 const path = require('path');
 const { initDb, testConnection } = require('./database');
 
@@ -44,6 +45,10 @@ app.use(session({
   }
 }));
 app.use(flash());
+app.use(passport.initialize());
+
+// Load Google strategy (requires session to be set up first)
+require('./routes/auth');
 
 app.use('/', require('./routes/auth'));
 app.use('/', require('./routes/products'));
