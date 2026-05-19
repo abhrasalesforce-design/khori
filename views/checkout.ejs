@@ -62,6 +62,9 @@
         </div>
       <% }) %>
       <div class="summary-divider"></div>
+      <div class="summary-item"><span>Subtotal</span><span>₹<%= subtotal.toFixed(2) %></span></div>
+      <div class="summary-item"><span>Shipping</span><span>₹<%= shipping.toFixed(2) %></span></div>
+      <div class="summary-divider"></div>
       <div class="summary-total"><span>Total</span><span>₹<%= total.toFixed(2) %></span></div>
     </div>
   </div>

@@ -8,8 +8,10 @@ router.get('/cart', async (req, res) => {
     const product = await db.get('SELECT * FROM products WHERE id = ?', [item.id]);
     return product ? { ...product, quantity: item.quantity, subtotal: product.price * item.quantity } : null;
   }))).filter(Boolean);
-  const total = items.reduce((sum, i) => sum + i.subtotal, 0);
-  res.render('cart', { items, total, user: req.session.user || null });
+  const subtotal = items.reduce((sum, i) => sum + i.subtotal, 0);
+  const shipping = 50;
+  const total = subtotal + shipping;
+  res.render('cart', { items, subtotal, shipping, total, user: req.session.user || null });
 });
 
 router.post('/cart/add', async (req, res) => {
