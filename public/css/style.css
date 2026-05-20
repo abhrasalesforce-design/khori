@@ -1268,7 +1268,8 @@ main { min-height: calc(100vh - 140px); }
 }
 .auth-form input::placeholder { color: #778873; opacity: 0.7; }
 .auth-form input:focus { border-color: #778873; }
-.auth-form .btn-primary { width: 100%; padding: 14px; margin-top: 8px; }
+.auth-form .btn-primary { width: 100%; padding: 14px; margin-top: 8px; background: #778873; border-color: #778873; color: #fff; }
+.auth-form .btn-primary:hover { background: #5e6e5a; border-color: #5e6e5a; color: #fff; }
 .auth-link { margin-top: 20px; font-size: 0.85rem; color: #778873; text-align: center; }
 .auth-link a { color: #778873; font-weight: 600; text-decoration: underline; }
 
