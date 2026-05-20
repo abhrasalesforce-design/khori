@@ -1,8 +1,8 @@
 <%- include('partials/header') %>
 
 <div class="auth-container">
-  <h1 style="color:#546B41;">Welcome Back</h1>
-  <p class="auth-subtitle" style="color:#546B41;">Sign in to your account</p>
+  <h1 style="color:#789DBC;">Welcome Back</h1>
+  <p class="auth-subtitle" style="color:#789DBC;">Sign in to your account</p>
   <% if (error && error.length) { %><div class="alert alert-error"><%= error %></div><% } %>
   <% if (success && success.length) { %><div class="alert alert-success"><%= success %></div><% } %>
 
@@ -16,7 +16,7 @@
     <% } %>
     <input type="email" name="email" placeholder="Email address" required>
     <input type="password" name="password" placeholder="Password" required>
-    <button type="submit" class="btn-primary" style="background:#546B41;border-color:#546B41;color:#fff;">Login</button>
+    <button type="submit" class="btn-primary" style="background:#789DBC;border-color:#789DBC;color:#fff;">Login</button>
   </form>
   <p class="auth-link">Don't have an account? <a href="/register">Register</a></p>
 </div>
