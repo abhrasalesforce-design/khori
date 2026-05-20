@@ -1250,10 +1250,10 @@ main { min-height: calc(100vh - 140px); }
 .order-addr { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px; }
 
 /* ===== Auth ===== */
-.auth-container, .auth-container * { color: #789DBC; }
+.auth-container, .auth-container * { color: #898AC4; }
 .auth-container { max-width: 440px; margin: 80px auto; padding: 0 24px; box-sizing: border-box; width: 100%; }
-.auth-container h1 { font-size: 2rem; margin-bottom: 8px; text-align: center; color: #789DBC; }
-.auth-subtitle { text-align: center; color: #789DBC; font-size: 0.88rem; margin-bottom: 36px; }
+.auth-container h1 { font-size: 2rem; margin-bottom: 8px; text-align: center; color: #898AC4; }
+.auth-subtitle { text-align: center; color: #898AC4; font-size: 0.88rem; margin-bottom: 36px; }
 
 .auth-form {
   background: var(--blush); padding: 40px;
@@ -1262,16 +1262,16 @@ main { min-height: calc(100vh - 140px); }
 .auth-form input {
   width: 100%; padding: 13px 16px; margin-bottom: 14px;
   border: 1px solid var(--rose);
-  background: var(--white); font-size: 0.9rem; color: #789DBC;
+  background: var(--white); font-size: 0.9rem; color: #898AC4;
   outline: none; transition: border-color 0.2s;
   display: block;
 }
-.auth-form input::placeholder { color: #789DBC; opacity: 0.7; }
-.auth-form input:focus { border-color: #789DBC; }
-.auth-form .btn-primary { width: 100%; padding: 14px; margin-top: 8px; background: #789DBC; border-color: #789DBC; color: #fff; }
+.auth-form input::placeholder { color: #898AC4; opacity: 0.7; }
+.auth-form input:focus { border-color: #898AC4; }
+.auth-form .btn-primary { width: 100%; padding: 14px; margin-top: 8px; background: #898AC4; border-color: #898AC4; color: #fff; }
 .auth-form .btn-primary:hover { background: #5a7d9a; border-color: #5a7d9a; color: #fff; }
-.auth-link { margin-top: 20px; font-size: 0.85rem; color: #789DBC; text-align: center; }
-.auth-link a { color: #789DBC; font-weight: 600; text-decoration: underline; }
+.auth-link { margin-top: 20px; font-size: 0.85rem; color: #898AC4; text-align: center; }
+.auth-link a { color: #898AC4; font-weight: 600; text-decoration: underline; }
 
 .btn-google {
   display: -webkit-box;
@@ -1300,7 +1300,7 @@ main { min-height: calc(100vh - 140px); }
   -webkit-appearance: none;
 }
 .auth-divider { margin: 18px auto; width: 100%; }
-.btn-google:hover { background: var(--surface); border-color: #789DBC; opacity: 1 !important; }
+.btn-google:hover { background: var(--surface); border-color: #898AC4; opacity: 1 !important; }
 
 .auth-divider {
   display: flex;
