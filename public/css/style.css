@@ -114,7 +114,7 @@ header {
 .ham-line {
   display: block;
   height: 1.5px;
-  background: var(--black);
+  background: #778873;
   transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   transform-origin: right center;
 }
@@ -124,7 +124,7 @@ header {
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.18em;
-  color: var(--text-muted);
+  color: #778873;
   transition: opacity 0.3s;
   margin-top: 2px;
   line-height: 1;
