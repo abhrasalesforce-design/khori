@@ -130,6 +130,45 @@ router.post('/products/delete/:id', requireAdmin, async (req, res) => {
   res.redirect('/admin');
 });
 
+router.post('/generate-description', requireAdmin, upload.single('image'), async (req, res) => {
+  try {
+    const Anthropic = require('@anthropic-ai/sdk');
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const { name, category, material, origin, craft_type } = req.body;
+
+    const details = [
+      name && `Product: ${name}`,
+      category && `Category: ${category}`,
+      material && `Material: ${material}`,
+      origin && `Origin: ${origin}`,
+      craft_type && `Craft type: ${craft_type}`,
+    ].filter(Boolean).join('\n');
+
+    const content = [];
+    if (req.file) {
+      content.push({
+        type: 'image',
+        source: { type: 'base64', media_type: req.file.mimetype, data: req.file.buffer.toString('base64') }
+      });
+    }
+    content.push({
+      type: 'text',
+      text: `Write a warm, compelling 2–3 sentence product description for an Indian handmade crafts store called Hathekhori. Use the details below${req.file ? ' and the product image' : ''}. Focus on the craft, the material, and the story behind it. Do not use bullet points.\n\n${details}`
+    });
+
+    const message = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 200,
+      messages: [{ role: 'user', content }]
+    });
+
+    res.json({ description: message.content[0].text.trim() });
+  } catch (err) {
+    console.error('Generate description error:', err.message);
+    res.status(500).json({ error: 'Failed to generate description.' });
+  }
+});
+
 router.post('/orders/status/:id', requireAdmin, async (req, res) => {
   const { status } = req.body;
   await db.run('UPDATE orders SET status = ? WHERE id = ?', [status, req.params.id]);

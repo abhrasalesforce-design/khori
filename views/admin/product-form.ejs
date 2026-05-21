@@ -11,7 +11,11 @@
     </div>
     <div class="form-row">
       <label>Description</label>
-      <textarea name="description" rows="4"><%= product ? product.description : '' %></textarea>
+      <textarea name="description" id="descriptionField" rows="4"><%= product ? product.description : '' %></textarea>
+      <button type="button" id="genDescBtn" style="margin-top:8px;padding:8px 16px;background:#898AC4;color:#fff;border:none;border-radius:6px;font-size:0.8rem;cursor:pointer;font-family:Inter,sans-serif;">
+        ✨ Generate Description
+      </button>
+      <span id="genDescStatus" style="margin-left:10px;font-size:0.78rem;color:#888;"></span>
     </div>
     <div class="form-row two-col">
       <div>
@@ -70,5 +74,40 @@
     </div>
   </form>
 </div>
+
+<script>
+  document.getElementById('genDescBtn').addEventListener('click', async function() {
+    const btn = this;
+    const status = document.getElementById('genDescStatus');
+    btn.disabled = true;
+    btn.textContent = 'Generating…';
+    status.textContent = '';
+
+    const form = btn.closest('form');
+    const data = new FormData();
+    data.append('name', form.querySelector('[name=name]').value);
+    data.append('category', form.querySelector('[name=category]').value);
+    data.append('material', form.querySelector('[name=material]').value || '');
+    data.append('origin', form.querySelector('[name=origin]').value || '');
+    data.append('craft_type', form.querySelector('[name=craft_type]').value || '');
+    const imageFile = form.querySelector('[name=image]').files[0];
+    if (imageFile) data.append('image', imageFile);
+
+    try {
+      const res = await fetch('/admin/generate-description', { method: 'POST', body: data });
+      const json = await res.json();
+      if (json.description) {
+        document.getElementById('descriptionField').value = json.description;
+        status.textContent = '✓ Done';
+      } else {
+        status.textContent = json.error || 'Error';
+      }
+    } catch(e) {
+      status.textContent = 'Failed. Try again.';
+    }
+    btn.disabled = false;
+    btn.textContent = '✨ Generate Description';
+  });
+</script>
 
 <%- include('../partials/footer') %>
