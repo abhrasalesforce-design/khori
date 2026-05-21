@@ -132,10 +132,11 @@ router.post('/products/delete/:id', requireAdmin, async (req, res) => {
 
 router.post('/generate-description', requireAdmin, upload.single('image'), async (req, res) => {
   try {
-    const Anthropic = require('@anthropic-ai/sdk');
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    const { name, category, material, origin, craft_type } = req.body;
+    const { GoogleGenerativeAI } = require('@google/generative-ai');
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
 
+    const { name, category, material, origin, craft_type } = req.body;
     const details = [
       name && `Product: ${name}`,
       category && `Category: ${category}`,
@@ -144,31 +145,21 @@ router.post('/generate-description', requireAdmin, upload.single('image'), async
       craft_type && `Craft type: ${craft_type}`,
     ].filter(Boolean).join('\n');
 
+    const prompt = `Write a warm, compelling 2–3 sentence product description for an Indian handmade crafts store called Hathekhori. Use the details below. Focus on the craft, the material, and the story behind it. Do not use bullet points.\n\n${details}`;
+
     const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     const hasValidImage = req.file && validImageTypes.includes(req.file.mimetype);
 
-    const content = [];
-    if (hasValidImage) {
-      content.push({
-        type: 'image',
-        source: { type: 'base64', media_type: req.file.mimetype, data: req.file.buffer.toString('base64') }
-      });
-    }
-    content.push({
-      type: 'text',
-      text: `Write a warm, compelling 2–3 sentence product description for an Indian handmade crafts store called Hathekhori. Use the details below${hasValidImage ? ' and the product image' : ''}. Focus on the craft, the material, and the story behind it. Do not use bullet points.\n\n${details}`
-    });
+    const parts = hasValidImage
+      ? [{ inlineData: { mimeType: req.file.mimetype, data: req.file.buffer.toString('base64') } }, { text: prompt }]
+      : [{ text: prompt }];
 
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 256,
-      messages: [{ role: 'user', content }]
-    });
-
-    res.json({ description: message.content[0].text.trim() });
+    const result = await model.generateContent(parts);
+    const text = result.response.text().trim();
+    res.json({ description: text });
   } catch (err) {
-    console.error('Generate description error:', err.status, err.message, JSON.stringify(err.error));
-    res.status(500).json({ error: `${err.status || ''} ${err.message || 'Failed to generate description.'}`.trim() });
+    console.error('Generate description error:', err.message);
+    res.status(500).json({ error: err.message || 'Failed to generate description.' });
   }
 });
 
