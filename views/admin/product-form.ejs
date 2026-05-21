@@ -25,7 +25,11 @@
     </div>
     <div class="form-row">
       <label>Category</label>
-      <input type="text" name="category" value="<%= product ? product.category : '' %>" placeholder="e.g. pottery, textile, jewellery">
+      <select name="category">
+        <option value="jewellery" <%= product && product.category === 'jewellery' ? 'selected' : '' %>>Jewellery</option>
+        <option value="decor" <%= product && product.category === 'decor' ? 'selected' : '' %>>Decor</option>
+        <option value="others" <%= (product && product.category !== 'jewellery' && product.category !== 'decor') ? 'selected' : '' %>>Others</option>
+      </select>
     </div>
     <div class="form-row">
       <label>Dimensions (L × B × H)</label>
