@@ -158,14 +158,14 @@ router.post('/generate-description', requireAdmin, upload.single('image'), async
 
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 200,
+      max_tokens: 256,
       messages: [{ role: 'user', content }]
     });
 
     res.json({ description: message.content[0].text.trim() });
   } catch (err) {
-    console.error('Generate description error:', err.message);
-    res.status(500).json({ error: 'Failed to generate description.' });
+    console.error('Generate description error:', err);
+    res.status(500).json({ error: err.message || 'Failed to generate description.' });
   }
 });
 

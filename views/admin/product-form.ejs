@@ -99,11 +99,14 @@
       if (json.description) {
         document.getElementById('descriptionField').value = json.description;
         status.textContent = '✓ Done';
+        status.style.color = 'green';
       } else {
-        status.textContent = json.error || 'Error';
+        status.textContent = json.error || 'Unknown error';
+        status.style.color = 'red';
       }
     } catch(e) {
-      status.textContent = 'Failed. Try again.';
+      status.textContent = e.message || 'Network error';
+      status.style.color = 'red';
     }
     btn.disabled = false;
     btn.textContent = '✨ Generate Description';
