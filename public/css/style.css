@@ -1459,34 +1459,22 @@ main { min-height: calc(100vh - 140px); }
 
 .pd-price-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 .pd-price {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #898AC4;
   font-family: 'Inter', sans-serif;
-}
-.pd-mrp {
-  font-size: 1rem;
-  color: var(--text-muted);
-  text-decoration: line-through;
-  font-family: 'Inter', sans-serif;
-}
-.pd-discount {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #2e7d32;
-  letter-spacing: 0.04em;
 }
 .pd-tax-note {
   font-size: 0.72rem;
   color: #898AC4;
   font-family: 'Inter', sans-serif;
-  margin-bottom: 18px;
-  opacity: 0.7;
+  opacity: 0.65;
+  margin-bottom: 0;
 }
 
 /* Stock badge */
@@ -1562,11 +1550,12 @@ main { min-height: calc(100vh - 140px); }
   margin-bottom: 16px;
 }
 .pd-qty-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: #898AC4;
+  font-family: 'Inter', sans-serif;
 }
 .pd-qty-ctrl {
   display: flex;
@@ -1685,47 +1674,102 @@ main { min-height: calc(100vh - 140px); }
   box-shadow: 0 6px 20px rgba(137,138,196,0.2);
 }
 .pd-btn-wishlist:active { transform: translateY(0); }
-.pd-btn-wishlist.wishlisted { background: linear-gradient(135deg, #ffe0e0, #fff0f0); border-color: #e05c5c; color: #e05c5c; box-shadow: 0 4px 16px rgba(224,92,92,0.25); }
+.pd-btn-wishlist.wishlisted { background: #fff0f0; border-color: #e05c5c; color: #e05c5c; box-shadow: 0 4px 16px rgba(224,92,92,0.18); }
 .pd-btn-wishlist.wishlisted .heart-icon { fill: #e05c5c; stroke: #e05c5c; }
 
-/* Product Details accordion */
-.pd-accordion {
+/* Stacked full-width buttons (Pura Vida style) */
+.pd-btn-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.pd-btn-stack .pd-btn-cart,
+.pd-btn-stack .pd-btn-wishlist {
+  width: 100%;
+  min-width: unset;
+  flex: unset;
+  border-radius: 4px;
+  padding: 16px 24px;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+}
+.pd-btn-stack .pd-btn-cart {
+  background: #898AC4;
+  box-shadow: 0 2px 12px rgba(137,138,196,0.25);
+  border-radius: 4px;
+}
+.pd-btn-stack .pd-btn-cart:hover {
+  background: #6a6ba8;
+  transform: none;
+  box-shadow: 0 4px 18px rgba(137,138,196,0.35);
+}
+.pd-btn-stack .pd-btn-wishlist {
+  border-radius: 4px;
+  border: 1.5px solid #898AC4;
+  background: transparent;
+  box-shadow: none;
+}
+.pd-btn-stack .pd-btn-wishlist:hover {
+  background: rgba(137,138,196,0.07);
+  transform: none;
+}
+
+/* Trust badges */
+.pd-trust {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 0 24px;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  margin-top: 8px;
+  margin-bottom: 8px;
 }
+.pd-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: #898AC4;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Three accordions */
+.pd-accordions { margin-top: 4px; }
+.pd-accordion {
+  border-top: 1px solid var(--border);
+}
+.pd-accordion:last-child { border-bottom: 1px solid var(--border); }
 .pd-accordion-trigger {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 0;
+  padding: 18px 0;
   background: transparent;
   border: none;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   color: #898AC4;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Playfair Display', Georgia, serif;
   cursor: pointer;
   text-align: left;
   transition: color 0.2s;
 }
-.pd-accordion-trigger:hover { color: #898AC4; }
+.pd-accordion-trigger:hover { color: #6a6ba8; }
 .pd-accordion-chevron {
   flex-shrink: 0;
+  color: #898AC4;
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  color: var(--text-muted);
 }
 .pd-accordion-trigger.open .pd-accordion-chevron { transform: rotate(180deg); }
-
 .pd-accordion-body {
-  padding-bottom: 20px;
+  padding: 0 0 20px;
   animation: accordionIn 0.22s ease;
 }
 @keyframes accordionIn {
-  from { opacity: 0; transform: translateY(-6px); }
+  from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .pd-details-list {
@@ -1733,7 +1777,7 @@ main { min-height: calc(100vh - 140px); }
   padding: 0; margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 .pd-details-list li {
   display: flex;
@@ -1741,19 +1785,19 @@ main { min-height: calc(100vh - 140px); }
   font-size: 0.85rem;
   color: #898AC4;
   font-family: 'Inter', sans-serif;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 .pd-details-list li span {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #898AC4;
   font-family: 'Inter', sans-serif;
-  min-width: 100px;
+  min-width: 110px;
   flex-shrink: 0;
-  padding-top: 2px;
-  opacity: 0.7;
+  padding-top: 3px;
+  opacity: 0.65;
 }
 
 /* ===== You May Also Like ===== */
