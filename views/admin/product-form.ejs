@@ -11,9 +11,7 @@
     </div>
     <div class="form-row">
       <label>Description</label>
-      <textarea name="description" id="description" rows="4"><%= product ? product.description : '' %></textarea>
-      <button type="button" id="ai-generate-btn" onclick="generateDescription()" style="margin-top:8px;padding:8px 18px;background:#898AC4;color:#fff;border:none;cursor:pointer;font-size:0.82rem;letter-spacing:0.08em;">✦ Generate with AI</button>
-      <span id="ai-status" style="margin-left:10px;font-size:0.8rem;color:#898AC4;"></span>
+      <textarea name="description" rows="4"><%= product ? product.description : '' %></textarea>
     </div>
     <div class="form-row two-col">
       <div>
@@ -56,50 +54,5 @@
     </div>
   </form>
 </div>
-
-<script>
-async function generateDescription() {
-  const imageInput = document.querySelector('input[name="image"]');
-  const nameInput = document.querySelector('input[name="name"]');
-  const categoryInput = document.querySelector('select[name="category"]');
-  const btn = document.getElementById('ai-generate-btn');
-  const status = document.getElementById('ai-status');
-
-  if (!imageInput.files || !imageInput.files[0]) {
-    status.textContent = 'Please select a product image first.';
-    status.style.color = '#c0676a';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Generating...';
-  status.textContent = '';
-  status.style.color = '#898AC4';
-
-  const formData = new FormData();
-  formData.append('image', imageInput.files[0]);
-  formData.append('name', nameInput.value || '');
-  formData.append('category', categoryInput.value || '');
-
-  try {
-    const res = await fetch('/admin/generate-description', { method: 'POST', body: formData });
-    const data = await res.json();
-    if (data.description) {
-      document.getElementById('description').value = data.description;
-      status.textContent = 'Description generated!';
-      status.style.color = '#2e7d32';
-    } else {
-      status.textContent = data.error || 'Failed to generate.';
-      status.style.color = '#c0676a';
-    }
-  } catch (e) {
-    status.textContent = 'Error connecting to AI.';
-    status.style.color = '#c0676a';
-  }
-
-  btn.disabled = false;
-  btn.textContent = '✦ Generate with AI';
-}
-</script>
 
 <%- include('../partials/footer') %>

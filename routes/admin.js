@@ -136,40 +136,5 @@ router.post('/orders/status/:id', requireAdmin, async (req, res) => {
   res.redirect('/admin');
 });
 
-// AI description generator
-router.post('/generate-description', requireAdmin, upload.single('image'), async (req, res) => {
-  try {
-    if (!process.env.ANTHROPIC_API_KEY) {
-      return res.status(400).json({ error: 'ANTHROPIC_API_KEY not set.' });
-    }
-    if (!req.file) {
-      return res.status(400).json({ error: 'No image provided.' });
-    }
-    const Anthropic = require('@anthropic-ai/sdk');
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    const base64 = req.file.buffer.toString('base64');
-    const mediaType = req.file.mimetype;
-    const productName = req.body.name || 'this handmade product';
-    const category = req.body.category || 'handmade craft';
-
-    const message = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 400,
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
-          { type: 'text', text: `You are a product copywriter for Hathekhori, an Indian handmade crafts store. Write a compelling, SEO-friendly product description for "${productName}" (category: ${category}) based on this image. The description should: be 3-4 sentences, highlight the handmade craftsmanship, mention materials or techniques visible in the image, appeal to buyers who value artisan goods, and include natural keywords for search. Return only the description text, no headings or extra formatting.` }
-        ]
-      }]
-    });
-
-    const description = message.content[0].text.trim();
-    res.json({ description });
-  } catch (err) {
-    console.error('AI description error:', err.message);
-    res.status(500).json({ error: 'Failed to generate description.' });
-  }
-});
 
 module.exports = router;
