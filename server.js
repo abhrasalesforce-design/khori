@@ -54,6 +54,7 @@ app.use('/', require('./routes/auth'));
 app.use('/', require('./routes/products'));
 app.use('/', require('./routes/cart'));
 app.use('/', require('./routes/orders'));
+app.use('/', require('./routes/wishlist'));
 app.use('/admin', require('./routes/admin'));
 
 // One-time admin reset — remove after use

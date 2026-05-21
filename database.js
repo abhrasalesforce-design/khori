@@ -80,6 +80,13 @@ async function initDb() {
       FOREIGN KEY (order_id) REFERENCES orders(id),
       FOREIGN KEY (product_id) REFERENCES products(id)
     );
+    CREATE TABLE IF NOT EXISTS wishlists (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      product_id INTEGER NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(user_id, product_id)
+    );
   `;
 
   if (isPostgres) {
@@ -92,6 +99,7 @@ async function initDb() {
     sqliteDb.exec(schema.replace(/SERIAL PRIMARY KEY/g, 'INTEGER PRIMARY KEY AUTOINCREMENT').replace(/TIMESTAMP/g, 'DATETIME'));
     try { sqliteDb.exec(`ALTER TABLE products ADD COLUMN dimension TEXT`); } catch (_) {}
     try { sqliteDb.exec(`ALTER TABLE users ADD COLUMN google_id TEXT`); } catch (_) {}
+    // wishlists table already created in schema above via CREATE TABLE IF NOT EXISTS
   }
 }
 

@@ -1,35 +1,233 @@
 <%- include('partials/header') %>
 
-<div class="product-detail">
-  <div class="product-image">
-    <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>" alt="<%= product.name %>" loading="eager" decoding="async" onerror="this.src='/images/placeholder.jpg'">
-  </div>
-  <div class="product-content">
-    <p class="breadcrumb"><a href="/">Shop</a> › <%= product.name %></p>
-    <h1 style="color:#898AC4;"><%= product.name %></h1>
-    <p class="price-large">₹<%= product.price.toFixed(2) %></p>
-    <div class="divider"></div>
-    <p class="description"><%= product.description || 'No description available.' %></p>
-    <% if (product.dimension) { %>
-      <p class="product-dimension"><span>Dimensions</span><%= product.dimension %></p>
-    <% } %>
-    <p class="stock-info <%= product.stock === 0 ? 'out' : '' %>">
-      <%= product.stock > 0 ? `${product.stock} in stock` : 'Out of stock' %>
-    </p>
+<div class="product-detail-page">
 
-    <% if (product.stock > 0) { %>
-      <form method="POST" action="/cart/add" class="add-form">
-        <input type="hidden" name="product_id" value="<%= product.id %>">
-        <div class="qty-row">
-          <label>Quantity</label>
-          <input type="number" name="quantity" value="1" min="1" max="<%= product.stock %>">
-        </div>
-        <button type="submit" class="btn-primary">Add to Cart</button>
-      </form>
-    <% } else { %>
-      <button class="btn-disabled" disabled>Out of Stock</button>
+  <!-- Breadcrumb -->
+  <div class="pd-breadcrumb">
+    <a href="/">Shop</a>
+    <% if (product.category) { %>
+      <span class="pd-sep">›</span>
+      <a href="/?category=<%= product.category %>"><%= product.category.charAt(0).toUpperCase() + product.category.slice(1) %></a>
     <% } %>
+    <span class="pd-sep">›</span>
+    <span><%= product.name %></span>
   </div>
-</div>
+
+  <!-- Two-column layout -->
+  <div class="pd-layout">
+
+    <!-- Left: sticky image -->
+    <div class="pd-image-col">
+      <div class="pd-image-wrap">
+        <img
+          src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>"
+          alt="<%= product.name %>"
+          loading="eager"
+          decoding="async"
+          onerror="this.src='/images/placeholder.jpg'"
+        >
+      </div>
+    </div>
+
+    <!-- Right: product info -->
+    <div class="pd-info-col">
+
+      <!-- Category tag -->
+      <% if (product.category) { %>
+        <p class="pd-category"><%= product.category.toUpperCase() %></p>
+      <% } %>
+
+      <!-- Name -->
+      <h1 class="pd-name"><%= product.name %></h1>
+
+      <!-- Price row -->
+      <div class="pd-price-row">
+        <span class="pd-price">₹<%= product.price.toFixed(2) %></span>
+        <span class="pd-mrp">₹<%= (product.price * 1.3).toFixed(2) %></span>
+        <span class="pd-discount">23% OFF</span>
+      </div>
+      <p class="pd-tax-note">Inclusive of all taxes</p>
+
+      <!-- Stock badge -->
+      <div class="pd-stock-badge <%= product.stock > 0 ? 'in-stock' : 'out-stock' %>">
+        <span class="pd-stock-dot"></span>
+        <%= product.stock > 0 ? `${product.stock} in stock` : 'Out of stock' %>
+      </div>
+
+      <div class="pd-divider"></div>
+
+      <!-- Description -->
+      <p class="pd-description"><%= product.description || 'No description available.' %></p>
+
+      <% if (product.dimension) { %>
+        <div class="pd-dimension-row">
+          <span class="pd-dim-label">Dimensions</span>
+          <span class="pd-dim-value"><%= product.dimension %></span>
+        </div>
+      <% } %>
+
+      <!-- Quantity + action buttons -->
+      <% if (product.stock > 0) { %>
+        <form method="POST" action="/cart/add" class="pd-add-form" id="pdAddForm">
+          <input type="hidden" name="product_id" value="<%= product.id %>">
+
+          <div class="pd-qty-row">
+            <label class="pd-qty-label">Qty</label>
+            <div class="pd-qty-ctrl">
+              <button type="button" class="pd-qty-dec" onclick="pdQtyChange(-1)">−</button>
+              <input type="number" name="quantity" id="pdQtyInput" value="1" min="1" max="<%= product.stock %>" readonly>
+              <button type="button" class="pd-qty-inc" onclick="pdQtyChange(1)">+</button>
+            </div>
+          </div>
+
+          <div class="pd-action-row">
+            <button type="submit" class="pd-btn-cart">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+              ADD TO CART
+            </button>
+            <button
+              type="button"
+              class="pd-btn-wishlist<%= isWishlisted ? ' wishlisted' : '' %>"
+              id="wishlistBtn"
+              data-product-id="<%= product.id %>"
+              aria-label="<%= isWishlisted ? 'Remove from wishlist' : 'Add to wishlist' %>"
+            >
+              <svg class="heart-icon" width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+              </svg>
+              <span class="wishlist-label"><%= isWishlisted ? 'WISHLISTED' : 'WISHLIST' %></span>
+            </button>
+          </div>
+        </form>
+      <% } else { %>
+        <div class="pd-action-row pd-action-row--oos">
+          <button class="pd-btn-cart pd-btn-disabled" disabled>OUT OF STOCK</button>
+          <button
+            type="button"
+            class="pd-btn-wishlist<%= isWishlisted ? ' wishlisted' : '' %>"
+            id="wishlistBtn"
+            data-product-id="<%= product.id %>"
+            aria-label="<%= isWishlisted ? 'Remove from wishlist' : 'Add to wishlist' %>"
+          >
+            <svg class="heart-icon" width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+            </svg>
+            <span class="wishlist-label"><%= isWishlisted ? 'WISHLISTED' : 'WISHLIST' %></span>
+          </button>
+        </div>
+      <% } %>
+
+      <!-- Product Details accordion -->
+      <div class="pd-accordion" id="pdAccordion">
+        <button class="pd-accordion-trigger" type="button" aria-expanded="false" aria-controls="pdAccordionBody" onclick="toggleAccordion()">
+          <span>PRODUCT DETAILS</span>
+          <svg class="pd-accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div class="pd-accordion-body" id="pdAccordionBody" hidden>
+          <ul class="pd-details-list">
+            <% if (product.category) { %>
+              <li><span>Category</span><%= product.category.charAt(0).toUpperCase() + product.category.slice(1) %></li>
+            <% } %>
+            <% if (product.dimension) { %>
+              <li><span>Dimensions</span><%= product.dimension %></li>
+            <% } %>
+            <li><span>Craft</span>Handcrafted with care by Indian artisans</li>
+            <li><span>Care</span>Wipe clean with a soft dry cloth. Avoid prolonged exposure to moisture.</li>
+            <li><span>Origin</span>Made in India</li>
+          </ul>
+        </div>
+      </div>
+
+    </div><!-- /.pd-info-col -->
+  </div><!-- /.pd-layout -->
+
+  <!-- You May Also Like -->
+  <% if (relatedProducts && relatedProducts.length > 0) { %>
+    <section class="pd-related">
+      <h2 class="pd-related-title">You May Also Like</h2>
+      <div class="pd-related-grid">
+        <% relatedProducts.forEach(function(rp) { %>
+          <a href="/product/<%= rp.id %>" class="pd-related-card">
+            <div class="pd-related-img-wrap">
+              <img
+                src="<%= rp.image && rp.image.startsWith('http') ? rp.image : '/uploads/' + rp.image %>"
+                alt="<%= rp.name %>"
+                loading="lazy"
+                onerror="this.src='/images/placeholder.jpg'"
+              >
+            </div>
+            <div class="pd-related-info">
+              <p class="pd-related-cat"><%= rp.category ? rp.category.toUpperCase() : '' %></p>
+              <p class="pd-related-name"><%= rp.name %></p>
+              <p class="pd-related-price">₹<%= rp.price.toFixed(2) %></p>
+            </div>
+          </a>
+        <% }); %>
+      </div>
+    </section>
+  <% } %>
+
+</div><!-- /.product-detail-page -->
+
+<script>
+  // Quantity stepper
+  function pdQtyChange(delta) {
+    const input = document.getElementById('pdQtyInput');
+    if (!input) return;
+    const max = parseInt(input.max, 10) || 99;
+    const newVal = Math.max(1, Math.min(max, parseInt(input.value, 10) + delta));
+    input.value = newVal;
+  }
+
+  // Accordion toggle
+  function toggleAccordion() {
+    const btn = document.querySelector('.pd-accordion-trigger');
+    const body = document.getElementById('pdAccordionBody');
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', !open);
+    body.hidden = open;
+    btn.classList.toggle('open', !open);
+  }
+
+  // Wishlist toggle via fetch
+  (function() {
+    const btn = document.getElementById('wishlistBtn');
+    if (!btn) return;
+
+    const isLoggedIn = <%= user ? 'true' : 'false' %>;
+
+    btn.addEventListener('click', async function() {
+      if (!isLoggedIn) {
+        alert('Please login to save to wishlist');
+        return;
+      }
+
+      const productId = btn.dataset.productId;
+      try {
+        const res = await fetch('/wishlist/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'product_id=' + encodeURIComponent(productId)
+        });
+        if (!res.ok) throw new Error('Request failed');
+        const data = await res.json();
+
+        if (data.wishlisted) {
+          btn.classList.add('wishlisted');
+          btn.querySelector('.wishlist-label').textContent = 'WISHLISTED';
+          btn.setAttribute('aria-label', 'Remove from wishlist');
+        } else {
+          btn.classList.remove('wishlisted');
+          btn.querySelector('.wishlist-label').textContent = 'WISHLIST';
+          btn.setAttribute('aria-label', 'Add to wishlist');
+        }
+      } catch (err) {
+        alert('Something went wrong. Please try again.');
+      }
+    });
+  })();
+</script>
 
 <%- include('partials/footer') %>

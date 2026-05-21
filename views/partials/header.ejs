@@ -44,6 +44,7 @@
       <a href="/#artforms">Art Forms</a>
       <% if (user) { %>
         <a href="/orders">My Orders</a>
+        <a href="/wishlist">Wishlist</a>
         <% if (user.is_admin) { %><a href="/admin">Admin</a><% } %>
         <a href="/logout">Logout</a>
       <% } else { %>
@@ -70,6 +71,7 @@
         <a href="/#artforms" class="mobile-nav-link" onclick="closeMenu()">Art Forms</a>
         <% if (user) { %>
           <a href="/orders" class="mobile-nav-link" onclick="closeMenu()">My Orders</a>
+          <a href="/wishlist" class="mobile-nav-link" onclick="closeMenu()">Wishlist</a>
           <% if (user.is_admin) { %>
             <a href="/admin" class="mobile-nav-link" onclick="closeMenu()">Admin</a>
           <% } %>

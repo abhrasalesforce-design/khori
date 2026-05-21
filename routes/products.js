@@ -53,7 +53,29 @@ router.get('/', async (req, res) => {
 router.get('/product/:id', async (req, res) => {
   const product = await db.get('SELECT * FROM products WHERE id = ?', [req.params.id]);
   if (!product) return res.redirect('/');
-  res.render('product', { product, user: req.session.user || null });
+
+  // Related products: same category, excluding current
+  const relatedProducts = await db.all(
+    'SELECT * FROM products WHERE category = ? AND id != ? ORDER BY created_at DESC LIMIT 4',
+    [product.category, product.id]
+  );
+
+  // Wishlist state for current user
+  let isWishlisted = false;
+  if (req.session.user) {
+    const row = await db.get(
+      'SELECT id FROM wishlists WHERE user_id = ? AND product_id = ?',
+      [req.session.user.id, product.id]
+    );
+    isWishlisted = !!row;
+  }
+
+  res.render('product', {
+    product,
+    user: req.session.user || null,
+    relatedProducts,
+    isWishlisted
+  });
 });
 
 module.exports = router;

@@ -1,0 +1,83 @@
+<%- include('partials/header') %>
+
+<div class="page-container">
+  <h1>My Wishlist</h1>
+
+  <% if (products.length === 0) { %>
+    <div class="empty">
+      <p>Your wishlist is empty.</p>
+      <a href="/" class="btn-primary">Browse Products</a>
+    </div>
+  <% } else { %>
+    <div class="wishlist-grid">
+      <% products.forEach(function(p) { %>
+        <div class="wishlist-card" id="wl-card-<%= p.id %>">
+          <a href="/product/<%= p.id %>" class="wishlist-card-img-link">
+            <div class="wishlist-card-img">
+              <img
+                src="<%= p.image && p.image.startsWith('http') ? p.image : '/uploads/' + p.image %>"
+                alt="<%= p.name %>"
+                loading="lazy"
+                onerror="this.src='/images/placeholder.jpg'"
+              >
+            </div>
+          </a>
+          <div class="wishlist-card-info">
+            <p class="wishlist-card-cat"><%= p.category ? p.category.toUpperCase() : '' %></p>
+            <a href="/product/<%= p.id %>"><h3 class="wishlist-card-name"><%= p.name %></h3></a>
+            <p class="wishlist-card-price">₹<%= p.price.toFixed(2) %></p>
+            <div class="wishlist-card-actions">
+              <% if (p.stock > 0) { %>
+                <form method="POST" action="/cart/add" style="display:inline;">
+                  <input type="hidden" name="product_id" value="<%= p.id %>">
+                  <input type="hidden" name="quantity" value="1">
+                  <button type="submit" class="btn-sm">Add to Cart</button>
+                </form>
+              <% } else { %>
+                <span class="wishlist-oos">Out of stock</span>
+              <% } %>
+              <button
+                type="button"
+                class="btn-sm btn-danger wishlist-remove-btn"
+                data-product-id="<%= p.id %>"
+                onclick="removeFromWishlist(<%= p.id %>)"
+              >Remove</button>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  async function removeFromWishlist(productId) {
+    try {
+      const res = await fetch('/wishlist/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'product_id=' + encodeURIComponent(productId)
+      });
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+      if (!data.wishlisted) {
+        const card = document.getElementById('wl-card-' + productId);
+        if (card) {
+          card.style.transition = 'opacity 0.3s, transform 0.3s';
+          card.style.opacity = '0';
+          card.style.transform = 'scale(0.95)';
+          setTimeout(() => {
+            card.remove();
+            // Show empty message if no cards remain
+            const remaining = document.querySelectorAll('.wishlist-card');
+            if (remaining.length === 0) location.reload();
+          }, 320);
+        }
+      }
+    } catch (err) {
+      alert('Something went wrong. Please try again.');
+    }
+  }
+</script>
+
+<%- include('partials/footer') %>
