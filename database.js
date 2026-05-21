@@ -54,6 +54,10 @@ async function initDb() {
       image TEXT DEFAULT 'placeholder.jpg',
       category TEXT DEFAULT 'general',
       dimension TEXT,
+      material TEXT,
+      care_instructions TEXT,
+      origin TEXT,
+      craft_type TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     CREATE TABLE IF NOT EXISTS orders (
@@ -92,14 +96,20 @@ async function initDb() {
   if (isPostgres) {
     await pool.query(schema);
     await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS dimension TEXT`);
+    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS material TEXT`);
+    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS care_instructions TEXT`);
+    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS origin TEXT`);
+    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS craft_type TEXT`);
     await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id TEXT`);
-    // Allow null passwords for OAuth users
     await pool.query(`ALTER TABLE users ALTER COLUMN password DROP NOT NULL`).catch(() => {});
   } else {
     sqliteDb.exec(schema.replace(/SERIAL PRIMARY KEY/g, 'INTEGER PRIMARY KEY AUTOINCREMENT').replace(/TIMESTAMP/g, 'DATETIME'));
     try { sqliteDb.exec(`ALTER TABLE products ADD COLUMN dimension TEXT`); } catch (_) {}
+    try { sqliteDb.exec(`ALTER TABLE products ADD COLUMN material TEXT`); } catch (_) {}
+    try { sqliteDb.exec(`ALTER TABLE products ADD COLUMN care_instructions TEXT`); } catch (_) {}
+    try { sqliteDb.exec(`ALTER TABLE products ADD COLUMN origin TEXT`); } catch (_) {}
+    try { sqliteDb.exec(`ALTER TABLE products ADD COLUMN craft_type TEXT`); } catch (_) {}
     try { sqliteDb.exec(`ALTER TABLE users ADD COLUMN google_id TEXT`); } catch (_) {}
-    // wishlists table already created in schema above via CREATE TABLE IF NOT EXISTS
   }
 }
 

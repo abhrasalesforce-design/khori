@@ -43,8 +43,6 @@
       <!-- Price row -->
       <div class="pd-price-row">
         <span class="pd-price">₹<%= product.price.toFixed(2) %></span>
-        <span class="pd-mrp">₹<%= (product.price * 1.3).toFixed(2) %></span>
-        <span class="pd-discount">23% OFF</span>
       </div>
       <p class="pd-tax-note">Inclusive of all taxes</p>
 
@@ -58,13 +56,6 @@
 
       <!-- Description -->
       <p class="pd-description"><%= product.description || 'No description available.' %></p>
-
-      <% if (product.dimension) { %>
-        <div class="pd-dimension-row">
-          <span class="pd-dim-label">Dimensions</span>
-          <span class="pd-dim-value"><%= product.dimension %></span>
-        </div>
-      <% } %>
 
       <!-- Quantity + action buttons -->
       <% if (product.stock > 0) { %>
@@ -133,9 +124,19 @@
             <% if (product.dimension) { %>
               <li><span>Dimensions</span><%= product.dimension %></li>
             <% } %>
-            <li><span>Craft</span>Handcrafted with care by Indian artisans</li>
-            <li><span>Care</span>Wipe clean with a soft dry cloth. Avoid prolonged exposure to moisture.</li>
-            <li><span>Origin</span>Made in India</li>
+            <% if (product.material) { %>
+              <li><span>Material</span><%= product.material %></li>
+            <% } %>
+            <% if (product.craft_type) { %>
+              <li><span>Craft</span><%= product.craft_type %></li>
+            <% } %>
+            <% if (product.origin) { %>
+              <li><span>Origin</span><%= product.origin %></li>
+            <% } %>
+            <% if (product.care_instructions) { %>
+              <li><span>Care</span><%= product.care_instructions %></li>
+            <% } %>
+            <li><span>Made In</span>India</li>
           </ul>
         </div>
       </div>
@@ -143,36 +144,9 @@
     </div><!-- /.pd-info-col -->
   </div><!-- /.pd-layout -->
 
-  <!-- You May Also Like -->
-  <% if (relatedProducts && relatedProducts.length > 0) { %>
-    <section class="pd-related">
-      <h2 class="pd-related-title">You May Also Like</h2>
-      <div class="pd-related-grid">
-        <% relatedProducts.forEach(function(rp) { %>
-          <a href="/product/<%= rp.id %>" class="pd-related-card">
-            <div class="pd-related-img-wrap">
-              <img
-                src="<%= rp.image && rp.image.startsWith('http') ? rp.image : '/uploads/' + rp.image %>"
-                alt="<%= rp.name %>"
-                loading="lazy"
-                onerror="this.src='/images/placeholder.jpg'"
-              >
-            </div>
-            <div class="pd-related-info">
-              <p class="pd-related-cat"><%= rp.category ? rp.category.toUpperCase() : '' %></p>
-              <p class="pd-related-name"><%= rp.name %></p>
-              <p class="pd-related-price">₹<%= rp.price.toFixed(2) %></p>
-            </div>
-          </a>
-        <% }); %>
-      </div>
-    </section>
-  <% } %>
-
 </div><!-- /.product-detail-page -->
 
 <script>
-  // Quantity stepper
   function pdQtyChange(delta) {
     const input = document.getElementById('pdQtyInput');
     if (!input) return;
@@ -181,7 +155,6 @@
     input.value = newVal;
   }
 
-  // Accordion toggle
   function toggleAccordion() {
     const btn = document.querySelector('.pd-accordion-trigger');
     const body = document.getElementById('pdAccordionBody');
@@ -191,19 +164,15 @@
     btn.classList.toggle('open', !open);
   }
 
-  // Wishlist toggle via fetch
   (function() {
     const btn = document.getElementById('wishlistBtn');
     if (!btn) return;
-
     const isLoggedIn = <%= user ? 'true' : 'false' %>;
-
     btn.addEventListener('click', async function() {
       if (!isLoggedIn) {
         alert('Please login to save to wishlist');
         return;
       }
-
       const productId = btn.dataset.productId;
       try {
         const res = await fetch('/wishlist/toggle', {
@@ -213,7 +182,6 @@
         });
         if (!res.ok) throw new Error('Request failed');
         const data = await res.json();
-
         if (data.wishlisted) {
           btn.classList.add('wishlisted');
           btn.querySelector('.wishlist-label').textContent = 'WISHLISTED';

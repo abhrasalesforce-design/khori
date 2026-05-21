@@ -1399,10 +1399,11 @@ main { min-height: calc(100vh - 140px); }
   padding: 20px 0 24px;
   font-size: 0.75rem;
   letter-spacing: 0.06em;
-  color: var(--text-muted);
+  color: #898AC4;
+  font-family: 'Inter', sans-serif;
 }
-.pd-breadcrumb a { color: var(--text-muted); transition: color 0.2s; }
-.pd-breadcrumb a:hover { color: #898AC4; opacity: 1; }
+.pd-breadcrumb a { color: #898AC4; transition: color 0.2s; }
+.pd-breadcrumb a:hover { color: #6a6ba8; opacity: 1; }
 .pd-sep { margin: 0 8px; }
 
 /* Two-column grid */
@@ -1442,8 +1443,9 @@ main { min-height: calc(100vh - 140px); }
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.18em;
-  color: var(--text-muted);
+  color: #898AC4;
   margin-bottom: 10px;
+  font-family: 'Inter', sans-serif;
 }
 
 .pd-name {
@@ -1464,7 +1466,7 @@ main { min-height: calc(100vh - 140px); }
 .pd-price {
   font-size: 1.6rem;
   font-weight: 700;
-  color: var(--black);
+  color: #898AC4;
   font-family: 'Inter', sans-serif;
 }
 .pd-mrp {
@@ -1481,8 +1483,10 @@ main { min-height: calc(100vh - 140px); }
 }
 .pd-tax-note {
   font-size: 0.72rem;
-  color: var(--text-muted);
+  color: #898AC4;
+  font-family: 'Inter', sans-serif;
   margin-bottom: 18px;
+  opacity: 0.7;
 }
 
 /* Stock badge */
@@ -1523,7 +1527,8 @@ main { min-height: calc(100vh - 140px); }
 .pd-description {
   font-size: 0.92rem;
   line-height: 1.9;
-  color: var(--text-muted);
+  color: #898AC4;
+  font-family: 'Inter', sans-serif;
   margin-bottom: 24px;
 }
 
@@ -1674,7 +1679,8 @@ main { min-height: calc(100vh - 140px); }
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--black);
+  color: #898AC4;
+  font-family: 'Inter', sans-serif;
   cursor: pointer;
   text-align: left;
   transition: color 0.2s;
@@ -1706,7 +1712,8 @@ main { min-height: calc(100vh - 140px); }
   display: flex;
   gap: 16px;
   font-size: 0.85rem;
-  color: var(--text);
+  color: #898AC4;
+  font-family: 'Inter', sans-serif;
   line-height: 1.6;
 }
 .pd-details-list li span {
@@ -1714,10 +1721,12 @@ main { min-height: calc(100vh - 140px); }
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: #898AC4;
+  font-family: 'Inter', sans-serif;
   min-width: 100px;
   flex-shrink: 0;
   padding-top: 2px;
+  opacity: 0.7;
 }
 
 /* ===== You May Also Like ===== */

@@ -42,6 +42,22 @@
       </div>
     </div>
     <div class="form-row">
+      <label>Material</label>
+      <input type="text" name="material" value="<%= product ? (product.material || '') : '' %>" placeholder="e.g. Terracotta, Brass, Cotton">
+    </div>
+    <div class="form-row">
+      <label>Craft Type</label>
+      <input type="text" name="craft_type" value="<%= product ? (product.craft_type || '') : '' %>" placeholder="e.g. Hand-painted, Block print, Woven">
+    </div>
+    <div class="form-row">
+      <label>Origin</label>
+      <input type="text" name="origin" value="<%= product ? (product.origin || '') : '' %>" placeholder="e.g. West Bengal, Rajasthan">
+    </div>
+    <div class="form-row">
+      <label>Care Instructions</label>
+      <input type="text" name="care_instructions" value="<%= product ? (product.care_instructions || '') : '' %>" placeholder="e.g. Wipe clean with dry cloth">
+    </div>
+    <div class="form-row">
       <label>Product Image</label>
       <% if (product && product.image !== 'placeholder.jpg') { %>
         <img src="/uploads/<%= product.image %>" width="100" style="display:block;margin-bottom:8px;">

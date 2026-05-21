@@ -81,7 +81,7 @@ router.get('/products/new', requireAdmin, (req, res) => {
 
 router.post('/products/new', requireAdmin, upload.single('image'), async (req, res) => {
   try {
-    const { name, description, price, stock, category, dim_l, dim_b, dim_h } = req.body;
+    const { name, description, price, stock, category, dim_l, dim_b, dim_h, material, care_instructions, origin, craft_type } = req.body;
     const dimension = (dim_l && dim_b && dim_h) ? `${dim_l.trim()} × ${dim_b.trim()} × ${dim_h.trim()}` : null;
     if (!name || !price) {
       req.flash('error', 'Name and price are required.');
@@ -89,8 +89,8 @@ router.post('/products/new', requireAdmin, upload.single('image'), async (req, r
     }
     const image = await saveImage(req.file);
     await db.run(
-      'INSERT INTO products (name, description, price, stock, image, category, dimension) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [name, description, parseFloat(price), parseInt(stock) || 0, image, category || 'general', dimension || null]
+      'INSERT INTO products (name, description, price, stock, image, category, dimension, material, care_instructions, origin, craft_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [name, description, parseFloat(price), parseInt(stock) || 0, image, category || 'general', dimension || null, material || null, care_instructions || null, origin || null, craft_type || null]
     );
     res.redirect('/admin');
   } catch (err) {
@@ -108,14 +108,14 @@ router.get('/products/edit/:id', requireAdmin, async (req, res) => {
 
 router.post('/products/edit/:id', requireAdmin, upload.single('image'), async (req, res) => {
   try {
-    const { name, description, price, stock, category, dim_l, dim_b, dim_h } = req.body;
+    const { name, description, price, stock, category, dim_l, dim_b, dim_h, material, care_instructions, origin, craft_type } = req.body;
     const dimension = (dim_l && dim_b && dim_h) ? `${dim_l.trim()} × ${dim_b.trim()} × ${dim_h.trim()}` : null;
     const product = await db.get('SELECT * FROM products WHERE id = ?', [req.params.id]);
     if (!product) return res.redirect('/admin');
     const image = req.file ? await saveImage(req.file) : product.image;
     await db.run(
-      'UPDATE products SET name=?, description=?, price=?, stock=?, image=?, category=?, dimension=? WHERE id=?',
-      [name, description, parseFloat(price), parseInt(stock) || 0, image, category || 'general', dimension || null, req.params.id]
+      'UPDATE products SET name=?, description=?, price=?, stock=?, image=?, category=?, dimension=?, material=?, care_instructions=?, origin=?, craft_type=? WHERE id=?',
+      [name, description, parseFloat(price), parseInt(stock) || 0, image, category || 'general', dimension || null, material || null, care_instructions || null, origin || null, craft_type || null, req.params.id]
     );
     res.redirect('/admin');
   } catch (err) {
