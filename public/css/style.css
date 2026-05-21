@@ -114,7 +114,7 @@ header {
 .ham-line {
   display: block;
   height: 1.5px;
-  background: #546B41;
+  background: #898AC4;
   transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   transform-origin: right center;
 }
@@ -124,7 +124,7 @@ header {
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.18em;
-  color: #546B41;
+  color: #898AC4;
   transition: opacity 0.3s;
   margin-top: 2px;
   line-height: 1;
@@ -175,7 +175,7 @@ body.menu-open { overflow: hidden; }
   font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(1.2rem, 4.5vw, 1.8rem);
   font-weight: 700;
-  color: #546B41;
+  color: #898AC4;
   letter-spacing: 0.08em;
   border-bottom: 1px solid rgba(0,0,0,0.08);
   width: 100%;
