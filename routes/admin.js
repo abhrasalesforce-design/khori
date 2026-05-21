@@ -144,8 +144,11 @@ router.post('/generate-description', requireAdmin, upload.single('image'), async
       craft_type && `Craft type: ${craft_type}`,
     ].filter(Boolean).join('\n');
 
+    const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const hasValidImage = req.file && validImageTypes.includes(req.file.mimetype);
+
     const content = [];
-    if (req.file) {
+    if (hasValidImage) {
       content.push({
         type: 'image',
         source: { type: 'base64', media_type: req.file.mimetype, data: req.file.buffer.toString('base64') }
@@ -153,7 +156,7 @@ router.post('/generate-description', requireAdmin, upload.single('image'), async
     }
     content.push({
       type: 'text',
-      text: `Write a warm, compelling 2–3 sentence product description for an Indian handmade crafts store called Hathekhori. Use the details below${req.file ? ' and the product image' : ''}. Focus on the craft, the material, and the story behind it. Do not use bullet points.\n\n${details}`
+      text: `Write a warm, compelling 2–3 sentence product description for an Indian handmade crafts store called Hathekhori. Use the details below${hasValidImage ? ' and the product image' : ''}. Focus on the craft, the material, and the story behind it. Do not use bullet points.\n\n${details}`
     });
 
     const message = await client.messages.create({
@@ -164,8 +167,8 @@ router.post('/generate-description', requireAdmin, upload.single('image'), async
 
     res.json({ description: message.content[0].text.trim() });
   } catch (err) {
-    console.error('Generate description error:', err);
-    res.status(500).json({ error: err.message || 'Failed to generate description.' });
+    console.error('Generate description error:', err.status, err.message, JSON.stringify(err.error));
+    res.status(500).json({ error: `${err.status || ''} ${err.message || 'Failed to generate description.'}`.trim() });
   }
 });
 
