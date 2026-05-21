@@ -81,7 +81,8 @@ router.get('/products/new', requireAdmin, (req, res) => {
 
 router.post('/products/new', requireAdmin, upload.single('image'), async (req, res) => {
   try {
-    const { name, description, price, stock, category, dimension } = req.body;
+    const { name, description, price, stock, category, dim_l, dim_b, dim_h } = req.body;
+    const dimension = (dim_l && dim_b && dim_h) ? `${dim_l.trim()} × ${dim_b.trim()} × ${dim_h.trim()}` : null;
     if (!name || !price) {
       req.flash('error', 'Name and price are required.');
       return res.redirect('/admin/products/new');
@@ -107,7 +108,8 @@ router.get('/products/edit/:id', requireAdmin, async (req, res) => {
 
 router.post('/products/edit/:id', requireAdmin, upload.single('image'), async (req, res) => {
   try {
-    const { name, description, price, stock, category, dimension } = req.body;
+    const { name, description, price, stock, category, dim_l, dim_b, dim_h } = req.body;
+    const dimension = (dim_l && dim_b && dim_h) ? `${dim_l.trim()} × ${dim_b.trim()} × ${dim_h.trim()}` : null;
     const product = await db.get('SELECT * FROM products WHERE id = ?', [req.params.id]);
     if (!product) return res.redirect('/admin');
     const image = req.file ? await saveImage(req.file) : product.image;
