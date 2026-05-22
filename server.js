@@ -15,11 +15,14 @@ app.use(compression());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Static files with long cache for images/fonts/css/js
+// Static files — no cache for CSS/JS so updates show immediately, long cache for images
 app.use('/images', express.static(path.join(__dirname, 'public/images'), { maxAge: '30d', immutable: true }));
-app.use('/css', express.static(path.join(__dirname, 'public/css'), { maxAge: '7d' }));
+app.use('/css', express.static(path.join(__dirname, 'public/css'), { maxAge: 0, etag: false, lastModified: false, setHeaders: (res) => { res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); } }));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads'), { maxAge: '30d', immutable: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Make build version available to all views for cache-busting
+app.locals.buildVersion = Date.now();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
