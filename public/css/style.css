@@ -280,6 +280,27 @@ main { min-height: calc(100vh - 140px); }
   background-size: cover;
   background-position: center;
 }
+
+/* Image-background slides (Mini Canvas, Tote Bags) */
+.hero-img-slide {
+  background-size: cover;
+  background-position: center;
+}
+.hero-slide-overlay {
+  background: linear-gradient(to right, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.15) 100%);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 10%;
+}
+.hero-img-slide .hero-eyebrow { color: rgba(255,255,255,0.85) !important; }
+.hero-img-slide h1 { color: #fff !important; }
+.hero-img-slide h1 em { color: #e8c97e !important; }
+.hero-img-slide p { color: rgba(255,255,255,0.88) !important; }
+.hero-img-slide .hero-cta { background: #fff; color: #1a1a1a !important; border-color: #fff; }
+.hero-img-slide .hero-cta:hover { background: #e8c97e; border-color: #e8c97e; }
 /* Fallback for browsers without WebP support */
 .no-webp .hero-cream {
   background-image: linear-gradient(rgba(246,244,232,0.82), rgba(246,244,232,0.82)), url('/images/salt.jpeg');
