@@ -668,6 +668,25 @@ main { min-height: calc(100vh - 140px); }
 }
 .artform-btn:hover { opacity: 0.6 !important; }
 
+/* Image-background artform cards */
+.artform-card-img {
+  background-size: cover;
+  background-position: center;
+  border: none;
+}
+.artform-inner-overlay {
+  background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.05) 100%);
+  justify-content: flex-end;
+}
+.artform-card-img .artform-inner-overlay h3 { color: #fff; font-size: 1.2rem; margin-bottom: 4px; }
+.artform-card-img .artform-origin { color: rgba(255,255,255,0.75); }
+.artform-card-img .artform-inner-overlay p { color: rgba(255,255,255,0.88); -webkit-line-clamp: 3; }
+.artform-btn-light {
+  color: #fff !important;
+  border-bottom-color: rgba(255,255,255,0.7) !important;
+}
+.artform-btn-light:hover { opacity: 0.75 !important; }
+
 /* Carousel nav buttons */
 .carousel-btn {
   width: 44px; height: 44px;
