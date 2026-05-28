@@ -301,8 +301,8 @@ main { min-height: calc(100vh - 140px); }
 .hero-img-slide p { color: rgba(255,255,255,0.88) !important; }
 .hero-img-slide .hero-cta { background: #fff; color: #1a1a1a !important; border-color: #fff; }
 .hero-img-slide .hero-cta:hover { background: #e8c97e; border-color: #e8c97e; }
-.hero-cta-transparent { background: transparent !important; color: #fff !important; border-color: #fff !important; }
-.hero-cta-transparent:hover { background: rgba(255,255,255,0.15) !important; color: #fff !important; border-color: #fff !important; }
+.hero-img-slide .hero-cta-transparent { background: transparent !important; color: #fff !important; border-color: #fff !important; }
+.hero-img-slide .hero-cta-transparent:hover { background: rgba(255,255,255,0.15) !important; color: #fff !important; border-color: #fff !important; }
 /* Fallback for browsers without WebP support */
 .no-webp .hero-cream {
   background-image: linear-gradient(rgba(246,244,232,0.82), rgba(246,244,232,0.82)), url('/images/salt.jpeg');
