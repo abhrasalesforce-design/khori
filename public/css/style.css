@@ -2137,9 +2137,9 @@ main { min-height: calc(100vh - 140px); }
 
 /* ===== Footer ===== */
 footer {
-  background: var(--lavender);
+  background: #FDE8F0;
   padding: 60px 48px 32px;
-  border-top: 1px solid var(--rose);
+  border-top: 1px solid #f0c8d8;
 }
 
 .footer-inner {
