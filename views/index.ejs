@@ -104,7 +104,11 @@
           <div class="product-info">
             <p class="product-category"><%= product.category %></p>
             <h3><%= product.name %></h3>
-            <p class="price">₹<%= product.price.toFixed(2) %></p>
+            <p class="price">
+              <span class="price-original">₹<%= product.price.toFixed(2) %></span>
+              <span class="price-discounted">₹<%= (product.price * 0.5).toFixed(2) %></span>
+              <span class="price-badge">50% OFF</span>
+            </p>
             <p class="stock <%= product.stock === 0 ? 'out' : '' %>">
               <%= product.stock > 0 ? `${product.stock} in stock` : 'Out of stock' %>
             </p>
