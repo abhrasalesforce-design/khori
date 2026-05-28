@@ -78,4 +78,8 @@ router.get('/product/:id', async (req, res) => {
   });
 });
 
+router.get('/about', (req, res) => {
+  res.render('about', { user: req.session.user });
+});
+
 module.exports = router;
