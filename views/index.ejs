@@ -85,49 +85,60 @@
 
 <!-- ===== Shop ===== -->
 <section id="shop">
-  <div class="shop-section-header">
-    <h2>Craft Collection</h2>
-    <form method="GET" action="/" class="search-form">
-      <input type="text" name="search" placeholder="Search..." value="<%= search || '' %>">
-      <button type="submit">Search</button>
-    </form>
+
+  <!-- Section header -->
+  <div class="cc-header">
+    <span class="cc-eyebrow">Handpicked for You</span>
+    <h2 class="cc-title">Craft Collection</h2>
+    <p class="cc-subtitle">Each piece is made by hand, rooted in tradition, and full of story.</p>
   </div>
 
-  <div class="shop-controls">
-    <div class="categories">
-      <a href="/#shop" class="cat-btn <%= !category ? 'active' : '' %>">All</a>
+  <!-- Filters + Search -->
+  <div class="cc-controls">
+    <div class="cc-categories">
+      <a href="/#shop" class="cc-cat <%= !category ? 'active' : '' %>">All</a>
       <% categories.forEach(cat => { %>
-        <a href="/?category=<%= cat %>#shop" class="cat-btn <%= category === cat ? 'active' : '' %>"><%= cat %></a>
+        <a href="/?category=<%= cat %>#shop" class="cc-cat <%= category === cat ? 'active' : '' %>"><%= cat %></a>
       <% }) %>
     </div>
+    <form method="GET" action="/" class="cc-search">
+      <input type="text" name="search" placeholder="Search crafts..." value="<%= search || '' %>">
+      <button type="submit">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+    </form>
   </div>
 
   <% if (products.length === 0) { %>
     <div class="empty"><p>No products found.</p><a href="/" class="btn-primary">View All</a></div>
   <% } else { %>
-  <div class="product-grid">
+  <div class="cc-grid">
     <% products.forEach(product => { %>
-      <div class="product-card">
-        <a href="/product/<%= product.id %>">
+      <div class="cc-card">
+        <a href="/product/<%= product.id %>" class="cc-card-img-wrap">
           <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>" alt="<%= product.name %>" loading="lazy" decoding="async" onerror="this.src='/images/placeholder.jpg'">
-          <div class="product-info">
-            <p class="product-category"><%= product.category %></p>
-            <h3><%= product.name %></h3>
-            <p class="price">
-              <span class="price-original">₹<%= product.price.toFixed(2) %></span>
-              <span class="price-discounted">₹<%= (product.price * 0.5).toFixed(2) %></span>
-              <span class="price-badge">50% OFF</span>
-            </p>
-            <p class="stock <%= product.stock === 0 ? 'out' : '' %>">
-              <%= product.stock > 0 ? `${product.stock} in stock` : 'Out of stock' %>
-            </p>
-          </div>
+          <span class="cc-card-overlay">
+            <span class="cc-card-view">View Product</span>
+          </span>
+          <% if (product.stock > 0) { %>
+            <span class="cc-card-badge">50% OFF</span>
+          <% } else { %>
+            <span class="cc-card-badge cc-card-badge-oos">Out of Stock</span>
+          <% } %>
         </a>
+        <div class="cc-card-body">
+          <span class="cc-card-cat"><%= product.category %></span>
+          <h3 class="cc-card-name"><%= product.name %></h3>
+          <div class="cc-card-price">
+            <span class="cc-price-now">₹<%= (product.price * 0.5).toFixed(0) %></span>
+            <span class="cc-price-was">₹<%= product.price.toFixed(0) %></span>
+          </div>
+        </div>
         <% if (product.stock > 0) { %>
-          <form method="POST" action="/cart/add">
+          <form method="POST" action="/cart/add" class="cc-card-form">
             <input type="hidden" name="product_id" value="<%= product.id %>">
             <input type="hidden" name="quantity" value="1">
-            <button type="submit" class="btn-add">Add to Cart</button>
+            <button type="submit" class="cc-btn-add">Add to Cart</button>
           </form>
         <% } %>
       </div>
