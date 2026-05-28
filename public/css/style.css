@@ -719,7 +719,7 @@ main { min-height: calc(100vh - 140px); }
 }
 
 /* ===== Craft Collection Section ===== */
-#shop { padding-top: 0; background: #0e0e0e; }
+#shop { padding-top: 0; background: #FDE8F0; }
 
 .cc-header {
   text-align: center;
@@ -738,13 +738,13 @@ main { min-height: calc(100vh - 140px); }
 .cc-title {
   font-family: 'Great Vibes', cursive;
   font-size: clamp(2.8rem, 5vw, 4.5rem);
-  color: #fff;
+  color: #898AC4;
   line-height: 1.1;
   margin-bottom: 14px;
 }
 .cc-subtitle {
   font-size: 0.92rem;
-  color: rgba(255,255,255,0.5);
+  color: #888;
   font-family: 'Inter', sans-serif;
   max-width: 480px;
   margin: 0 auto;
@@ -761,7 +761,7 @@ main { min-height: calc(100vh - 140px); }
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(137,138,196,0.2);
   margin-bottom: 40px;
 }
 
@@ -777,9 +777,9 @@ main { min-height: calc(100vh - 140px); }
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.55);
+  color: #898AC4;
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid rgba(137,138,196,0.35);
   border-radius: 50px;
   transition: all 0.2s;
   font-family: 'Inter', sans-serif;
@@ -791,8 +791,8 @@ main { min-height: calc(100vh - 140px); }
 .cc-search {
   display: flex;
   align-items: center;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(137,138,196,0.3);
   border-radius: 50px;
   overflow: hidden;
   transition: border-color 0.2s;
@@ -804,22 +804,22 @@ main { min-height: calc(100vh - 140px); }
   outline: none;
   padding: 10px 18px;
   font-size: 0.82rem;
-  color: #fff;
+  color: #333;
   font-family: 'Inter', sans-serif;
   width: 200px;
 }
-.cc-search input::placeholder { color: rgba(255,255,255,0.35); }
+.cc-search input::placeholder { color: #aaa; }
 .cc-search button {
   background: transparent;
   border: none;
   padding: 10px 16px;
   cursor: pointer;
-  color: rgba(255,255,255,0.5);
+  color: #898AC4;
   display: flex;
   align-items: center;
   transition: color 0.2s;
 }
-.cc-search button:hover { color: #898AC4; }
+.cc-search button:hover { color: #6a6ba8; }
 
 /* Product grid */
 .cc-grid {
@@ -832,14 +832,15 @@ main { min-height: calc(100vh - 140px); }
 }
 
 .cc-card {
-  background: #1a1a1a;
+  background: #fff;
   border-radius: 12px;
   overflow: hidden;
   transition: transform 0.3s, box-shadow 0.3s;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 2px 12px rgba(137,138,196,0.1);
 }
-.cc-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+.cc-card:hover { transform: translateY(-6px); box-shadow: 0 16px 36px rgba(137,138,196,0.25); }
 
 .cc-card-img-wrap {
   position: relative;
@@ -914,7 +915,7 @@ main { min-height: calc(100vh - 140px); }
 .cc-card-name {
   font-size: 0.92rem;
   font-weight: 600;
-  color: #fff;
+  color: #1a1a1a;
   font-family: 'Inter', sans-serif;
   line-height: 1.4;
   margin-bottom: 10px;
@@ -932,7 +933,7 @@ main { min-height: calc(100vh - 140px); }
 }
 .cc-price-was {
   font-size: 0.8rem;
-  color: rgba(255,255,255,0.3);
+  color: #bbb;
   text-decoration: line-through;
   font-family: 'Inter', sans-serif;
 }
