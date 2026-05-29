@@ -1,0 +1,74 @@
+<%- include('partials/header') %>
+
+<section style="background: var(--surface); min-height: 60vh; padding: 60px 48px 100px;">
+  <div style="max-width: 1300px; margin: 0 auto;">
+
+    <!-- Breadcrumb -->
+    <p style="font-size: 0.75rem; color: #888; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 32px;">
+      <a href="/" style="color: #888;">Home</a>
+      <span style="margin: 0 8px;">›</span>
+      <span style="color: #546B41;">Handmade Treasures</span>
+      <% if (sub) { %>
+        <span style="margin: 0 8px;">›</span>
+        <span style="color: #546B41;"><%= sub %></span>
+      <% } %>
+    </p>
+
+    <!-- Heading -->
+    <h1 style="font-family: 'Playfair Display', Georgia, serif; font-size: clamp(2rem, 5vw, 3.2rem); color: #546B41; margin-bottom: 10px; font-weight: 700; letter-spacing: 0.04em;">
+      Handmade Treasures
+    </h1>
+    <% if (sub) { %>
+      <p style="font-size: 1rem; color: #546B41; opacity: 0.75; margin-bottom: 40px; letter-spacing: 0.06em; text-transform: capitalize;">
+        <%= sub.replace(/-/g, ' ') %>
+      </p>
+    <% } else { %>
+      <p style="font-size: 0.95rem; color: #546B41; opacity: 0.7; margin-bottom: 40px; max-width: 560px; line-height: 1.7;">
+        Block-printed diaries, keychains, handcrafted photo frames, and artistic bookmarks — every piece tells a story worth keeping.
+      </p>
+    <% } %>
+
+    <!-- Product grid or empty state -->
+    <% if (products.length === 0) { %>
+      <div style="text-align: center; padding: 80px 0;">
+        <p style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.5rem; color: #546B41; margin-bottom: 12px; opacity: 0.7;">Coming Soon</p>
+        <p style="color: #888; font-size: 0.92rem; margin-bottom: 28px;">Products in this collection will appear here shortly.</p>
+        <a href="/" style="display: inline-block; padding: 12px 32px; background: #546B41; color: #fff; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;">Back to Shop</a>
+      </div>
+    <% } else { %>
+      <div class="cc-grid">
+        <% products.forEach(function(product) { %>
+          <div class="cc-card">
+            <a href="/product/<%= product.id %>" class="cc-card-img-wrap">
+              <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>" alt="<%= product.name %>" loading="lazy" decoding="async" onerror="this.src='/images/placeholder.jpg'">
+              <span class="cc-card-overlay"><span class="cc-card-view">View Product</span></span>
+              <% if (product.stock > 0) { %>
+                <span class="cc-card-badge">50% OFF</span>
+              <% } else { %>
+                <span class="cc-card-badge cc-card-badge-oos">Out of Stock</span>
+              <% } %>
+            </a>
+            <div class="cc-card-body">
+              <span class="cc-card-cat"><%= product.category %></span>
+              <h3 class="cc-card-name"><%= product.name %></h3>
+              <div class="cc-card-price">
+                <span class="cc-price-now">₹<%= (product.price * 0.5).toFixed(0) %></span>
+                <span class="cc-price-was">₹<%= product.price.toFixed(0) %></span>
+              </div>
+            </div>
+            <% if (product.stock > 0) { %>
+              <form method="POST" action="/cart/add" class="cc-card-form">
+                <input type="hidden" name="product_id" value="<%= product.id %>">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="cc-btn-add">Add to Cart</button>
+              </form>
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+  </div>
+</section>
+
+<%- include('partials/footer') %>

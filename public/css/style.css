@@ -88,6 +88,44 @@ header {
 }
 .desktop-nav a:hover { color: #6a6ba8; opacity: 1; }
 
+/* Nav dropdowns */
+.nav-dropdown { position: relative; }
+.nav-dropdown-toggle {
+  background: none; border: none; cursor: pointer;
+  font-size: 0.78rem; font-weight: 500; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #898AC4;
+  transition: color 0.2s; padding: 0; display: flex; align-items: center; gap: 4px;
+}
+.nav-dropdown-toggle:hover { color: #6a6ba8; }
+.nav-dropdown-menu {
+  display: none; position: absolute; top: calc(100% + 12px); left: 0;
+  background: #fff; border: 1px solid #e8e3d5; min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10); z-index: 200; padding: 8px 0;
+}
+.nav-dropdown.open .nav-dropdown-menu { display: block; }
+.nav-dropdown-menu a {
+  display: block; padding: 9px 20px;
+  font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em;
+  text-transform: none; color: #546B41;
+  transition: background 0.15s;
+}
+.nav-dropdown-menu a:hover { background: #f6f4e8; color: #3a4f2a; }
+
+/* Mobile nav accordion */
+.mobile-nav-group { width: 100%; }
+.mobile-nav-group-toggle {
+  background: none; border: none; width: 100%; text-align: left; cursor: pointer;
+  font-size: 1.35rem; font-weight: 400; letter-spacing: 0.04em;
+  color: #546B41; padding: 12px 0; display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid rgba(84,107,65,0.15);
+}
+.mobile-nav-group-toggle .toggle-arrow { transition: transform 0.25s; font-style: normal; font-size: 1rem; }
+.mobile-nav-group.open .toggle-arrow { transform: rotate(180deg); }
+.mobile-nav-sub { display: none; padding: 6px 0 12px 16px; }
+.mobile-nav-group.open .mobile-nav-sub { display: block; }
+.mobile-nav-sub a { display: block; padding: 8px 0; font-size: 0.95rem; color: #546B41; opacity: 0.8; }
+.mobile-nav-sub a:hover { opacity: 1; }
+
 .cart-link {
   background: var(--black);
   color: var(--white) !important;
@@ -2227,6 +2265,7 @@ footer {
   .hero-carousel { max-height: 640px; min-height: 480px; }
   .hero-slide-inner { padding: 0 24px; }
   .hero-carousel h1 { font-size: 2.2rem; }
+  .hero-cta { margin-top: 32px; }
   .hero-prev { left: 12px; }
   .hero-next { right: 12px; }
   .hero-stats { gap: 28px; }

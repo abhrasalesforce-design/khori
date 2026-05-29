@@ -39,7 +39,47 @@
 
     <!-- Desktop nav -->
     <nav class="desktop-nav" aria-label="Main navigation">
-      <a href="/#shop">Art Works</a>
+
+      <!-- Wearable Art dropdown -->
+      <div class="nav-dropdown">
+        <button class="nav-dropdown-toggle">Wearable Art ▾</button>
+        <div class="nav-dropdown-menu">
+          <a href="/collection/wearable-art?sub=earrings">Earrings</a>
+          <a href="/collection/wearable-art?sub=pendants">Fabric Painted Pendants</a>
+          <a href="/collection/wearable-art?sub=terracotta">Terracotta Jewellery</a>
+        </div>
+      </div>
+
+      <!-- Artisan Totes dropdown -->
+      <div class="nav-dropdown">
+        <button class="nav-dropdown-toggle">Artisan Totes ▾</button>
+        <div class="nav-dropdown-menu">
+          <a href="/collection/artisan-totes?sub=embroidered">Embroidered Tote Bags</a>
+          <a href="/collection/artisan-totes?sub=hand-painted">Hand Painted Tote Bags</a>
+        </div>
+      </div>
+
+      <!-- Canvas Tales dropdown -->
+      <div class="nav-dropdown">
+        <button class="nav-dropdown-toggle">Canvas Tales ▾</button>
+        <div class="nav-dropdown-menu">
+          <a href="/collection/canvas-tales?sub=mini-canvas">Mini Canvas Art</a>
+          <a href="/collection/canvas-tales?sub=scenic">Scenic Mini Canvases</a>
+          <a href="/collection/canvas-tales?sub=mdf">Round MDF Paintings</a>
+        </div>
+      </div>
+
+      <!-- Handmade Treasures dropdown -->
+      <div class="nav-dropdown">
+        <button class="nav-dropdown-toggle">Handmade Treasures ▾</button>
+        <div class="nav-dropdown-menu">
+          <a href="/collection/handmade-treasures?sub=diaries">Hand Block Diaries</a>
+          <a href="/collection/handmade-treasures?sub=keychains">Diary Keychains</a>
+          <a href="/collection/handmade-treasures?sub=frames">Handcrafted Photo Frames</a>
+          <a href="/collection/handmade-treasures?sub=bookmarks">Artistic Bookmarks</a>
+        </div>
+      </div>
+
       <a href="/about">Who We Are</a>
       <a href="/#artforms">Art Forms</a>
       <% if (user) { %>
@@ -66,7 +106,55 @@
   <div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="Navigation menu">
     <div class="mobile-menu-inner">
       <nav class="mobile-nav" aria-label="Mobile navigation">
-        <a href="/#shop" class="mobile-nav-link" onclick="closeMenu()">Craft Collection</a>
+
+        <!-- Wearable Art accordion -->
+        <div class="mobile-nav-group">
+          <button class="mobile-nav-group-toggle">
+            Wearable Art <em class="toggle-arrow">▾</em>
+          </button>
+          <div class="mobile-nav-sub">
+            <a href="/collection/wearable-art?sub=earrings" onclick="closeMenu()">Earrings</a>
+            <a href="/collection/wearable-art?sub=pendants" onclick="closeMenu()">Fabric Painted Pendants</a>
+            <a href="/collection/wearable-art?sub=terracotta" onclick="closeMenu()">Terracotta Jewellery</a>
+          </div>
+        </div>
+
+        <!-- Artisan Totes accordion -->
+        <div class="mobile-nav-group">
+          <button class="mobile-nav-group-toggle">
+            Artisan Totes <em class="toggle-arrow">▾</em>
+          </button>
+          <div class="mobile-nav-sub">
+            <a href="/collection/artisan-totes?sub=embroidered" onclick="closeMenu()">Embroidered Tote Bags</a>
+            <a href="/collection/artisan-totes?sub=hand-painted" onclick="closeMenu()">Hand Painted Tote Bags</a>
+          </div>
+        </div>
+
+        <!-- Canvas Tales accordion -->
+        <div class="mobile-nav-group">
+          <button class="mobile-nav-group-toggle">
+            Canvas Tales <em class="toggle-arrow">▾</em>
+          </button>
+          <div class="mobile-nav-sub">
+            <a href="/collection/canvas-tales?sub=mini-canvas" onclick="closeMenu()">Mini Canvas Art</a>
+            <a href="/collection/canvas-tales?sub=scenic" onclick="closeMenu()">Scenic Mini Canvases</a>
+            <a href="/collection/canvas-tales?sub=mdf" onclick="closeMenu()">Round MDF Paintings</a>
+          </div>
+        </div>
+
+        <!-- Handmade Treasures accordion -->
+        <div class="mobile-nav-group">
+          <button class="mobile-nav-group-toggle">
+            Handmade Treasures <em class="toggle-arrow">▾</em>
+          </button>
+          <div class="mobile-nav-sub">
+            <a href="/collection/handmade-treasures?sub=diaries" onclick="closeMenu()">Hand Block Diaries</a>
+            <a href="/collection/handmade-treasures?sub=keychains" onclick="closeMenu()">Diary Keychains</a>
+            <a href="/collection/handmade-treasures?sub=frames" onclick="closeMenu()">Handcrafted Photo Frames</a>
+            <a href="/collection/handmade-treasures?sub=bookmarks" onclick="closeMenu()">Artistic Bookmarks</a>
+          </div>
+        </div>
+
         <a href="/about" class="mobile-nav-link" onclick="closeMenu()">Who We Are</a>
         <a href="/#artforms" class="mobile-nav-link" onclick="closeMenu()">Art Forms</a>
         <% if (user) { %>
@@ -110,6 +198,31 @@
   }
   document.addEventListener('click', (e) => {
     if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) closeMenu();
+  });
+
+  // Desktop dropdown toggles
+  document.querySelectorAll('.nav-dropdown-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const dropdown = btn.closest('.nav-dropdown');
+      const isOpen = dropdown.classList.contains('open');
+      // Close all dropdowns first
+      document.querySelectorAll('.nav-dropdown').forEach(function(d) { d.classList.remove('open'); });
+      if (!isOpen) dropdown.classList.add('open');
+    });
+  });
+  // Close desktop dropdowns when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.nav-dropdown')) {
+      document.querySelectorAll('.nav-dropdown').forEach(function(d) { d.classList.remove('open'); });
+    }
+  });
+
+  // Mobile accordion toggles
+  document.querySelectorAll('.mobile-nav-group-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      btn.closest('.mobile-nav-group').classList.toggle('open');
+    });
   });
 </script>
 
