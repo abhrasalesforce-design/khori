@@ -139,12 +139,12 @@ header {
   padding: 6px 0;
   font-size: 0.78rem; font-weight: 400;
   letter-spacing: 0.04em; text-transform: none;
-  color: #546B41;
+  color: #898AC4;
   transition: color 0.15s, padding-left 0.15s;
   border: none;
 }
 .nav-mega-col a:not(.nav-mega-heading):hover {
-  color: #3a4f2a; padding-left: 4px; opacity: 1;
+  color: #6a6ba8; padding-left: 4px; opacity: 1;
 }
 
 /* Mobile nav accordion */
