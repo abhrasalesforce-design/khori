@@ -71,6 +71,7 @@ header {
   background: transparent;
   padding: 6px 0;
   border-radius: 4px;
+  mix-blend-mode: multiply;
 }
 .logo:hover { opacity: 0.85; }
 
