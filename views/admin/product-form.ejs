@@ -30,9 +30,27 @@
     <div class="form-row">
       <label>Category</label>
       <select name="category">
-        <option value="jewellery" <%= product && product.category === 'jewellery' ? 'selected' : '' %>>Jewellery</option>
-        <option value="decor" <%= product && product.category === 'decor' ? 'selected' : '' %>>Decor</option>
-        <option value="others" <%= (product && product.category !== 'jewellery' && product.category !== 'decor') ? 'selected' : '' %>>Others</option>
+        <option value="">— Select a category —</option>
+        <optgroup label="Wearable Art">
+          <option value="earrings" <%= product && product.category === 'earrings' ? 'selected' : '' %>>Earrings</option>
+          <option value="pendants" <%= product && product.category === 'pendants' ? 'selected' : '' %>>Fabric Painted Pendants</option>
+          <option value="terracotta" <%= product && product.category === 'terracotta' ? 'selected' : '' %>>Terracotta Jewellery</option>
+        </optgroup>
+        <optgroup label="Artisan Totes">
+          <option value="embroidered" <%= product && product.category === 'embroidered' ? 'selected' : '' %>>Embroidered Tote Bags</option>
+          <option value="hand-painted" <%= product && product.category === 'hand-painted' ? 'selected' : '' %>>Hand Painted Tote Bags</option>
+        </optgroup>
+        <optgroup label="Canvas Tales">
+          <option value="mini-canvas" <%= product && product.category === 'mini-canvas' ? 'selected' : '' %>>Mini Canvas Art</option>
+          <option value="scenic" <%= product && product.category === 'scenic' ? 'selected' : '' %>>Scenic Mini Canvases</option>
+          <option value="mdf" <%= product && product.category === 'mdf' ? 'selected' : '' %>>Round MDF Paintings</option>
+        </optgroup>
+        <optgroup label="Handmade Treasures">
+          <option value="diaries" <%= product && product.category === 'diaries' ? 'selected' : '' %>>Hand Block Diaries</option>
+          <option value="keychains" <%= product && product.category === 'keychains' ? 'selected' : '' %>>Diary Keychains</option>
+          <option value="frames" <%= product && product.category === 'frames' ? 'selected' : '' %>>Handcrafted Photo Frames</option>
+          <option value="bookmarks" <%= product && product.category === 'bookmarks' ? 'selected' : '' %>>Artistic Bookmarks</option>
+        </optgroup>
       </select>
     </div>
     <div class="form-row">
