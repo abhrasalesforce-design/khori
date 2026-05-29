@@ -40,43 +40,34 @@
     <!-- Desktop nav -->
     <nav class="desktop-nav" aria-label="Main navigation">
 
-      <!-- Wearable Art dropdown -->
+      <!-- Craft Collection mega-dropdown -->
       <div class="nav-dropdown">
-        <button class="nav-dropdown-toggle">Wearable Art ▾</button>
-        <div class="nav-dropdown-menu">
-          <a href="/collection/wearable-art?sub=earrings">Earrings</a>
-          <a href="/collection/wearable-art?sub=pendants">Fabric Painted Pendants</a>
-          <a href="/collection/wearable-art?sub=terracotta">Terracotta Jewellery</a>
-        </div>
-      </div>
-
-      <!-- Artisan Totes dropdown -->
-      <div class="nav-dropdown">
-        <button class="nav-dropdown-toggle">Artisan Totes ▾</button>
-        <div class="nav-dropdown-menu">
-          <a href="/collection/artisan-totes?sub=embroidered">Embroidered Tote Bags</a>
-          <a href="/collection/artisan-totes?sub=hand-painted">Hand Painted Tote Bags</a>
-        </div>
-      </div>
-
-      <!-- Canvas Tales dropdown -->
-      <div class="nav-dropdown">
-        <button class="nav-dropdown-toggle">Canvas Tales ▾</button>
-        <div class="nav-dropdown-menu">
-          <a href="/collection/canvas-tales?sub=mini-canvas">Mini Canvas Art</a>
-          <a href="/collection/canvas-tales?sub=scenic">Scenic Mini Canvases</a>
-          <a href="/collection/canvas-tales?sub=mdf">Round MDF Paintings</a>
-        </div>
-      </div>
-
-      <!-- Handmade Treasures dropdown -->
-      <div class="nav-dropdown">
-        <button class="nav-dropdown-toggle">Handmade Treasures ▾</button>
-        <div class="nav-dropdown-menu">
-          <a href="/collection/handmade-treasures?sub=diaries">Hand Block Diaries</a>
-          <a href="/collection/handmade-treasures?sub=keychains">Diary Keychains</a>
-          <a href="/collection/handmade-treasures?sub=frames">Handcrafted Photo Frames</a>
-          <a href="/collection/handmade-treasures?sub=bookmarks">Artistic Bookmarks</a>
+        <button class="nav-dropdown-toggle">Craft Collection ▾</button>
+        <div class="nav-mega-menu">
+          <div class="nav-mega-col">
+            <a href="/collection/wearable-art" class="nav-mega-heading">Wearable Art</a>
+            <a href="/collection/wearable-art?sub=earrings">Earrings</a>
+            <a href="/collection/wearable-art?sub=pendants">Fabric Painted Pendants</a>
+            <a href="/collection/wearable-art?sub=terracotta">Terracotta Jewellery</a>
+          </div>
+          <div class="nav-mega-col">
+            <a href="/collection/artisan-totes" class="nav-mega-heading">Artisan Totes</a>
+            <a href="/collection/artisan-totes?sub=embroidered">Embroidered Tote Bags</a>
+            <a href="/collection/artisan-totes?sub=hand-painted">Hand Painted Tote Bags</a>
+          </div>
+          <div class="nav-mega-col">
+            <a href="/collection/canvas-tales" class="nav-mega-heading">Canvas Tales</a>
+            <a href="/collection/canvas-tales?sub=mini-canvas">Mini Canvas Art</a>
+            <a href="/collection/canvas-tales?sub=scenic">Scenic Mini Canvases</a>
+            <a href="/collection/canvas-tales?sub=mdf">Round MDF Paintings</a>
+          </div>
+          <div class="nav-mega-col">
+            <a href="/collection/handmade-treasures" class="nav-mega-heading">Handmade Treasures</a>
+            <a href="/collection/handmade-treasures?sub=diaries">Hand Block Diaries</a>
+            <a href="/collection/handmade-treasures?sub=keychains">Diary Keychains</a>
+            <a href="/collection/handmade-treasures?sub=frames">Handcrafted Photo Frames</a>
+            <a href="/collection/handmade-treasures?sub=bookmarks">Artistic Bookmarks</a>
+          </div>
         </div>
       </div>
 
@@ -107,51 +98,61 @@
     <div class="mobile-menu-inner">
       <nav class="mobile-nav" aria-label="Mobile navigation">
 
-        <!-- Wearable Art accordion -->
+        <!-- Craft Collection parent accordion -->
         <div class="mobile-nav-group">
           <button class="mobile-nav-group-toggle">
-            Wearable Art <em class="toggle-arrow">▾</em>
+            Craft Collection <em class="toggle-arrow">▾</em>
           </button>
           <div class="mobile-nav-sub">
-            <a href="/collection/wearable-art?sub=earrings" onclick="closeMenu()">Earrings</a>
-            <a href="/collection/wearable-art?sub=pendants" onclick="closeMenu()">Fabric Painted Pendants</a>
-            <a href="/collection/wearable-art?sub=terracotta" onclick="closeMenu()">Terracotta Jewellery</a>
-          </div>
-        </div>
 
-        <!-- Artisan Totes accordion -->
-        <div class="mobile-nav-group">
-          <button class="mobile-nav-group-toggle">
-            Artisan Totes <em class="toggle-arrow">▾</em>
-          </button>
-          <div class="mobile-nav-sub">
-            <a href="/collection/artisan-totes?sub=embroidered" onclick="closeMenu()">Embroidered Tote Bags</a>
-            <a href="/collection/artisan-totes?sub=hand-painted" onclick="closeMenu()">Hand Painted Tote Bags</a>
-          </div>
-        </div>
+            <!-- Wearable Art -->
+            <div class="mobile-nav-group mobile-nav-group-inner">
+              <button class="mobile-nav-group-toggle mobile-nav-group-toggle-inner">
+                Wearable Art <em class="toggle-arrow">▾</em>
+              </button>
+              <div class="mobile-nav-sub mobile-nav-sub-inner">
+                <a href="/collection/wearable-art?sub=earrings" onclick="closeMenu()">Earrings</a>
+                <a href="/collection/wearable-art?sub=pendants" onclick="closeMenu()">Fabric Painted Pendants</a>
+                <a href="/collection/wearable-art?sub=terracotta" onclick="closeMenu()">Terracotta Jewellery</a>
+              </div>
+            </div>
 
-        <!-- Canvas Tales accordion -->
-        <div class="mobile-nav-group">
-          <button class="mobile-nav-group-toggle">
-            Canvas Tales <em class="toggle-arrow">▾</em>
-          </button>
-          <div class="mobile-nav-sub">
-            <a href="/collection/canvas-tales?sub=mini-canvas" onclick="closeMenu()">Mini Canvas Art</a>
-            <a href="/collection/canvas-tales?sub=scenic" onclick="closeMenu()">Scenic Mini Canvases</a>
-            <a href="/collection/canvas-tales?sub=mdf" onclick="closeMenu()">Round MDF Paintings</a>
-          </div>
-        </div>
+            <!-- Artisan Totes -->
+            <div class="mobile-nav-group mobile-nav-group-inner">
+              <button class="mobile-nav-group-toggle mobile-nav-group-toggle-inner">
+                Artisan Totes <em class="toggle-arrow">▾</em>
+              </button>
+              <div class="mobile-nav-sub mobile-nav-sub-inner">
+                <a href="/collection/artisan-totes?sub=embroidered" onclick="closeMenu()">Embroidered Tote Bags</a>
+                <a href="/collection/artisan-totes?sub=hand-painted" onclick="closeMenu()">Hand Painted Tote Bags</a>
+              </div>
+            </div>
 
-        <!-- Handmade Treasures accordion -->
-        <div class="mobile-nav-group">
-          <button class="mobile-nav-group-toggle">
-            Handmade Treasures <em class="toggle-arrow">▾</em>
-          </button>
-          <div class="mobile-nav-sub">
-            <a href="/collection/handmade-treasures?sub=diaries" onclick="closeMenu()">Hand Block Diaries</a>
-            <a href="/collection/handmade-treasures?sub=keychains" onclick="closeMenu()">Diary Keychains</a>
-            <a href="/collection/handmade-treasures?sub=frames" onclick="closeMenu()">Handcrafted Photo Frames</a>
-            <a href="/collection/handmade-treasures?sub=bookmarks" onclick="closeMenu()">Artistic Bookmarks</a>
+            <!-- Canvas Tales -->
+            <div class="mobile-nav-group mobile-nav-group-inner">
+              <button class="mobile-nav-group-toggle mobile-nav-group-toggle-inner">
+                Canvas Tales <em class="toggle-arrow">▾</em>
+              </button>
+              <div class="mobile-nav-sub mobile-nav-sub-inner">
+                <a href="/collection/canvas-tales?sub=mini-canvas" onclick="closeMenu()">Mini Canvas Art</a>
+                <a href="/collection/canvas-tales?sub=scenic" onclick="closeMenu()">Scenic Mini Canvases</a>
+                <a href="/collection/canvas-tales?sub=mdf" onclick="closeMenu()">Round MDF Paintings</a>
+              </div>
+            </div>
+
+            <!-- Handmade Treasures -->
+            <div class="mobile-nav-group mobile-nav-group-inner">
+              <button class="mobile-nav-group-toggle mobile-nav-group-toggle-inner">
+                Handmade Treasures <em class="toggle-arrow">▾</em>
+              </button>
+              <div class="mobile-nav-sub mobile-nav-sub-inner">
+                <a href="/collection/handmade-treasures?sub=diaries" onclick="closeMenu()">Hand Block Diaries</a>
+                <a href="/collection/handmade-treasures?sub=keychains" onclick="closeMenu()">Diary Keychains</a>
+                <a href="/collection/handmade-treasures?sub=frames" onclick="closeMenu()">Handcrafted Photo Frames</a>
+                <a href="/collection/handmade-treasures?sub=bookmarks" onclick="closeMenu()">Artistic Bookmarks</a>
+              </div>
+            </div>
+
           </div>
         </div>
 
