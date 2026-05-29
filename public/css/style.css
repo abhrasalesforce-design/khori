@@ -44,8 +44,8 @@ input, textarea, select, button { font-family: inherit; }
 
 /* ===== Header ===== */
 header {
-  background: var(--white);
-  border-bottom: 1px solid var(--border);
+  background: #1a1a2e;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
   position: sticky; top: 0; z-index: 100;
 }
 
@@ -68,8 +68,8 @@ header {
   height: auto;
   object-fit: contain;
   display: block;
-  background: #ffffff;
-  padding: 6px 14px;
+  background: transparent;
+  padding: 6px 0;
   border-radius: 4px;
 }
 .logo:hover { opacity: 0.85; }
@@ -83,32 +83,33 @@ header {
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #898AC4;
+  color: rgba(255,255,255,0.75);
   transition: color 0.2s;
 }
-.desktop-nav a:hover { color: #6a6ba8; opacity: 1; }
+.desktop-nav a:hover { color: #fff; opacity: 1; }
 
 /* Nav dropdown — Craft Collection */
 .nav-dropdown { position: relative; }
 .nav-dropdown-toggle {
   background: none; border: none; cursor: pointer;
   font-size: 0.78rem; font-weight: 500; letter-spacing: 0.12em;
-  text-transform: uppercase; color: #898AC4;
+  text-transform: uppercase; color: rgba(255,255,255,0.75);
   transition: color 0.2s; padding: 0; display: flex; align-items: center; gap: 5px;
 }
-.nav-dropdown-toggle:hover { color: #6a6ba8; }
+.nav-dropdown-toggle:hover { color: #fff; }
 
-/* Mega menu panel */
+/* Mega menu panel — dark */
 .nav-mega-menu {
   display: none;
   position: absolute;
-  top: calc(100% + 16px);
+  top: calc(100% + 1px);
   left: 50%; transform: translateX(-50%);
-  background: #fff;
-  border: 1px solid var(--border);
-  box-shadow: 0 16px 48px rgba(60,30,50,0.12);
+  background: #1a1a2e;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-top: 2px solid #898AC4;
+  box-shadow: 0 24px 56px rgba(0,0,0,0.4);
   z-index: 200;
-  padding: 32px 28px 28px;
+  padding: 28px 24px 24px;
   display: none;
   grid-template-columns: repeat(4, 1fr);
   gap: 0;
@@ -118,33 +119,33 @@ header {
 
 .nav-mega-col {
   padding: 0 24px;
-  border-right: 1px solid var(--border);
+  border-right: 1px solid rgba(255,255,255,0.08);
 }
 .nav-mega-col:first-child { padding-left: 0; }
 .nav-mega-col:last-child { border-right: none; padding-right: 0; }
 
 .nav-mega-heading {
   display: block;
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 0.82rem; font-weight: 700;
-  letter-spacing: 0.1em; text-transform: uppercase;
-  color: #898AC4 !important;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: #fff !important;
   margin-bottom: 12px; padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
-.nav-mega-heading:hover { color: #6a6ba8 !important; opacity: 1; }
+.nav-mega-heading:hover { color: #898AC4 !important; opacity: 1; }
 
 .nav-mega-col a:not(.nav-mega-heading) {
   display: block;
   padding: 6px 0;
-  font-size: 0.78rem; font-weight: 400;
+  font-size: 0.76rem; font-weight: 400;
   letter-spacing: 0.04em; text-transform: none;
-  color: #898AC4;
+  color: rgba(255,255,255,0.55);
   transition: color 0.15s, padding-left 0.15s;
   border: none;
 }
 .nav-mega-col a:not(.nav-mega-heading):hover {
-  color: #6a6ba8; padding-left: 4px; opacity: 1;
+  color: #fff; padding-left: 4px; opacity: 1;
 }
 
 /* Mobile nav accordion */
@@ -187,16 +188,17 @@ header {
 .mobile-nav-sub-inner a:hover { color: #fff; padding-left: 28px; opacity: 1; }
 
 .cart-link {
-  background: var(--black);
-  color: var(--white) !important;
+  background: #898AC4;
+  color: #fff !important;
   padding: 10px 22px;
   letter-spacing: 0.1em;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   transition: background 0.2s !important;
+  border-radius: 2px;
 }
-.cart-link:hover { background: var(--text) !important; opacity: 1 !important; }
+.cart-link:hover { background: #6a6ba8 !important; opacity: 1 !important; }
 
 /* ===== Hamburger ===== */
 .hamburger {
@@ -212,7 +214,7 @@ header {
 .ham-line {
   display: block;
   height: 1.5px;
-  background: #898AC4;
+  background: rgba(255,255,255,0.8);
   transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   transform-origin: right center;
 }
@@ -222,7 +224,7 @@ header {
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.18em;
-  color: #898AC4;
+  color: rgba(255,255,255,0.7);
   transition: opacity 0.3s;
   margin-top: 2px;
   line-height: 1;
