@@ -93,9 +93,15 @@
     </button>
   </div>
 
-  <!-- Full-screen mobile menu -->
+  <!-- Dark backdrop -->
+  <div class="mobile-menu-backdrop" id="menuBackdrop"></div>
+
+  <!-- Slide-in sidebar menu -->
   <div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="Navigation menu">
     <div class="mobile-menu-inner">
+      <div class="mobile-menu-close">
+        <button onclick="closeMenu()" aria-label="Close menu">✕</button>
+      </div>
       <nav class="mobile-nav" aria-label="Mobile navigation">
 
         <!-- Craft Collection parent accordion -->
@@ -183,9 +189,11 @@
 <script>
   const hamburger = document.getElementById('hamburger');
   const mobileMenu = document.getElementById('mobileMenu');
+  const backdrop = document.getElementById('menuBackdrop');
   hamburger.addEventListener('click', () => {
     const open = hamburger.classList.toggle('open');
     mobileMenu.classList.toggle('open');
+    backdrop.classList.toggle('open');
     document.body.classList.toggle('menu-open');
     hamburger.setAttribute('aria-expanded', open);
     hamburger.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
@@ -193,13 +201,12 @@
   function closeMenu() {
     hamburger.classList.remove('open');
     mobileMenu.classList.remove('open');
+    backdrop.classList.remove('open');
     document.body.classList.remove('menu-open');
     hamburger.setAttribute('aria-expanded', 'false');
     hamburger.setAttribute('aria-label', 'Open navigation menu');
   }
-  document.addEventListener('click', (e) => {
-    if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) closeMenu();
-  });
+  backdrop.addEventListener('click', closeMenu);
 
   // Desktop dropdown toggles
   document.querySelectorAll('.nav-dropdown-toggle').forEach(function(btn) {
