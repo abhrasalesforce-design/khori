@@ -44,8 +44,8 @@ input, textarea, select, button { font-family: inherit; }
 
 /* ===== Header ===== */
 header {
-  background: #fff;
-  border-bottom: 1px solid var(--border);
+  background: #EECAD5;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
   position: sticky; top: 0; z-index: 100;
 }
 
@@ -68,7 +68,7 @@ header {
   height: auto;
   object-fit: contain;
   display: block;
-  background: #fff;
+  background: transparent;
   padding: 6px 0;
   border-radius: 4px;
 }
@@ -157,7 +157,7 @@ header {
   letter-spacing: 0.1em; text-transform: uppercase;
   color: #3a3a5c;
   padding: 14px 0; display: flex; justify-content: space-between; align-items: center;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
 }
 .mobile-nav-group-toggle .toggle-arrow { transition: transform 0.25s; font-style: normal; font-size: 0.85rem; opacity: 0.5; }
 .mobile-nav-group.open > .mobile-nav-group-toggle > .toggle-arrow { transform: rotate(180deg); }
@@ -172,7 +172,7 @@ header {
   letter-spacing: 0.08em !important;
   text-transform: uppercase !important;
   padding: 10px 0 10px 12px !important;
-  border-bottom: 1px solid var(--border) !important;
+  border-bottom: 1px solid rgba(0,0,0,0.08) !important;
 }
 .mobile-nav-group-toggle-inner:hover { color: #898AC4 !important; }
 .mobile-nav-sub-inner { padding-left: 0 !important; }
@@ -182,7 +182,7 @@ header {
   font-size: 0.8rem; font-weight: 400;
   color: #8a8aaa;
   letter-spacing: 0.04em;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
   transition: color 0.15s, padding-left 0.15s;
 }
 .mobile-nav-sub-inner a:hover { color: #898AC4; padding-left: 28px; opacity: 1; }
@@ -238,7 +238,7 @@ header {
   position: fixed;
   top: 0; right: 0; bottom: 0;
   width: min(320px, 85vw);
-  background: #fff;
+  background: #EECAD5;
   z-index: 190;
   transform: translateX(100%);
   transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
@@ -298,7 +298,7 @@ body.menu-open { overflow: hidden; }
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #3a3a5c !important;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
   transition: color 0.2s, padding-left 0.2s;
   opacity: 1 !important;
 }
@@ -307,7 +307,7 @@ body.menu-open { overflow: hidden; }
 .mobile-menu-footer {
   margin-top: auto;
   padding-top: 32px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
