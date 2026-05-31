@@ -2270,7 +2270,7 @@ footer {
   min-width: 120px;
   height: auto;
   object-fit: contain;
-  background: #ffffff;
+  background: transparent;
   padding: 6px 12px;
   border-radius: 4px;
 }
