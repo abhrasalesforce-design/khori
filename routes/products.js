@@ -3,7 +3,7 @@ const router = express.Router();
 const { db } = require('../database');
 
 router.get('/', async (req, res) => {
-  const { search, category, page } = req.query;
+  const { search, category, page, sort } = req.query;
 
   // Detect mobile via User-Agent — server-side page size decision
   const ua = req.headers['user-agent'] || '';
@@ -13,19 +13,27 @@ router.get('/', async (req, res) => {
   const currentPage = Math.max(1, parseInt(page) || 1);
   const offset = (currentPage - 1) * perPage;
 
+  const orderMap = {
+    'price-asc':  'price ASC',
+    'price-desc': 'price DESC',
+    'name-asc':   'name ASC',
+    'name-desc':  'name DESC',
+  };
+  const orderBy = orderMap[sort] || 'created_at DESC';
+
   let countSql, dataSql, params;
 
   if (search) {
     countSql = 'SELECT COUNT(*) as total FROM products WHERE name LIKE ? OR description LIKE ?';
-    dataSql  = 'SELECT * FROM products WHERE name LIKE ? OR description LIKE ? ORDER BY created_at DESC LIMIT ? OFFSET ?';
+    dataSql  = `SELECT * FROM products WHERE name LIKE ? OR description LIKE ? ORDER BY ${orderBy} LIMIT ? OFFSET ?`;
     params   = [`%${search}%`, `%${search}%`];
   } else if (category) {
     countSql = 'SELECT COUNT(*) as total FROM products WHERE category = ?';
-    dataSql  = 'SELECT * FROM products WHERE category = ? ORDER BY created_at DESC LIMIT ? OFFSET ?';
+    dataSql  = `SELECT * FROM products WHERE category = ? ORDER BY ${orderBy} LIMIT ? OFFSET ?`;
     params   = [category];
   } else {
     countSql = 'SELECT COUNT(*) as total FROM products';
-    dataSql  = 'SELECT * FROM products ORDER BY created_at DESC LIMIT ? OFFSET ?';
+    dataSql  = `SELECT * FROM products ORDER BY ${orderBy} LIMIT ? OFFSET ?`;
     params   = [];
   }
 
@@ -43,6 +51,7 @@ router.get('/', async (req, res) => {
     categories,
     search,
     category,
+    sort: sort || null,
     user: req.session.user || null,
     currentPage,
     totalPages,

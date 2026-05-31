@@ -862,28 +862,34 @@ main { min-height: calc(100vh - 140px); }
   line-height: 1.7;
 }
 
-/* Collection filter strip */
-.cc-collection-filters {
-  max-width: 1300px; margin: 0 auto;
-  padding: 0 48px 28px;
-  display: flex; flex-wrap: wrap; gap: 10px;
+/* Sort By */
+.cc-sort-wrap {
+  display: flex; align-items: center; gap: 10px;
 }
-.cc-coll-btn {
-  display: inline-block;
-  padding: 9px 24px;
+.cc-sort-label {
   font-size: 0.72rem; font-weight: 700;
   letter-spacing: 0.14em; text-transform: uppercase;
+  color: #898AC4; font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+}
+.cc-sort-select {
+  padding: 9px 16px;
+  font-size: 0.78rem; font-weight: 500;
   font-family: 'Inter', sans-serif;
   color: #898AC4;
-  background: transparent;
-  border: 1.5px solid #898AC4;
+  background: #fff;
+  border: 1.5px solid rgba(137,138,196,0.4);
   border-radius: 50px;
-  transition: all 0.2s;
-  opacity: 1 !important;
+  outline: none; cursor: pointer;
+  transition: border-color 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23898AC4' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
 }
-.cc-coll-btn:hover, .cc-coll-btn.active {
-  background: #898AC4; color: #fff; opacity: 1 !important;
-}
+.cc-sort-select:focus { border-color: #898AC4; }
 
 /* Controls row */
 .cc-controls {
@@ -2271,16 +2277,16 @@ main { min-height: calc(100vh - 140px); }
 
 /* ===== Footer ===== */
 footer {
-  background: #FDE8F0;
+  background: #898AC4;
   padding: 60px 48px 32px;
-  border-top: 1px solid #f0c8d8;
+  border-top: 1px solid rgba(255,255,255,0.15);
 }
 
 .footer-inner {
   max-width: 1300px; margin: 0 auto;
   display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 60px;
   padding-bottom: 40px;
-  border-bottom: 1px solid var(--rose);
+  border-bottom: 1px solid rgba(255,255,255,0.2);
 }
 
 .footer-brand .footer-logo {
