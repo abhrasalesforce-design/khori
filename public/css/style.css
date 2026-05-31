@@ -62,9 +62,9 @@ header {
   opacity: 1;
 }
 .logo img {
-  width: 14vw;
-  max-width: 196px;
-  min-width: 100px;
+  width: 12vw;
+  max-width: 167px;
+  min-width: 85px;
   height: auto;
   object-fit: contain;
   display: block;
