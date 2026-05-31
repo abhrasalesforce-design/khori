@@ -79,6 +79,23 @@ async function start() {
   await testConnection();
   await initDb();
   await autoSeed();
+
+  // Upload static images to Cloudinary if credentials are set
+  if (process.env.CLOUDINARY_CLOUD_NAME) {
+    const { uploadStaticImages } = require('./cloudinary');
+    try {
+      const staticUrls = await uploadStaticImages();
+      // Make CDN URLs available in all EJS views as `cdn`
+      app.locals.cdn = staticUrls;
+      console.log(`[Cloudinary] ${Object.keys(staticUrls).length} static images on CDN`);
+    } catch (err) {
+      console.warn('[Cloudinary] Static upload failed, falling back to local:', err.message);
+      app.locals.cdn = {};
+    }
+  } else {
+    app.locals.cdn = {};
+  }
+
   app.listen(PORT, () => console.log(`Khori running at http://localhost:${PORT}`));
 }
 

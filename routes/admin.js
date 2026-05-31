@@ -13,32 +13,9 @@ const upload = multer({
 
 async function saveImage(file) {
   if (!file) return 'placeholder.jpg';
-
-  console.log('CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME ? 'set' : 'NOT SET');
-  console.log('CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? 'set' : 'NOT SET');
-  console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? 'set' : 'NOT SET');
-
   if (process.env.CLOUDINARY_CLOUD_NAME) {
-    const cloudinary = require('cloudinary').v2;
-    cloudinary.config({
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-      api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET,
-    });
-    const result = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
-        { folder: 'khori-products' },
-        (error, result) => {
-          if (error) {
-            console.error('Cloudinary upload error:', error);
-            reject(error);
-          } else {
-            resolve(result);
-          }
-        }
-      ).end(file.buffer);
-    });
-    return result.secure_url;
+    const { uploadBuffer } = require('../cloudinary');
+    return await uploadBuffer(file.buffer, 'khori-products');
   } else {
     const uploadsDir = path.join(__dirname, '../public/uploads');
     if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });

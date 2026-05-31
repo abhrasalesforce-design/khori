@@ -4,8 +4,8 @@
     <div class="footer-brand">
       <a href="/" class="footer-logo">
         <picture>
-          <source srcset="/images/logo.webp" type="image/webp">
-          <img src="/images/logo.png" alt="Hathekhori – Handmade Crafts" width="900" height="297" loading="lazy" decoding="async">
+          <source srcset="<%= cdn && cdn['logo.webp'] ? cdn['logo.webp'] : '/images/logo.webp' %>" type="image/webp">
+          <img src="<%= cdn && cdn['logo.png'] ? cdn['logo.png'] : '/images/logo.png' %>" alt="Hathekhori – Handmade Crafts" width="900" height="297" loading="lazy" decoding="async">
         </picture>
       </a>
       <p>Handmade with love and intention. Every piece tells a story of craft, culture, and care.</p>
