@@ -688,9 +688,9 @@ main { min-height: calc(100vh - 140px); }
   padding: 0 48px;
   text-align: center;
 }
-.artforms-header .intro-eyebrow { color: #546B41; opacity: 0.75; }
-.artforms-header h2 { font-size: 2.2rem; color: #546B41; margin-bottom: 12px; }
-.artforms-header p { color: #546B41; font-size: 0.95rem; opacity: 0.8; }
+.artforms-header .intro-eyebrow { color: #898AC4; opacity: 0.75; }
+.artforms-header h2 { font-size: 2.2rem; color: #898AC4; margin-bottom: 12px; }
+.artforms-header p { color: #898AC4; font-size: 0.95rem; opacity: 0.8; }
 
 .artforms-carousel-wrap {
   display: flex; align-items: center; gap: 0;
@@ -862,6 +862,29 @@ main { min-height: calc(100vh - 140px); }
   line-height: 1.7;
 }
 
+/* Collection filter strip */
+.cc-collection-filters {
+  max-width: 1300px; margin: 0 auto;
+  padding: 0 48px 28px;
+  display: flex; flex-wrap: wrap; gap: 10px;
+}
+.cc-coll-btn {
+  display: inline-block;
+  padding: 9px 24px;
+  font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  font-family: 'Inter', sans-serif;
+  color: #898AC4;
+  background: transparent;
+  border: 1.5px solid #898AC4;
+  border-radius: 50px;
+  transition: all 0.2s;
+  opacity: 1 !important;
+}
+.cc-coll-btn:hover, .cc-coll-btn.active {
+  background: #898AC4; color: #fff; opacity: 1 !important;
+}
+
 /* Controls row */
 .cc-controls {
   max-width: 1300px;
@@ -1026,7 +1049,7 @@ main { min-height: calc(100vh - 140px); }
 .cc-card-name {
   font-size: 0.92rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #898AC4;
   font-family: 'Inter', sans-serif;
   line-height: 1.4;
   margin-bottom: 10px;
@@ -1719,7 +1742,7 @@ main { min-height: calc(100vh - 140px); }
   font-family: 'Inter', sans-serif;
   font-size: 2rem;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #898AC4;
   line-height: 1.2;
   margin-bottom: 16px;
 }
@@ -2275,24 +2298,24 @@ footer {
   border-radius: 4px;
 }
 
-.footer-brand p { color: var(--text-muted); font-size: 0.85rem; line-height: 1.8; max-width: 280px; }
+.footer-brand p { color: rgba(255,255,255,0.75); font-size: 0.85rem; line-height: 1.8; max-width: 280px; }
 
 .footer-col h4 {
   font-family: 'Inter', sans-serif;
   font-size: 0.72rem; font-weight: 700;
   letter-spacing: 0.15em; text-transform: uppercase;
-  color: var(--text); margin-bottom: 16px;
+  color: #fff; margin-bottom: 16px;
 }
 
-.footer-col a { display: block; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px; transition: color 0.2s; }
-.footer-col a:hover { color: var(--black); opacity: 1; }
+.footer-col a { display: block; color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 10px; transition: color 0.2s; }
+.footer-col a:hover { color: #fff; opacity: 1; }
 
 .footer-bottom {
   max-width: 1300px; margin: 0 auto;
   padding-top: 28px;
   display: flex; justify-content: space-between; align-items: center;
 }
-.footer-bottom p { color: var(--text-muted); font-size: 0.78rem; letter-spacing: 0.05em; }
+.footer-bottom p { color: rgba(255,255,255,0.6); font-size: 0.78rem; letter-spacing: 0.05em; }
 
 /* ===== Empty State ===== */
 .empty { text-align: center; padding: 80px 0; color: var(--text-muted); }
