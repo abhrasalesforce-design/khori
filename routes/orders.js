@@ -15,7 +15,9 @@ router.get('/checkout', requireLogin, async (req, res) => {
   if (cart.length === 0) return res.redirect('/cart');
   const items = (await Promise.all(cart.map(async item => {
     const product = await db.get('SELECT * FROM products WHERE id = ?', [item.id]);
-    return product ? { ...product, quantity: item.quantity, subtotal: product.price * item.quantity } : null;
+    if (!product) return null;
+    const discountedPrice = Math.floor(product.price * 0.5);
+    return { ...product, discountedPrice, quantity: item.quantity, subtotal: discountedPrice * item.quantity };
   }))).filter(Boolean);
   const subtotal = items.reduce((sum, i) => sum + i.subtotal, 0);
   const shipping = subtotal < 499 ? 50 : 0;
@@ -30,10 +32,12 @@ router.post('/checkout/place', requireLogin, async (req, res) => {
 
   const items = (await Promise.all(cart.map(async item => {
     const product = await db.get('SELECT * FROM products WHERE id = ?', [item.id]);
-    return product ? { ...product, quantity: item.quantity } : null;
+    if (!product) return null;
+    const discountedPrice = Math.floor(product.price * 0.5);
+    return { ...product, discountedPrice, quantity: item.quantity };
   }))).filter(Boolean);
 
-  const productTotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const productTotal = items.reduce((sum, i) => sum + i.discountedPrice * i.quantity, 0);
   const total = productTotal + (productTotal < 499 ? 50 : 0);
 
   const result = await db.run(
@@ -43,7 +47,7 @@ router.post('/checkout/place', requireLogin, async (req, res) => {
   const orderId = result.lastInsertRowid;
 
   for (const item of items) {
-    await db.run('INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)', [orderId, item.id, item.quantity, item.price]);
+    await db.run('INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)', [orderId, item.id, item.quantity, item.discountedPrice]);
     await db.run('UPDATE products SET stock = stock - ? WHERE id = ?', [item.quantity, item.id]);
   }
 

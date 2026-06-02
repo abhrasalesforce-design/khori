@@ -16,9 +16,9 @@
             <img src="<%= item.image && item.image.startsWith('http') ? item.image : '/uploads/' + item.image %>" alt="<%= item.name %>" loading="lazy" decoding="async" onerror="this.src='/images/placeholder.jpg'">
             <div class="cart-item-info">
               <h3><a href="/product/<%= item.id %>"><%= item.name %></a></h3>
-              <p>₹<%= item.price.toFixed(2) %> each</p>
+              <p>₹<%= item.discountedPrice %> each</p>
             </div>
-            <div class="cart-subtotal">₹<%= item.subtotal.toFixed(2) %></div>
+            <div class="cart-subtotal">₹<%= item.subtotal %></div>
             <div class="cart-item-actions">
               <form method="POST" action="/cart/update" class="qty-form">
                 <input type="hidden" name="product_id" value="<%= item.id %>">
@@ -38,9 +38,9 @@
 
       <div class="cart-summary">
         <h2>Order Summary</h2>
-        <div class="summary-row"><span>Subtotal</span><span>₹<%= subtotal.toFixed(2) %></span></div>
-        <div class="summary-row"><span>Shipping</span><span><%= shipping === 0 ? 'Free' : '₹' + shipping.toFixed(2) %></span></div>
-        <div class="summary-row total-row"><span>Total</span><span>₹<%= total.toFixed(2) %></span></div>
+        <div class="summary-row"><span>Subtotal</span><span>₹<%= subtotal %></span></div>
+        <div class="summary-row"><span>Shipping</span><span><%= shipping === 0 ? 'Free' : '₹' + shipping %></span></div>
+        <div class="summary-row total-row"><span>Total</span><span>₹<%= total %></span></div>
         <% if (user) { %>
           <a href="/checkout" class="btn-primary full-width">Proceed to Checkout</a>
         <% } else { %>

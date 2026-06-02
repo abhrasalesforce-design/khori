@@ -6,7 +6,9 @@ router.get('/cart', async (req, res) => {
   const cart = req.session.cart || [];
   const items = (await Promise.all(cart.map(async item => {
     const product = await db.get('SELECT * FROM products WHERE id = ?', [item.id]);
-    return product ? { ...product, quantity: item.quantity, subtotal: product.price * item.quantity } : null;
+    if (!product) return null;
+    const discountedPrice = Math.floor(product.price * 0.5);
+    return { ...product, discountedPrice, quantity: item.quantity, subtotal: discountedPrice * item.quantity };
   }))).filter(Boolean);
   const subtotal = items.reduce((sum, i) => sum + i.subtotal, 0);
   const shipping = subtotal < 499 ? 50 : 0;
