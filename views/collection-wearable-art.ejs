@@ -7,23 +7,23 @@
     <p style="font-size: 0.75rem; color: #888; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 32px;">
       <a href="/" style="color: #888;">Home</a>
       <span style="margin: 0 8px;">›</span>
-      <span style="color: #546B41;">Wearable Art</span>
+      <span style="color: #898AC4;">Wearable Art</span>
       <% if (sub) { %>
         <span style="margin: 0 8px;">›</span>
-        <span style="color: #546B41;"><%= sub %></span>
+        <span style="color: #898AC4;"><%= sub %></span>
       <% } %>
     </p>
 
     <!-- Heading -->
-    <h1 style="font-family: 'Playfair Display', Georgia, serif; font-size: clamp(2rem, 5vw, 3.2rem); color: #546B41; margin-bottom: 10px; font-weight: 700; letter-spacing: 0.04em;">
+    <h1 style="font-family: 'Playfair Display', Georgia, serif; font-size: clamp(2rem, 5vw, 3.2rem); color: #898AC4; margin-bottom: 10px; font-weight: 700; letter-spacing: 0.04em;">
       Wearable Art
     </h1>
     <% if (sub) { %>
-      <p style="font-size: 1rem; color: #546B41; opacity: 0.75; margin-bottom: 40px; letter-spacing: 0.06em; text-transform: capitalize;">
+      <p style="font-size: 1rem; color: #898AC4; opacity: 0.75; margin-bottom: 40px; letter-spacing: 0.06em; text-transform: capitalize;">
         <%= sub.replace(/-/g, ' ') %>
       </p>
     <% } else { %>
-      <p style="font-size: 0.95rem; color: #546B41; opacity: 0.7; margin-bottom: 40px; max-width: 560px; line-height: 1.7;">
+      <p style="font-size: 0.95rem; color: #898AC4; opacity: 0.7; margin-bottom: 40px; max-width: 560px; line-height: 1.7;">
         Handcrafted pieces you can wear — earrings, pendants, and terracotta jewellery made by artisans across India.
       </p>
     <% } %>
@@ -31,9 +31,9 @@
     <!-- Product grid or empty state -->
     <% if (products.length === 0) { %>
       <div style="text-align: center; padding: 80px 0;">
-        <p style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.5rem; color: #546B41; margin-bottom: 12px; opacity: 0.7;">Coming Soon</p>
+        <p style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.5rem; color: #898AC4; margin-bottom: 12px; opacity: 0.7;">Coming Soon</p>
         <p style="color: #888; font-size: 0.92rem; margin-bottom: 28px;">Products in this collection will appear here shortly.</p>
-        <a href="/" style="display: inline-block; padding: 12px 32px; background: #546B41; color: #fff; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;">Back to Shop</a>
+        <a href="/" style="display: inline-block; padding: 12px 32px; background: #898AC4; color: #fff; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;">Back to Shop</a>
       </div>
     <% } else { %>
       <div class="cc-grid">
