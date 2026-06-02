@@ -3,8 +3,9 @@
 <!-- ===== Hero Carousel ===== -->
 <section class="hero-carousel" id="heroCarousel">
 
-  <!-- Slide 1 — Mini Canvas -->
-  <div class="hero-slide active hero-img-slide" style="background-image: url('<%= cdn["mini-canvas.jpg"] || "/images/mini-canvas.jpg" %>');">
+  <!-- Slide 1 — Mini Canvas (LCP image: real <img> so browser discovers it immediately) -->
+  <div class="hero-slide active hero-img-slide">
+    <img class="hero-bg-img" src="<%= cdn['mini-canvas.jpg'] || '/images/mini-canvas.jpg' %>" alt="" fetchpriority="high" decoding="sync">
     <div class="hero-slide-inner hero-slide-overlay">
       <span class="hero-eyebrow">New Arrival</span>
       <h1>Mini <em>Canvas</em><br>Art</h1>
@@ -13,8 +14,8 @@
     </div>
   </div>
 
-  <!-- Slide 2 — Tote Bags -->
-  <div class="hero-slide hero-img-slide" style="background-image: url('<%= cdn["totebags.jpg"] || "/images/totebags.jpg" %>');">
+  <!-- Slide 2 — Tote Bags (lazy: data-bg loaded on first activation) -->
+  <div class="hero-slide hero-img-slide" data-bg="<%= cdn['totebags.jpg'] || '/images/totebags.jpg' %>">
     <div class="hero-slide-inner hero-slide-overlay">
       <span class="hero-eyebrow">Carry with Purpose</span>
       <h1>Handcrafted<br><em>Tote</em> Bags</h1>
@@ -23,8 +24,8 @@
     </div>
   </div>
 
-  <!-- Slide 3 — Gift Box -->
-  <div class="hero-slide hero-img-slide" style="background-image: url('<%= cdn["stationary.jpg"] || "/images/stationary.jpg" %>');">
+  <!-- Slide 3 — Gift Box (lazy: data-bg loaded on first activation) -->
+  <div class="hero-slide hero-img-slide" data-bg="<%= cdn['stationary.jpg'] || '/images/stationary.jpg' %>">
     <div class="hero-slide-inner hero-slide-overlay">
       <span class="hero-eyebrow">Curate & Gift</span>
       <h1>Build Your Own<br><em>Gift Box</em></h1>
@@ -55,10 +56,16 @@
   const cur    = document.querySelector('.hero-counter-cur');
   let idx = 0, timer;
 
+  function loadBg(slide) {
+    const bg = slide.dataset.bg;
+    if (bg && !slide.style.backgroundImage) slide.style.backgroundImage = 'url(' + bg + ')';
+  }
+
   function go(n) {
     slides[idx].classList.remove('active');
     dots[idx].classList.remove('active');
     idx = (n + slides.length) % slides.length;
+    loadBg(slides[idx]);
     slides[idx].classList.add('active');
     dots[idx].classList.add('active');
     cur.textContent = String(idx + 1).padStart(2, '0');
@@ -267,12 +274,17 @@
     dots.forEach((d, i) => d.classList.toggle('active', i === page));
   }
 
+  let cachedCardWidth = 0;
+  function getCardWidth() {
+    if (!cachedCardWidth) cachedCardWidth = cards[0].offsetWidth + 20;
+    return cachedCardWidth;
+  }
+
   function goTo(index) {
     const visible = getVisible();
     const maxIndex = total - visible;
     current = Math.max(0, Math.min(index, maxIndex));
-    const cardWidth = cards[0].offsetWidth + 20;
-    track.style.transform = `translateX(-${current * cardWidth}px)`;
+    track.style.transform = `translateX(-${current * getCardWidth()}px)`;
     updateDots();
   }
 
@@ -294,7 +306,7 @@
   document.querySelector('.carousel-prev').addEventListener('click', () => { stopAuto(); prev(); startAuto(); });
   carousel.addEventListener('mouseenter', stopAuto);
   carousel.addEventListener('mouseleave', startAuto);
-  window.addEventListener('resize', () => { buildDots(); goTo(0); });
+  window.addEventListener('resize', () => { cachedCardWidth = 0; buildDots(); goTo(0); });
 
   buildDots();
   startAuto();

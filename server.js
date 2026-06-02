@@ -17,7 +17,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Static files — no cache for CSS/JS so updates show immediately, long cache for images
 app.use('/images', express.static(path.join(__dirname, 'public/images'), { maxAge: '30d', immutable: true }));
-app.use('/css', express.static(path.join(__dirname, 'public/css'), { maxAge: 0, etag: false, lastModified: false, setHeaders: (res) => { res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); } }));
+app.use('/css', express.static(path.join(__dirname, 'public/css'), { maxAge: '1h', etag: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads'), { maxAge: '30d', immutable: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 

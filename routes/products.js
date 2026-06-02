@@ -59,7 +59,9 @@ router.get('/', async (req, res) => {
   const catRows = await db.all('SELECT DISTINCT category FROM products');
   const categories = catRows.map(r => r.category);
 
+  const lcpImageUrl = (req.app.locals.cdn && req.app.locals.cdn['mini-canvas.jpg']) || '/images/mini-canvas.jpg';
   res.render('index', {
+    lcpImageUrl,
     products,
     categories,
     search,
