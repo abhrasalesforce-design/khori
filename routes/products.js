@@ -5,10 +5,9 @@ const { db } = require('../database');
 router.get('/', async (req, res) => {
   const { search, category, page, sort } = req.query;
 
-  // Detect mobile via User-Agent — server-side page size decision
   const ua = req.headers['user-agent'] || '';
   const isMobile = /Mobile|Android|iPhone|iPad|iPod/i.test(ua);
-  const perPage = isMobile ? 10 : 30;
+  const perPage = isMobile ? 10 : 20;
 
   const currentPage = Math.max(1, parseInt(page) || 1);
   const offset = (currentPage - 1) * perPage;
@@ -31,6 +30,20 @@ router.get('/', async (req, res) => {
     countSql = 'SELECT COUNT(*) as total FROM products WHERE category = ?';
     dataSql  = `SELECT * FROM products WHERE category = ? ORDER BY ${orderBy} LIMIT ? OFFSET ?`;
     params   = [category];
+  } else if (!sort) {
+    // No filter, no sort — round-robin across categories for a mixed view
+    countSql = 'SELECT COUNT(*) as total FROM products';
+    dataSql  = `
+      WITH ranked AS (
+        SELECT *, ROW_NUMBER() OVER (PARTITION BY category ORDER BY created_at DESC) as rn
+        FROM products
+      )
+      SELECT id, name, description, price, stock, image, category, dimension, material,
+             care_instructions, origin, craft_type, created_at
+      FROM ranked
+      ORDER BY rn, category
+      LIMIT ? OFFSET ?`;
+    params   = [];
   } else {
     countSql = 'SELECT COUNT(*) as total FROM products';
     dataSql  = `SELECT * FROM products ORDER BY ${orderBy} LIMIT ? OFFSET ?`;
