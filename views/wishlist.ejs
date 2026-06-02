@@ -25,7 +25,7 @@
           <div class="wishlist-card-info">
             <p class="wishlist-card-cat"><%= p.category ? p.category.toUpperCase() : '' %></p>
             <a href="/product/<%= p.id %>"><h3 class="wishlist-card-name"><%= p.name %></h3></a>
-            <p class="wishlist-card-price">₹<%= p.price.toFixed(2) %></p>
+            <p class="wishlist-card-price">₹<%= Math.floor(p.price * 0.5) %> <span style="text-decoration:line-through;font-size:0.8rem;opacity:0.6;">₹<%= p.price.toFixed(0) %></span></p>
             <div class="wishlist-card-actions">
               <% if (p.stock > 0) { %>
                 <form method="POST" action="/cart/add" style="display:inline;">
