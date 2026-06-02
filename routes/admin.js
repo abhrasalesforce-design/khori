@@ -49,7 +49,8 @@ router.get('/', requireAdmin, async (req, res) => {
     totalRevenue: orders.filter(o => o.status === 'paid').reduce((s, o) => s + o.total, 0),
     pendingOrders: orders.filter(o => o.status === 'pending').length
   };
-  res.render('admin/dashboard', { products, orders, stats, user: req.session.user, currentPage, totalPages });
+  const flashMsg = req.flash('error')[0] || null;
+  res.render('admin/dashboard', { products, orders, stats, user: req.session.user, currentPage, totalPages, flashMsg });
 });
 
 router.get('/products/new', requireAdmin, (req, res) => {

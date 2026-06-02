@@ -1,9 +1,8 @@
 <%- include('../partials/header') %>
 
 <div class="admin-container">
-  <% const flashMsg = req.flash && req.flash('error'); %>
-  <% if (flashMsg && flashMsg.length) { %>
-    <div class="alert" style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:12px 20px;border-radius:6px;margin-bottom:20px;font-size:0.85rem;"><%= flashMsg[0] %></div>
+  <% if (locals.flashMsg) { %>
+    <div class="alert" style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:12px 20px;border-radius:6px;margin-bottom:20px;font-size:0.85rem;"><%= flashMsg %></div>
   <% } %>
   <div class="admin-header">
     <h1>Admin Dashboard</h1>
