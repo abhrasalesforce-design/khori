@@ -1634,6 +1634,13 @@ main { min-height: calc(100vh - 140px); }
 }
 .admin-header h1 { font-size: 2rem; }
 
+.bulk-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px; flex-wrap: wrap; gap: 12px;
+}
+.bulk-bar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.bulk-import-form { display: inline; }
+
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-bottom: 60px; background: var(--border); border: 1px solid var(--border); }
 .stat-card { background: var(--white); padding: 32px; text-align: center; }
 .stat-card:nth-child(1) { background: var(--blush); }

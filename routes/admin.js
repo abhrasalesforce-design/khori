@@ -146,5 +146,81 @@ router.post('/orders/status/:id', requireAdmin, async (req, res) => {
   res.redirect('/admin');
 });
 
+// ===== Bulk Export =====
+router.get('/products/export', requireAdmin, async (req, res) => {
+  const XLSX = require('xlsx');
+  const products = await db.all('SELECT id, name, price, stock, category, description, material, origin, craft_type, care_instructions FROM products ORDER BY id');
+  const rows = products.map(p => ({
+    ID: p.id,
+    Name: p.name,
+    Price: p.price,
+    Stock: p.stock,
+    Category: p.category,
+    Description: p.description || '',
+    Material: p.material || '',
+    Origin: p.origin || '',
+    'Craft Type': p.craft_type || '',
+    'Care Instructions': p.care_instructions || '',
+  }));
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(rows);
+  // Column widths
+  ws['!cols'] = [{ wch: 6 }, { wch: 30 }, { wch: 10 }, { wch: 8 }, { wch: 20 }, { wch: 40 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 30 }];
+  XLSX.utils.book_append_sheet(wb, ws, 'Products');
+  const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+  res.setHeader('Content-Disposition', 'attachment; filename="khori-products.xlsx"');
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.send(buf);
+});
+
+// ===== Bulk Import =====
+router.post('/products/import', requireAdmin, upload.single('bulkFile'), async (req, res) => {
+  try {
+    const XLSX = require('xlsx');
+    const wb = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws);
+
+    let updated = 0, added = 0, skipped = 0;
+    for (const row of rows) {
+      const id = row['ID'];
+      const name = (row['Name'] || '').toString().trim();
+      const price = parseFloat(row['Price']);
+      const stock = parseInt(row['Stock']);
+      const category = (row['Category'] || '').toString().trim();
+      const description = (row['Description'] || '').toString().trim();
+      const material = (row['Material'] || '').toString().trim();
+      const origin = (row['Origin'] || '').toString().trim();
+      const craft_type = (row['Craft Type'] || '').toString().trim();
+      const care_instructions = (row['Care Instructions'] || '').toString().trim();
+
+      if (!name) { skipped++; continue; }
+
+      if (id) {
+        const existing = await db.get('SELECT id FROM products WHERE id = ?', [id]);
+        if (existing) {
+          await db.run(
+            'UPDATE products SET name=?, price=?, stock=?, category=?, description=?, material=?, origin=?, craft_type=?, care_instructions=? WHERE id=?',
+            [name, isNaN(price) ? 0 : price, isNaN(stock) ? 0 : stock, category || 'general', description, material, origin, craft_type, care_instructions, id]
+          );
+          updated++;
+          continue;
+        }
+      }
+      // New row — insert
+      await db.run(
+        'INSERT INTO products (name, price, stock, category, description, material, origin, craft_type, care_instructions, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [name, isNaN(price) ? 0 : price, isNaN(stock) ? 0 : stock, category || 'general', description, material, origin, craft_type, care_instructions, 'placeholder.jpg']
+      );
+      added++;
+    }
+    req.flash('error', `✓ Import done — ${updated} updated, ${added} added, ${skipped} skipped.`);
+  } catch (err) {
+    console.error('Bulk import error:', err);
+    req.flash('error', 'Import failed: ' + err.message);
+  }
+  res.redirect('/admin');
+});
+
 
 module.exports = router;

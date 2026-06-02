@@ -1,6 +1,10 @@
 <%- include('../partials/header') %>
 
 <div class="admin-container">
+  <% const flashMsg = req.flash && req.flash('error'); %>
+  <% if (flashMsg && flashMsg.length) { %>
+    <div class="alert" style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:12px 20px;border-radius:6px;margin-bottom:20px;font-size:0.85rem;"><%= flashMsg[0] %></div>
+  <% } %>
   <div class="admin-header">
     <h1>Admin Dashboard</h1>
     <a href="/admin/products/new" class="btn-primary">+ Add Product</a>
@@ -13,7 +17,23 @@
     <div class="stat-card"><div class="stat-num"><%= stats.pendingOrders %></div><div class="stat-label">Pending</div></div>
   </div>
 
-  <h2>Products</h2>
+  <!-- Bulk Import/Export -->
+  <div class="bulk-bar">
+    <div class="bulk-bar-left">
+      <h2 style="margin:0">Products</h2>
+    </div>
+    <div class="bulk-bar-right">
+      <a href="/admin/products/export" class="btn-outline" style="font-size:0.78rem;">⬇ Download Excel</a>
+      <form method="POST" action="/admin/products/import" enctype="multipart/form-data" class="bulk-import-form">
+        <label class="btn-outline" style="font-size:0.78rem;cursor:pointer;">
+          ⬆ Upload Excel
+          <input type="file" name="bulkFile" accept=".xlsx,.xls,.csv" onchange="this.closest('form').submit()" style="display:none;">
+        </label>
+      </form>
+    </div>
+  </div>
+  <p style="font-size:0.75rem;color:#898AC4;margin:-8px 0 16px;opacity:0.8;">Download the sheet, edit name / price / stock / category, then re-upload to apply changes in bulk.</p>
+
   <div class="admin-table-wrap">
     <table class="admin-table">
       <thead><tr><th>Image</th><th>Name</th><th>Price</th><th>Stock</th><th>Category</th><th>Actions</th></tr></thead>
