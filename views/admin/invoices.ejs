@@ -1,0 +1,58 @@
+<%- include('../partials/header') %>
+
+<div class="admin-container">
+  <% if (locals.flashMsg) { %>
+    <div class="alert" style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:12px 20px;border-radius:6px;margin-bottom:20px;font-size:0.85rem;"><%= flashMsg %></div>
+  <% } %>
+
+  <div class="admin-header">
+    <h1 style="color:#898AC4;">Offline Invoices</h1>
+    <a href="/admin/invoices/new" class="btn-primary">+ New Invoice</a>
+  </div>
+  <p style="font-size:0.8rem;color:#898AC4;opacity:0.8;margin:-8px 0 24px;">Create invoices for walk-in / offline purchases. Stock is reduced automatically.</p>
+
+  <% if (invoices.length === 0) { %>
+    <div style="text-align:center;padding:60px 0;color:#898AC4;opacity:0.7;">
+      <p style="font-size:1.1rem;margin-bottom:12px;">No invoices yet.</p>
+      <a href="/admin/invoices/new" class="btn-primary">Create First Invoice</a>
+    </div>
+  <% } else { %>
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Customer</th>
+          <th>Phone</th>
+          <th>Total</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% invoices.forEach(inv => { %>
+          <tr>
+            <td>INV-<%= String(inv.id).padStart(4, '0') %></td>
+            <td><%= inv.customer_name %></td>
+            <td><%= inv.customer_phone || '—' %></td>
+            <td>₹<%= inv.total.toFixed(2) %></td>
+            <td><%= new Date(inv.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) %></td>
+            <td>
+              <a href="/admin/invoices/<%= inv.id %>/print" class="btn-sm">Print</a>
+              <form method="POST" action="/admin/invoices/<%= inv.id %>/delete" style="display:inline" onsubmit="return confirm('Delete this invoice? Stock will NOT be restored.')">
+                <button type="submit" class="btn-sm btn-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+
+  <div style="margin-top:32px;">
+    <a href="/admin" style="font-size:0.82rem;color:#898AC4;">← Back to Dashboard</a>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

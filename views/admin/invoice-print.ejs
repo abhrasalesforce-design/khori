@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice INV-<%= String(invoice.id).padStart(4,'0') %> | Hathekhori</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', Arial, sans-serif; color: #3a2e2e; background: #fff; font-size: 14px; }
+
+    .invoice-wrap { max-width: 720px; margin: 40px auto; padding: 48px; border: 1px solid #e8dde3; }
+
+    /* Header */
+    .inv-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; }
+    .inv-brand h1 { font-family: Georgia, serif; font-size: 1.8rem; color: #898AC4; letter-spacing: 0.04em; }
+    .inv-brand p { font-size: 0.78rem; color: #898AC4; margin-top: 4px; }
+    .inv-meta { text-align: right; }
+    .inv-meta .inv-num { font-size: 1.1rem; font-weight: 700; color: #898AC4; }
+    .inv-meta p { font-size: 0.8rem; color: #898AC4; margin-top: 4px; }
+
+    /* Bill to */
+    .inv-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 36px; padding-bottom: 28px; border-bottom: 2px solid #e8dde3; }
+    .inv-party-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #898AC4; margin-bottom: 8px; }
+    .inv-party-name { font-size: 1rem; font-weight: 600; color: #3a2e2e; margin-bottom: 4px; }
+    .inv-party-detail { font-size: 0.82rem; color: #898AC4; line-height: 1.6; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 28px; }
+    thead tr { border-bottom: 2px solid #898AC4; }
+    th { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #898AC4; padding: 10px 12px; text-align: left; }
+    th:last-child, td:last-child { text-align: right; }
+    td { padding: 12px 12px; font-size: 0.88rem; border-bottom: 1px solid #f0eaf0; color: #3a2e2e; }
+    tbody tr:last-child td { border-bottom: none; }
+
+    /* Totals */
+    .inv-totals { display: flex; justify-content: flex-end; margin-bottom: 32px; }
+    .inv-totals-table { min-width: 260px; }
+    .inv-totals-table tr td { padding: 6px 12px; font-size: 0.88rem; border: none; }
+    .inv-totals-table tr td:first-child { color: #898AC4; }
+    .inv-totals-table tr td:last-child { font-weight: 600; text-align: right; }
+    .inv-totals-table .grand td { font-size: 1rem; font-weight: 700; color: #898AC4; border-top: 2px solid #e8dde3; padding-top: 10px; }
+
+    /* Notes & footer */
+    .inv-notes { font-size: 0.8rem; color: #898AC4; border-top: 1px solid #e8dde3; padding-top: 20px; margin-bottom: 32px; }
+    .inv-footer { text-align: center; font-size: 0.75rem; color: #898AC4; opacity: 0.7; border-top: 1px solid #e8dde3; padding-top: 20px; }
+
+    /* Print actions — hidden when printing */
+    .print-actions { max-width: 720px; margin: 0 auto 20px; display: flex; gap: 12px; padding: 0 48px; }
+    @media print {
+      .print-actions { display: none; }
+      .invoice-wrap { border: none; margin: 0; padding: 32px; }
+      body { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="print-actions">
+  <button onclick="window.print()" style="padding:10px 28px;background:#898AC4;color:#fff;border:none;border-radius:6px;font-size:0.85rem;font-weight:600;cursor:pointer;margin-top:20px;">🖨 Print / Save PDF</button>
+  <a href="/admin/invoices/new" style="padding:10px 22px;border:1px solid #898AC4;color:#898AC4;border-radius:6px;font-size:0.85rem;font-weight:600;text-decoration:none;margin-top:20px;display:inline-block;">+ New Invoice</a>
+  <a href="/admin/invoices" style="padding:10px 22px;border:1px solid #e8dde3;color:#898AC4;border-radius:6px;font-size:0.85rem;text-decoration:none;margin-top:20px;display:inline-block;">← All Invoices</a>
+</div>
+
+<div class="invoice-wrap">
+
+  <!-- Header -->
+  <div class="inv-header">
+    <div class="inv-brand">
+      <h1>Hathekhori</h1>
+      <p>Handmade crafts rooted in Bengali tradition</p>
+      <p style="margin-top:2px;">www.hathekhori.com</p>
+    </div>
+    <div class="inv-meta">
+      <div class="inv-num">INV-<%= String(invoice.id).padStart(4,'0') %></div>
+      <p>Date: <%= new Date(invoice.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' }) %></p>
+      <p style="margin-top:6px;font-size:0.72rem;background:#f5f0fb;color:#898AC4;padding:3px 10px;border-radius:4px;display:inline-block;">OFFLINE SALE</p>
+    </div>
+  </div>
+
+  <!-- Bill To / From -->
+  <div class="inv-parties">
+    <div>
+      <div class="inv-party-label">Bill To</div>
+      <div class="inv-party-name"><%= invoice.customer_name %></div>
+      <% if (invoice.customer_phone) { %>
+        <div class="inv-party-detail">📞 <%= invoice.customer_phone %></div>
+      <% } %>
+      <% if (invoice.customer_address) { %>
+        <div class="inv-party-detail"><%= invoice.customer_address %></div>
+      <% } %>
+    </div>
+    <div>
+      <div class="inv-party-label">From</div>
+      <div class="inv-party-name">Hathekhori</div>
+      <div class="inv-party-detail">hathekhori.com</div>
+    </div>
+  </div>
+
+  <!-- Items table -->
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Product</th>
+        <th style="text-align:center;">Qty</th>
+        <th style="text-align:right;">Unit Price</th>
+        <th>Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% items.forEach((item, i) => { %>
+        <tr>
+          <td style="color:#898AC4;"><%= i + 1 %></td>
+          <td><%= item.product_name %></td>
+          <td style="text-align:center;"><%= item.quantity %></td>
+          <td style="text-align:right;">₹<%= item.unit_price.toFixed(2) %></td>
+          <td>₹<%= (item.unit_price * item.quantity).toFixed(2) %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <!-- Totals -->
+  <div class="inv-totals">
+    <table class="inv-totals-table">
+      <tr class="grand">
+        <td>Total</td>
+        <td>₹<%= invoice.total.toFixed(2) %></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Notes -->
+  <% if (invoice.notes) { %>
+    <div class="inv-notes"><strong>Notes:</strong> <%= invoice.notes %></div>
+  <% } %>
+
+  <!-- Footer -->
+  <div class="inv-footer">
+    Thank you for your purchase! 🌸 Each piece is handcrafted with love by artisans across India.
+  </div>
+
+</div>
+</body>
+</html>

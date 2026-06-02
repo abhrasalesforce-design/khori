@@ -91,6 +91,26 @@ async function initDb() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       UNIQUE(user_id, product_id)
     );
+    CREATE TABLE IF NOT EXISTS invoices (
+      id SERIAL PRIMARY KEY,
+      customer_name TEXT NOT NULL,
+      customer_phone TEXT,
+      customer_address TEXT,
+      total REAL NOT NULL,
+      discount_amount REAL DEFAULT 0,
+      notes TEXT,
+      created_by INTEGER,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS invoice_items (
+      id SERIAL PRIMARY KEY,
+      invoice_id INTEGER NOT NULL,
+      product_id INTEGER,
+      product_name TEXT NOT NULL,
+      quantity INTEGER NOT NULL,
+      unit_price REAL NOT NULL,
+      FOREIGN KEY (invoice_id) REFERENCES invoices(id)
+    );
   `;
 
   if (isPostgres) {
@@ -102,6 +122,16 @@ async function initDb() {
     await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS craft_type TEXT`);
     await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id TEXT`);
     await pool.query(`ALTER TABLE users ALTER COLUMN password DROP NOT NULL`).catch(() => {});
+    await pool.query(`CREATE TABLE IF NOT EXISTS invoices (
+      id SERIAL PRIMARY KEY, customer_name TEXT NOT NULL, customer_phone TEXT,
+      customer_address TEXT, total REAL NOT NULL, discount_amount REAL DEFAULT 0,
+      notes TEXT, created_by INTEGER, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`);
+    await pool.query(`CREATE TABLE IF NOT EXISTS invoice_items (
+      id SERIAL PRIMARY KEY, invoice_id INTEGER NOT NULL, product_id INTEGER,
+      product_name TEXT NOT NULL, quantity INTEGER NOT NULL, unit_price REAL NOT NULL,
+      FOREIGN KEY (invoice_id) REFERENCES invoices(id)
+    )`);
   } else {
     sqliteDb.exec(schema.replace(/SERIAL PRIMARY KEY/g, 'INTEGER PRIMARY KEY AUTOINCREMENT').replace(/TIMESTAMP/g, 'DATETIME'));
     try { sqliteDb.exec(`ALTER TABLE products ADD COLUMN dimension TEXT`); } catch (_) {}
@@ -110,6 +140,8 @@ async function initDb() {
     try { sqliteDb.exec(`ALTER TABLE products ADD COLUMN origin TEXT`); } catch (_) {}
     try { sqliteDb.exec(`ALTER TABLE products ADD COLUMN craft_type TEXT`); } catch (_) {}
     try { sqliteDb.exec(`ALTER TABLE users ADD COLUMN google_id TEXT`); } catch (_) {}
+    try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS invoices (id INTEGER PRIMARY KEY AUTOINCREMENT, customer_name TEXT NOT NULL, customer_phone TEXT, customer_address TEXT, total REAL NOT NULL, discount_amount REAL DEFAULT 0, notes TEXT, created_by INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`); } catch (_) {}
+    try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS invoice_items (id INTEGER PRIMARY KEY AUTOINCREMENT, invoice_id INTEGER NOT NULL, product_id INTEGER, product_name TEXT NOT NULL, quantity INTEGER NOT NULL, unit_price REAL NOT NULL)`); } catch (_) {}
   }
 }
 

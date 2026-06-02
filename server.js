@@ -59,6 +59,7 @@ app.use('/', require('./routes/cart'));
 app.use('/', require('./routes/orders'));
 app.use('/', require('./routes/wishlist'));
 app.use('/admin', require('./routes/admin'));
+app.use('/admin/invoices', require('./routes/invoices'));
 
 // Auto-generated sitemap for Google Search Console
 app.get('/sitemap.xml', async (req, res) => {
