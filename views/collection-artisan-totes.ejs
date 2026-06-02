@@ -52,7 +52,7 @@
               <span class="cc-card-cat"><%= product.category %></span>
               <h3 class="cc-card-name"><%= product.name %></h3>
               <div class="cc-card-price">
-                <span class="cc-price-now">₹<%= (product.price * 0.5).toFixed(0) %></span>
+                <span class="cc-price-now">₹<%= Math.floor(product.price * 0.5) %></span>
                 <span class="cc-price-was">₹<%= product.price.toFixed(0) %></span>
               </div>
             </div>
