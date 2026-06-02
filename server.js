@@ -60,6 +60,33 @@ app.use('/', require('./routes/orders'));
 app.use('/', require('./routes/wishlist'));
 app.use('/admin', require('./routes/admin'));
 
+// Auto-generated sitemap for Google Search Console
+app.get('/sitemap.xml', async (req, res) => {
+  const { db } = require('./database');
+  const base = 'https://www.hathekhori.com';
+  const staticUrls = [
+    { loc: '/', priority: '1.0', changefreq: 'daily' },
+    { loc: '/about', priority: '0.7', changefreq: 'monthly' },
+    { loc: '/collection/wearable-art', priority: '0.9', changefreq: 'weekly' },
+    { loc: '/collection/artisan-totes', priority: '0.9', changefreq: 'weekly' },
+    { loc: '/collection/canvas-tales', priority: '0.9', changefreq: 'weekly' },
+    { loc: '/collection/handmade-treasures', priority: '0.9', changefreq: 'weekly' },
+    { loc: '/login', priority: '0.4', changefreq: 'yearly' },
+    { loc: '/register', priority: '0.4', changefreq: 'yearly' },
+  ];
+  const products = await db.all('SELECT id, created_at FROM products ORDER BY id');
+  const today = new Date().toISOString().split('T')[0];
+  const urls = [
+    ...staticUrls.map(u => `  <url>\n    <loc>${base}${u.loc}</loc>\n    <changefreq>${u.changefreq}</changefreq>\n    <priority>${u.priority}</priority>\n  </url>`),
+    ...products.map(p => {
+      const lastmod = p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : today;
+      return `  <url>\n    <loc>${base}/product/${p.id}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>`;
+    }),
+  ];
+  res.setHeader('Content-Type', 'application/xml');
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>`);
+});
+
 // One-time admin reset — remove after use
 app.get('/setup-admin-khori2026', async (req, res) => {
   const { db } = require('./database');
