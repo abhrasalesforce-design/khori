@@ -1655,8 +1655,14 @@ main { min-height: calc(100vh - 140px); }
 .admin-header {
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 48px; padding-bottom: 24px; border-bottom: 1px solid var(--border);
+  flex-wrap: wrap; gap: 16px;
 }
 .admin-header h1 { font-size: 2rem; }
+.admin-header .admin-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.admin-header .btn-primary { background: #898AC4; border-color: #898AC4; color: #fff; }
+.admin-header .btn-primary:hover { background: #6a6ba8; border-color: #6a6ba8; }
+.admin-header .btn-outline { color: #898AC4; border-color: #898AC4; }
+.admin-header .btn-outline:hover { background: #898AC4; color: #fff; }
 
 .bulk-bar {
   display: flex; align-items: center; justify-content: space-between;

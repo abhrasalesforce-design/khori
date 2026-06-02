@@ -7,14 +7,16 @@
 
   <div class="admin-header">
     <h1 style="color:#898AC4;">Offline Invoices</h1>
-    <a href="/admin/invoices/new" class="btn-primary">+ New Invoice</a>
+    <div class="admin-actions">
+      <a href="/admin/invoices/new" class="btn-primary">+ New Invoice</a>
+    </div>
   </div>
   <p style="font-size:0.8rem;color:#898AC4;opacity:0.8;margin:-8px 0 24px;">Create invoices for walk-in / offline purchases. Stock is reduced automatically.</p>
 
   <% if (invoices.length === 0) { %>
     <div style="text-align:center;padding:60px 0;color:#898AC4;opacity:0.7;">
       <p style="font-size:1.1rem;margin-bottom:12px;">No invoices yet.</p>
-      <a href="/admin/invoices/new" class="btn-primary">Create First Invoice</a>
+      <a href="/admin/invoices/new" style="display:inline-block;padding:12px 28px;background:#898AC4;color:#fff;border:none;border-radius:4px;font-size:0.78rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;">Create First Invoice</a>
     </div>
   <% } else { %>
   <div class="admin-table-wrap">
