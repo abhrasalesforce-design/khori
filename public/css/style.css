@@ -396,7 +396,6 @@ main { min-height: calc(100vh - 140px); }
 .hero-img-slide {
   background-size: cover;
   background-position: center;
-  position: relative;
 }
 .hero-bg-img {
   position: absolute;
