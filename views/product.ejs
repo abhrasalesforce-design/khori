@@ -54,6 +54,7 @@
       <!-- Quantity + Buttons -->
       <% if (product.stock > 0) { %>
         <form method="POST" action="/cart/add" class="pd-add-form" id="pdAddForm">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <input type="hidden" name="product_id" value="<%= product.id %>">
 
           <!-- Qty stepper + Add to Cart on same row -->
@@ -196,7 +197,10 @@
       try {
         const res = await fetch('/wishlist/toggle', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+          },
           body: 'product_id=' + encodeURIComponent(btn.dataset.productId)
         });
         const data = await res.json();

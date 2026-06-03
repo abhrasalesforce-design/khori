@@ -7,6 +7,7 @@
   </div>
 
   <form method="POST" action="/admin/invoices/new" id="invoiceForm">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
     <!-- Customer Details -->
     <div style="background:#fff;border:1px solid #e8dde3;border-radius:10px;padding:28px 32px;margin-bottom:24px;">

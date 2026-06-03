@@ -6,6 +6,8 @@ const flash = require('connect-flash');
 const passport = require('passport');
 const path = require('path');
 const { initDb, testConnection } = require('./database');
+const cookieParser = require('cookie-parser');
+const { doubleCsrf } = require('csrf-csrf');
 
 const app = express();
 
@@ -26,6 +28,7 @@ app.locals.buildVersion = Date.now();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookieParser());
 
 let sessionStore;
 if (process.env.DATABASE_URL) {
@@ -49,6 +52,29 @@ app.use(session({
 }));
 app.use(flash());
 app.use(passport.initialize());
+
+const isProduction = process.env.NODE_ENV === 'production';
+const { generateCsrfToken, doubleCsrfProtection } = doubleCsrf({
+  getSecret: () => process.env.SESSION_SECRET || 'khori_dev_secret',
+  getSessionIdentifier: (req) => req.session?.id || req.sessionID || '',
+  cookieName: isProduction ? '__Host-x-csrf-token' : 'x-csrf-token',
+  cookieOptions: {
+    secure: isProduction,
+    sameSite: 'lax',
+    path: '/',
+    httpOnly: true,
+  },
+  getCsrfTokenFromRequest: (req) =>
+    req.body?._csrf || req.headers['x-csrf-token'],
+});
+
+app.use(doubleCsrfProtection);
+
+// Make CSRF token available to all EJS views
+app.use((req, res, next) => {
+  res.locals.csrfToken = generateCsrfToken(req, res);
+  next();
+});
 
 // Load Google strategy (requires session to be set up first)
 require('./routes/auth');

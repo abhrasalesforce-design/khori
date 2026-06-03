@@ -21,6 +21,7 @@
             <div class="cart-subtotal">₹<%= item.subtotal %></div>
             <div class="cart-item-actions">
               <form method="POST" action="/cart/update" class="qty-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <input type="hidden" name="product_id" value="<%= item.id %>">
                 <input type="number" name="quantity" value="<%= item.quantity %>" min="1" max="<%= item.stock %>">
                 <button type="submit">Update</button>
@@ -28,6 +29,7 @@
             </div>
             <div class="cart-item-remove">
               <form method="POST" action="/cart/remove">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <input type="hidden" name="product_id" value="<%= item.id %>">
                 <button type="submit" class="btn-remove">✕ Remove</button>
               </form>

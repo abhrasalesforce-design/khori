@@ -159,6 +159,7 @@
         </div>
         <% if (product.stock > 0) { %>
           <form method="POST" action="/cart/add" class="cc-card-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <input type="hidden" name="product_id" value="<%= product.id %>">
             <input type="hidden" name="quantity" value="1">
             <button type="submit" class="cc-btn-add">Add to Cart</button>

@@ -5,6 +5,7 @@
   <% if (error && error.length) { %><div class="alert alert-error"><%= error %></div><% } %>
 
   <form method="POST" action="<%= product ? '/admin/products/edit/' + product.id : '/admin/products/new' %>" enctype="multipart/form-data" class="product-form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <div class="form-row">
       <label>Product Name *</label>
       <input type="text" name="name" value="<%= product ? product.name : '' %>" required>
@@ -112,6 +113,7 @@
     if (imageFile) data.append('image', imageFile);
 
     try {
+      data.append('_csrf', document.querySelector('meta[name="csrf-token"]').content);
       const res = await fetch('/admin/generate-description', { method: 'POST', body: data });
       const json = await res.json();
       if (json.description) {

@@ -4,6 +4,7 @@
   <h1>Checkout</h1>
   <div class="checkout-layout">
     <form id="checkout-form" method="POST" action="/checkout/place">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <div class="form-section">
         <h2>Shipping Details</h2>
         <div class="form-row">

@@ -42,6 +42,7 @@
             <td>
               <a href="/admin/invoices/<%= inv.id %>/print" class="btn-sm">Print</a>
               <form method="POST" action="/admin/invoices/<%= inv.id %>/delete" style="display:inline" onsubmit="return confirm('Delete this invoice? Stock will NOT be restored.')">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <button type="submit" class="btn-sm btn-danger">Delete</button>
               </form>
             </td>

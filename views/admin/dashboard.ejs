@@ -27,6 +27,7 @@
     <div class="bulk-bar-right">
       <a href="/admin/products/export" class="btn-outline" style="font-size:0.78rem;">⬇ Download Excel</a>
       <form method="POST" action="/admin/products/import" enctype="multipart/form-data" class="bulk-import-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <label class="btn-outline" style="font-size:0.78rem;cursor:pointer;">
           ⬆ Upload Excel
           <input type="file" name="bulkFile" accept=".xlsx,.xls,.csv" onchange="this.closest('form').submit()" style="display:none;">
@@ -50,6 +51,7 @@
             <td>
               <a href="/admin/products/edit/<%= p.id %>" class="btn-sm">Edit</a>
               <form method="POST" action="/admin/products/delete/<%= p.id %>" style="display:inline" onsubmit="return confirm('Delete this product?')">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <button type="submit" class="btn-sm btn-danger">Delete</button>
               </form>
             </td>
@@ -87,6 +89,7 @@
             <td><%= new Date(o.created_at).toLocaleDateString() %></td>
             <td>
               <form method="POST" action="/admin/orders/status/<%= o.id %>">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <select name="status">
                   <option value="pending" <%= o.status==='pending'?'selected':'' %>>pending</option>
                   <option value="paid" <%= o.status==='paid'?'selected':'' %>>paid</option>

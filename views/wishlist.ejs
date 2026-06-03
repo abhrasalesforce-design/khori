@@ -29,6 +29,7 @@
             <div class="wishlist-card-actions">
               <% if (p.stock > 0) { %>
                 <form method="POST" action="/cart/add" style="display:inline;">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <input type="hidden" name="product_id" value="<%= p.id %>">
                   <input type="hidden" name="quantity" value="1">
                   <button type="submit" class="btn-sm">Add to Cart</button>
