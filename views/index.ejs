@@ -100,17 +100,28 @@
     <p class="cc-subtitle">Each piece is made by hand, rooted in tradition, and full of story.</p>
   </div>
 
-  <!-- Sort + Search -->
+  <!-- Sort + Category + Search -->
   <div class="cc-controls">
-    <div class="cc-sort-wrap">
-      <label class="cc-sort-label">Sort By</label>
-      <select class="cc-sort-select" onchange="window.location.href=this.value + '#shop'">
-        <option value="/" <%= !category && !search ? 'selected' : '' %>>Latest</option>
-        <option value="/?sort=price-asc" <%= locals.sort === 'price-asc' ? 'selected' : '' %>>Price: Low to High</option>
-        <option value="/?sort=price-desc" <%= locals.sort === 'price-desc' ? 'selected' : '' %>>Price: High to Low</option>
-        <option value="/?sort=name-asc" <%= locals.sort === 'name-asc' ? 'selected' : '' %>>Name: A–Z</option>
-        <option value="/?sort=name-desc" <%= locals.sort === 'name-desc' ? 'selected' : '' %>>Name: Z–A</option>
-      </select>
+    <div class="cc-selects-row">
+      <div class="cc-sort-wrap">
+        <label class="cc-sort-label">Sort By</label>
+        <select class="cc-sort-select" onchange="window.location.href=this.value + '#shop'">
+          <option value="/" <%= !category && !search ? 'selected' : '' %>>Latest</option>
+          <option value="/?sort=price-asc" <%= locals.sort === 'price-asc' ? 'selected' : '' %>>Price: Low to High</option>
+          <option value="/?sort=price-desc" <%= locals.sort === 'price-desc' ? 'selected' : '' %>>Price: High to Low</option>
+          <option value="/?sort=name-asc" <%= locals.sort === 'name-asc' ? 'selected' : '' %>>Name: A–Z</option>
+          <option value="/?sort=name-desc" <%= locals.sort === 'name-desc' ? 'selected' : '' %>>Name: Z–A</option>
+        </select>
+      </div>
+      <div class="cc-sort-wrap">
+        <label class="cc-sort-label">Category</label>
+        <select class="cc-sort-select" onchange="window.location.href=this.value + '#shop'">
+          <option value="/" <%= !category ? 'selected' : '' %>>All</option>
+          <% categories.forEach(cat => { %>
+            <option value="/?category=<%= encodeURIComponent(cat) %>" <%= category === cat ? 'selected' : '' %>><%= cat.charAt(0).toUpperCase() + cat.slice(1) %></option>
+          <% }) %>
+        </select>
+      </div>
     </div>
     <form method="GET" action="/" class="cc-search">
       <% if (category) { %><input type="hidden" name="category" value="<%= category %>"><% } %>
