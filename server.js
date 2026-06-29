@@ -54,7 +54,7 @@ app.use(flash());
 app.use(passport.initialize());
 
 const isProduction = process.env.NODE_ENV === 'production';
-const { generateCsrfToken, doubleCsrfProtection } = doubleCsrf({
+const { generateCsrfToken, doubleCsrfProtection, validateRequest } = doubleCsrf({
   getSecret: () => process.env.SESSION_SECRET || 'khori_dev_secret',
   getSessionIdentifier: (req) => req.session?.id || req.sessionID || '',
   cookieName: isProduction ? '__Host-x-csrf-token' : 'x-csrf-token',
@@ -68,13 +68,22 @@ const { generateCsrfToken, doubleCsrfProtection } = doubleCsrf({
     req.body?._csrf || req.headers['x-csrf-token'],
 });
 
-app.use(doubleCsrfProtection);
+// Skip global CSRF check for multipart uploads — multer hasn't parsed the body yet
+// so req.body._csrf is unavailable. Those routes verify CSRF manually after multer runs.
+app.use((req, res, next) => {
+  const isMultipart = (req.headers['content-type'] || '').startsWith('multipart/form-data');
+  if (req.method === 'POST' && isMultipart) return next();
+  doubleCsrfProtection(req, res, next);
+});
 
 // Make CSRF token available to all EJS views
 app.use((req, res, next) => {
   res.locals.csrfToken = generateCsrfToken(req, res);
   next();
 });
+
+// Expose CSRF validator for routes that run multer before CSRF check
+app.locals.validateCsrf = validateRequest;
 
 // Load Google strategy (requires session to be set up first)
 require('./routes/auth');

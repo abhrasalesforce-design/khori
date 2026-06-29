@@ -11,6 +11,15 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }
 });
 
+// Verify CSRF token after multer has parsed the multipart body
+function csrfAfterMulter(req, res, next) {
+  const validate = req.app.locals.validateCsrf;
+  if (!validate(req)) {
+    return res.status(403).send('Invalid CSRF token.');
+  }
+  next();
+}
+
 async function saveImage(file) {
   if (!file) return 'placeholder.jpg';
   if (process.env.CLOUDINARY_CLOUD_NAME) {
@@ -57,7 +66,7 @@ router.get('/products/new', requireAdmin, (req, res) => {
   res.render('admin/product-form', { product: null, error: req.flash('error'), user: req.session.user });
 });
 
-router.post('/products/new', requireAdmin, upload.single('image'), async (req, res) => {
+router.post('/products/new', requireAdmin, upload.single('image'), csrfAfterMulter, async (req, res) => {
   try {
     const { name, description, price, stock, category, dim_l, dim_b, dim_h, material, care_instructions, origin, craft_type } = req.body;
     const dimension = (dim_l && dim_b && dim_h) ? `${dim_l.trim()} × ${dim_b.trim()} × ${dim_h.trim()}` : null;
@@ -84,7 +93,7 @@ router.get('/products/edit/:id', requireAdmin, async (req, res) => {
   res.render('admin/product-form', { product, error: req.flash('error'), user: req.session.user });
 });
 
-router.post('/products/edit/:id', requireAdmin, upload.single('image'), async (req, res) => {
+router.post('/products/edit/:id', requireAdmin, upload.single('image'), csrfAfterMulter, async (req, res) => {
   try {
     const { name, description, price, stock, category, dim_l, dim_b, dim_h, material, care_instructions, origin, craft_type } = req.body;
     const dimension = (dim_l && dim_b && dim_h) ? `${dim_l.trim()} × ${dim_b.trim()} × ${dim_h.trim()}` : null;
@@ -108,7 +117,7 @@ router.post('/products/delete/:id', requireAdmin, async (req, res) => {
   res.redirect('/admin');
 });
 
-router.post('/generate-description', requireAdmin, upload.single('image'), async (req, res) => {
+router.post('/generate-description', requireAdmin, upload.single('image'), csrfAfterMulter, async (req, res) => {
   try {
     const { GoogleGenerativeAI } = require('@google/generative-ai');
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -175,7 +184,7 @@ router.get('/products/export', requireAdmin, async (req, res) => {
 });
 
 // ===== Bulk Import =====
-router.post('/products/import', requireAdmin, upload.single('bulkFile'), async (req, res) => {
+router.post('/products/import', requireAdmin, upload.single('bulkFile'), csrfAfterMulter, async (req, res) => {
   try {
     const XLSX = require('xlsx');
     const wb = XLSX.read(req.file.buffer, { type: 'buffer' });
