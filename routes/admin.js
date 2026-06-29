@@ -34,6 +34,15 @@ async function saveImage(file) {
   }
 }
 
+async function saveImages(files) {
+  if (!files || files.length === 0) return [];
+  const results = [];
+  for (const file of files) {
+    results.push(await saveImage(file));
+  }
+  return results;
+}
+
 function requireAdmin(req, res, next) {
   if (!req.session.user || !req.session.user.is_admin) return res.redirect('/login');
   next();
@@ -66,7 +75,7 @@ router.get('/products/new', requireAdmin, (req, res) => {
   res.render('admin/product-form', { product: null, error: req.flash('error'), user: req.session.user });
 });
 
-router.post('/products/new', requireAdmin, upload.single('image'), csrfAfterMulter, async (req, res) => {
+router.post('/products/new', requireAdmin, upload.array('images', 10), csrfAfterMulter, async (req, res) => {
   try {
     const { name, description, price, stock, category, dim_l, dim_b, dim_h, material, care_instructions, origin, craft_type } = req.body;
     const dimension = (dim_l && dim_b && dim_h) ? `${dim_l.trim()} × ${dim_b.trim()} × ${dim_h.trim()}` : null;
@@ -74,10 +83,12 @@ router.post('/products/new', requireAdmin, upload.single('image'), csrfAfterMult
       req.flash('error', 'Name and price are required.');
       return res.redirect('/admin/products/new');
     }
-    const image = await saveImage(req.file);
+    const uploadedImages = await saveImages(req.files);
+    const image = uploadedImages[0] || 'placeholder.jpg';
+    const images = uploadedImages.length > 0 ? JSON.stringify(uploadedImages) : null;
     await db.run(
-      'INSERT INTO products (name, description, price, stock, image, category, dimension, material, care_instructions, origin, craft_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [name, description, parseFloat(price), parseInt(stock) || 0, image, category || 'general', dimension || null, material || null, care_instructions || null, origin || null, craft_type || null]
+      'INSERT INTO products (name, description, price, stock, image, images, category, dimension, material, care_instructions, origin, craft_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [name, description, parseFloat(price), parseInt(stock) || 0, image, images, category || 'general', dimension || null, material || null, care_instructions || null, origin || null, craft_type || null]
     );
     res.redirect('/admin');
   } catch (err) {
@@ -93,16 +104,25 @@ router.get('/products/edit/:id', requireAdmin, async (req, res) => {
   res.render('admin/product-form', { product, error: req.flash('error'), user: req.session.user });
 });
 
-router.post('/products/edit/:id', requireAdmin, upload.single('image'), csrfAfterMulter, async (req, res) => {
+router.post('/products/edit/:id', requireAdmin, upload.array('images', 10), csrfAfterMulter, async (req, res) => {
   try {
     const { name, description, price, stock, category, dim_l, dim_b, dim_h, material, care_instructions, origin, craft_type } = req.body;
     const dimension = (dim_l && dim_b && dim_h) ? `${dim_l.trim()} × ${dim_b.trim()} × ${dim_h.trim()}` : null;
     const product = await db.get('SELECT * FROM products WHERE id = ?', [req.params.id]);
     if (!product) return res.redirect('/admin');
-    const image = req.file ? await saveImage(req.file) : product.image;
+
+    let image = product.image;
+    let images = product.images || null;
+
+    if (req.files && req.files.length > 0) {
+      const uploadedImages = await saveImages(req.files);
+      image = uploadedImages[0];
+      images = JSON.stringify(uploadedImages);
+    }
+
     await db.run(
-      'UPDATE products SET name=?, description=?, price=?, stock=?, image=?, category=?, dimension=?, material=?, care_instructions=?, origin=?, craft_type=? WHERE id=?',
-      [name, description, parseFloat(price), parseInt(stock) || 0, image, category || 'general', dimension || null, material || null, care_instructions || null, origin || null, craft_type || null, req.params.id]
+      'UPDATE products SET name=?, description=?, price=?, stock=?, image=?, images=?, category=?, dimension=?, material=?, care_instructions=?, origin=?, craft_type=? WHERE id=?',
+      [name, description, parseFloat(price), parseInt(stock) || 0, image, images, category || 'general', dimension || null, material || null, care_instructions || null, origin || null, craft_type || null, req.params.id]
     );
     res.redirect('/admin');
   } catch (err) {

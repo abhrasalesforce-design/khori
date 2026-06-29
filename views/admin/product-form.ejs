@@ -81,11 +81,25 @@
       <input type="text" name="care_instructions" value="<%= product ? (product.care_instructions || '') : '' %>" placeholder="e.g. Wipe clean with dry cloth">
     </div>
     <div class="form-row">
-      <label>Product Image</label>
-      <% if (product && product.image !== 'placeholder.jpg') { %>
-        <img src="/uploads/<%= product.image %>" width="100" style="display:block;margin-bottom:8px;">
+      <label>Product Images <span style="font-weight:400;color:#aaa;">(up to 10, first image shown as thumbnail)</span></label>
+      <% if (product) {
+           let existingImgs = [];
+           try { existingImgs = product.images ? JSON.parse(product.images) : (product.image && product.image !== 'placeholder.jpg' ? [product.image] : []); } catch(e) {}
+      %>
+        <% if (existingImgs.length > 0) { %>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;" id="existingImgWrap">
+          <% existingImgs.forEach((img, i) => { %>
+            <div style="position:relative;display:inline-block;">
+              <img src="<%= img.startsWith('http') ? img : '/uploads/' + img %>" width="72" height="72" style="object-fit:cover;border-radius:6px;border:1px solid #e8dde3;">
+              <% if (i === 0) { %><span style="position:absolute;bottom:2px;left:2px;background:#898AC4;color:#fff;font-size:0.6rem;padding:1px 4px;border-radius:3px;">Main</span><% } %>
+            </div>
+          <% }) %>
+        </div>
+        <p style="font-size:0.75rem;color:#898AC4;margin:0 0 8px;">Uploading new images will replace all existing ones.</p>
+        <% } %>
       <% } %>
-      <input type="file" name="image" accept="image/*">
+      <input type="file" name="images" accept="image/*" multiple id="imagesInput">
+      <div id="imgPreviewWrap" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
     </div>
     <div class="form-actions">
       <button type="submit" class="btn-primary"><%= product ? 'Save Changes' : 'Add Product' %></button>
@@ -95,6 +109,22 @@
 </div>
 
 <script>
+  document.getElementById('imagesInput').addEventListener('change', function() {
+    const wrap = document.getElementById('imgPreviewWrap');
+    wrap.innerHTML = '';
+    Array.from(this.files).forEach((file, i) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const div = document.createElement('div');
+        div.style.cssText = 'position:relative;display:inline-block;';
+        div.innerHTML = '<img src="' + e.target.result + '" style="width:72px;height:72px;object-fit:cover;border-radius:6px;border:1px solid #e8dde3;">'
+          + (i === 0 ? '<span style="position:absolute;bottom:2px;left:2px;background:#898AC4;color:#fff;font-size:0.6rem;padding:1px 4px;border-radius:3px;">Main</span>' : '');
+        wrap.appendChild(div);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
   document.getElementById('genDescBtn').addEventListener('click', async function() {
     const btn = this;
     const status = document.getElementById('genDescStatus');

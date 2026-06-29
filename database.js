@@ -121,6 +121,7 @@ async function initDb() {
     await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS origin TEXT`);
     await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS craft_type TEXT`);
     await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id TEXT`);
+    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS images TEXT`);
     await pool.query(`ALTER TABLE users ALTER COLUMN password DROP NOT NULL`).catch(() => {});
     await pool.query(`CREATE TABLE IF NOT EXISTS invoices (
       id SERIAL PRIMARY KEY, customer_name TEXT NOT NULL, customer_phone TEXT,
@@ -140,6 +141,7 @@ async function initDb() {
     try { sqliteDb.exec(`ALTER TABLE products ADD COLUMN origin TEXT`); } catch (_) {}
     try { sqliteDb.exec(`ALTER TABLE products ADD COLUMN craft_type TEXT`); } catch (_) {}
     try { sqliteDb.exec(`ALTER TABLE users ADD COLUMN google_id TEXT`); } catch (_) {}
+    try { sqliteDb.exec(`ALTER TABLE products ADD COLUMN images TEXT`); } catch (_) {}
     try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS invoices (id INTEGER PRIMARY KEY AUTOINCREMENT, customer_name TEXT NOT NULL, customer_phone TEXT, customer_address TEXT, total REAL NOT NULL, discount_amount REAL DEFAULT 0, notes TEXT, created_by INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`); } catch (_) {}
     try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS invoice_items (id INTEGER PRIMARY KEY AUTOINCREMENT, invoice_id INTEGER NOT NULL, product_id INTEGER, product_name TEXT NOT NULL, quantity INTEGER NOT NULL, unit_price REAL NOT NULL)`); } catch (_) {}
   }

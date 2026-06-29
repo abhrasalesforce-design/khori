@@ -16,17 +16,51 @@
   <!-- Two-column layout -->
   <div class="pd-layout">
 
-    <!-- Left: image -->
+    <!-- Left: image / carousel -->
     <div class="pd-image-col">
+      <%
+        let pdImages = [];
+        try { pdImages = product.images ? JSON.parse(product.images) : []; } catch(e) {}
+        if (pdImages.length === 0 && product.image) pdImages = [product.image];
+        if (pdImages.length === 0) pdImages = ['placeholder.jpg'];
+        const toUrl = img => img.startsWith('http') ? img : '/uploads/' + img;
+      %>
+      <% if (pdImages.length > 1) { %>
+      <div class="pd-carousel" id="pdCarousel">
+        <div class="pd-carousel-track" id="pdCarouselTrack">
+          <% pdImages.forEach((img, i) => { %>
+            <div class="pd-carousel-slide">
+              <img
+                src="<%= toUrl(img) %>"
+                alt="<%= product.name %> — image <%= i + 1 %>"
+                loading="<%= i === 0 ? 'eager' : 'lazy' %>"
+                decoding="async"
+                onerror="this.src='/images/placeholder.jpg'"
+              >
+            </div>
+          <% }) %>
+        </div>
+        <button class="pd-carousel-prev" aria-label="Previous image">&#8592;</button>
+        <button class="pd-carousel-next" aria-label="Next image">&#8594;</button>
+        <div class="pd-carousel-thumbs">
+          <% pdImages.forEach((img, i) => { %>
+            <button class="pd-carousel-thumb <%= i === 0 ? 'active' : '' %>" data-index="<%= i %>">
+              <img src="<%= toUrl(img) %>" alt="" loading="lazy" onerror="this.src='/images/placeholder.jpg'">
+            </button>
+          <% }) %>
+        </div>
+      </div>
+      <% } else { %>
       <div class="pd-image-wrap">
         <img
-          src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>"
+          src="<%= toUrl(pdImages[0]) %>"
           alt="<%= product.name %>"
           loading="eager"
           decoding="async"
           onerror="this.src='/images/placeholder.jpg'"
         >
       </div>
+      <% } %>
     </div>
 
     <!-- Right: product info -->
@@ -214,6 +248,40 @@
       } catch(e) { alert('Something went wrong.'); }
     });
   })();
+</script>
+
+<script>
+(function() {
+  const carousel = document.getElementById('pdCarousel');
+  if (!carousel) return;
+  const track = document.getElementById('pdCarouselTrack');
+  const slides = track.querySelectorAll('.pd-carousel-slide');
+  const thumbs = carousel.querySelectorAll('.pd-carousel-thumb');
+  let current = 0;
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    thumbs[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    thumbs[current].classList.add('active');
+    track.style.transform = 'translateX(-' + (current * 100) + '%)';
+  }
+
+  carousel.querySelector('.pd-carousel-prev').addEventListener('click', () => goTo(current - 1));
+  carousel.querySelector('.pd-carousel-next').addEventListener('click', () => goTo(current + 1));
+  thumbs.forEach(t => t.addEventListener('click', () => goTo(+t.dataset.index)));
+
+  // Swipe support
+  let startX = 0;
+  track.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend', e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) goTo(diff > 0 ? current + 1 : current - 1);
+  });
+
+  slides[0].classList.add('active');
+})();
 </script>
 
 <%- include('partials/footer') %>
