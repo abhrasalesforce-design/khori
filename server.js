@@ -71,6 +71,7 @@ const { generateCsrfToken, doubleCsrfProtection, validateRequest } = doubleCsrf(
     sameSite: 'lax',
     path: '/',
     httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24, // 24 hours — same as session
   },
   getCsrfTokenFromRequest: (req) =>
     req.body?._csrf || req.headers['x-csrf-token'],
@@ -103,6 +104,15 @@ app.use('/', require('./routes/orders'));
 app.use('/', require('./routes/wishlist'));
 app.use('/admin', require('./routes/admin'));
 app.use('/admin/invoices', require('./routes/invoices'));
+
+// CSRF error handler — redirect back with a user-friendly message instead of raw 403
+app.use((err, req, res, next) => {
+  if (err.code === 'EBADCSRFTOKEN' || err.status === 403 || err.message?.toLowerCase().includes('csrf')) {
+    req.flash('error', 'Your session expired. Please try again.');
+    return res.redirect('back');
+  }
+  next(err);
+});
 
 // Auto-generated sitemap for Google Search Console
 app.get('/sitemap.xml', async (req, res) => {
