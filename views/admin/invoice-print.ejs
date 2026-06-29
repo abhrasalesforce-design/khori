@@ -6,140 +6,238 @@
   <title>Invoice INV-<%= String(invoice.id).padStart(4,'0') %> | Hathekhori</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', Arial, sans-serif; color: #3a2e2e; background: #fff; font-size: 14px; }
+    body { font-family: 'Inter', Arial, sans-serif; color: #3a2e2e; background: #f9f7f7; font-size: 14px; }
 
-    .invoice-wrap { max-width: 720px; margin: 40px auto; padding: 48px; border: 1px solid #e8dde3; }
+    .invoice-wrap { max-width: 720px; margin: 40px auto; background: #fff; border: 1px solid #e8dde3; border-radius: 8px; overflow: hidden; }
 
-    /* Header */
-    .inv-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; }
-    .inv-brand h1 { font-family: Georgia, serif; font-size: 1.8rem; color: #898AC4; letter-spacing: 0.04em; }
-    .inv-brand p { font-size: 0.78rem; color: #898AC4; margin-top: 4px; }
+    /* ── HALF 1: Shipping label ───────────────────────────── */
+    .inv-shipping-half {
+      padding: 36px 48px;
+      border-bottom: none;
+      background: #fff;
+    }
+    .inv-shipping-half .half-label {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+      color: #898AC4; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+    }
+    .inv-shipping-half .half-label::after {
+      content: ''; flex: 1; height: 1px; background: rgba(137,138,196,0.25);
+    }
+    .ship-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    .ship-box-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #898AC4; margin-bottom: 8px; }
+    .ship-box-name  { font-size: 1.05rem; font-weight: 700; color: #3a2e2e; margin-bottom: 4px; }
+    .ship-box-line  { font-size: 0.84rem; color: #555; line-height: 1.65; }
+    .ship-ref { margin-top: 20px; display: flex; gap: 28px; }
+    .ship-ref-item { font-size: 0.78rem; color: #898AC4; }
+    .ship-ref-item strong { color: #3a2e2e; }
+
+    /* ── Cut line ─────────────────────────────────────────── */
+    .cut-line {
+      border: none; border-top: 2px dashed #c8b8c8;
+      margin: 0; position: relative;
+    }
+    .cut-line-label {
+      text-align: center; font-size: 0.62rem; letter-spacing: 0.12em;
+      color: #c8b8c8; text-transform: uppercase; padding: 4px 0;
+      background: #fff;
+    }
+
+    /* ── HALF 2: Invoice detail ───────────────────────────── */
+    .inv-detail-half { padding: 36px 48px; }
+    .inv-detail-half .half-label {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+      color: #898AC4; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+    }
+    .inv-detail-half .half-label::after { content: ''; flex: 1; height: 1px; background: rgba(137,138,196,0.25); }
+
+    /* Header row inside detail half */
+    .inv-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
+    .inv-brand h1 { font-family: Georgia, serif; font-size: 1.6rem; color: #898AC4; letter-spacing: 0.04em; }
+    .inv-brand p { font-size: 0.76rem; color: #898AC4; margin-top: 3px; }
     .inv-meta { text-align: right; }
-    .inv-meta .inv-num { font-size: 1.1rem; font-weight: 700; color: #898AC4; }
-    .inv-meta p { font-size: 0.8rem; color: #898AC4; margin-top: 4px; }
+    .inv-meta .inv-num { font-size: 1rem; font-weight: 700; color: #898AC4; }
+    .inv-meta p { font-size: 0.78rem; color: #898AC4; margin-top: 3px; }
 
-    /* Bill to */
-    .inv-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 36px; padding-bottom: 28px; border-bottom: 2px solid #e8dde3; }
-    .inv-party-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #898AC4; margin-bottom: 8px; }
-    .inv-party-name { font-size: 1rem; font-weight: 600; color: #3a2e2e; margin-bottom: 4px; }
-    .inv-party-detail { font-size: 0.82rem; color: #898AC4; line-height: 1.6; }
+    /* Bill to / from */
+    .inv-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1.5px solid #e8dde3; }
+    .inv-party-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #898AC4; margin-bottom: 6px; }
+    .inv-party-name { font-size: 0.95rem; font-weight: 600; color: #3a2e2e; margin-bottom: 3px; }
+    .inv-party-detail { font-size: 0.8rem; color: #898AC4; line-height: 1.6; }
 
-    /* Table */
-    table { width: 100%; border-collapse: collapse; margin-bottom: 28px; }
+    /* Items table */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
     thead tr { border-bottom: 2px solid #898AC4; }
-    th { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #898AC4; padding: 10px 12px; text-align: left; }
+    th { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #898AC4; padding: 9px 10px; text-align: left; }
     th:last-child, td:last-child { text-align: right; }
-    td { padding: 12px 12px; font-size: 0.88rem; border-bottom: 1px solid #f0eaf0; color: #3a2e2e; }
+    td { padding: 11px 10px; font-size: 0.86rem; border-bottom: 1px solid #f0eaf0; color: #3a2e2e; }
     tbody tr:last-child td { border-bottom: none; }
 
     /* Totals */
-    .inv-totals { display: flex; justify-content: flex-end; margin-bottom: 32px; }
-    .inv-totals-table { min-width: 260px; }
-    .inv-totals-table tr td { padding: 6px 12px; font-size: 0.88rem; border: none; }
+    .inv-totals { display: flex; justify-content: flex-end; margin-bottom: 24px; }
+    .inv-totals-table { min-width: 240px; }
+    .inv-totals-table tr td { padding: 5px 10px; font-size: 0.86rem; border: none; }
     .inv-totals-table tr td:first-child { color: #898AC4; }
     .inv-totals-table tr td:last-child { font-weight: 600; text-align: right; }
-    .inv-totals-table .grand td { font-size: 1rem; font-weight: 700; color: #898AC4; border-top: 2px solid #e8dde3; padding-top: 10px; }
+    .inv-totals-table .grand td { font-size: 0.95rem; font-weight: 700; color: #898AC4; border-top: 2px solid #e8dde3; padding-top: 9px; }
 
     /* Notes & footer */
-    .inv-notes { font-size: 0.8rem; color: #898AC4; border-top: 1px solid #e8dde3; padding-top: 20px; margin-bottom: 32px; }
-    .inv-footer { text-align: center; font-size: 0.75rem; color: #898AC4; opacity: 0.7; border-top: 1px solid #e8dde3; padding-top: 20px; }
+    .inv-notes { font-size: 0.78rem; color: #898AC4; border-top: 1px solid #e8dde3; padding-top: 16px; margin-bottom: 24px; }
+    .inv-footer { text-align: center; font-size: 0.72rem; color: #898AC4; opacity: 0.7; border-top: 1px solid #e8dde3; padding-top: 16px; }
 
     /* Print actions — hidden when printing */
-    .print-actions { max-width: 720px; margin: 0 auto 20px; display: flex; gap: 12px; padding: 0 48px; }
+    .print-actions { max-width: 720px; margin: 0 auto 20px; display: flex; gap: 12px; padding: 0 0; }
     @media print {
       .print-actions { display: none; }
-      .invoice-wrap { border: none; margin: 0; padding: 32px; }
-      body { font-size: 12px; }
+      .invoice-wrap { border: none; margin: 0; border-radius: 0; }
+      body { background: #fff; font-size: 12px; }
     }
   </style>
 </head>
 <body>
 
-<div class="print-actions">
-  <button onclick="window.print()" style="padding:10px 28px;background:#898AC4;color:#fff;border:none;border-radius:6px;font-size:0.85rem;font-weight:600;cursor:pointer;margin-top:20px;">🖨 Print / Save PDF</button>
-  <a href="/admin/invoices/new" style="padding:10px 22px;border:1px solid #898AC4;color:#898AC4;border-radius:6px;font-size:0.85rem;font-weight:600;text-decoration:none;margin-top:20px;display:inline-block;">+ New Invoice</a>
-  <a href="/admin/invoices" style="padding:10px 22px;border:1px solid #e8dde3;color:#898AC4;border-radius:6px;font-size:0.85rem;text-decoration:none;margin-top:20px;display:inline-block;">← All Invoices</a>
+<div class="print-actions" style="max-width:720px;margin:20px auto 16px;display:flex;gap:12px;">
+  <button onclick="window.print()" style="padding:10px 28px;background:#898AC4;color:#fff;border:none;border-radius:6px;font-size:0.85rem;font-weight:600;cursor:pointer;">🖨 Print / Save PDF</button>
+  <a href="/admin/invoices/new" style="padding:10px 22px;border:1px solid #898AC4;color:#898AC4;border-radius:6px;font-size:0.85rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;">+ New Invoice</a>
+  <a href="/admin/invoices" style="padding:10px 22px;border:1px solid #e8dde3;color:#898AC4;border-radius:6px;font-size:0.85rem;text-decoration:none;display:inline-flex;align-items:center;">← All Invoices</a>
 </div>
 
 <div class="invoice-wrap">
 
-  <!-- Header -->
-  <div class="inv-header">
-    <div class="inv-brand">
-      <h1>Hathekhori</h1>
-      <p>Handmade crafts rooted in Bengali tradition</p>
-      <p style="margin-top:2px;">www.hathekhori.com</p>
+  <!-- ═══════════════ HALF 1 — SHIPPING LABEL ═══════════════ -->
+  <div class="inv-shipping-half">
+    <div class="half-label">Shipping Label</div>
+
+    <div class="ship-grid">
+      <!-- Ship To -->
+      <div>
+        <div class="ship-box-label">Ship To</div>
+        <% const hasShipping = invoice.shipping_name || invoice.shipping_address; %>
+        <% if (hasShipping) { %>
+          <div class="ship-box-name"><%= invoice.shipping_name || invoice.customer_name %></div>
+          <% if (invoice.shipping_phone) { %><div class="ship-box-line">📞 <%= invoice.shipping_phone %></div><% } %>
+          <% if (invoice.shipping_address) { %><div class="ship-box-line"><%= invoice.shipping_address %></div><% } %>
+          <% if (invoice.shipping_city || invoice.shipping_state) { %>
+            <div class="ship-box-line"><%= [invoice.shipping_city, invoice.shipping_state].filter(Boolean).join(', ') %></div>
+          <% } %>
+          <% if (invoice.shipping_pincode) { %><div class="ship-box-line">PIN: <%= invoice.shipping_pincode %></div><% } %>
+        <% } else { %>
+          <div class="ship-box-name"><%= invoice.customer_name %></div>
+          <% if (invoice.customer_phone) { %><div class="ship-box-line">📞 <%= invoice.customer_phone %></div><% } %>
+          <% if (invoice.customer_address) { %><div class="ship-box-line"><%= invoice.customer_address %></div><% } %>
+        <% } %>
+      </div>
+
+      <!-- From -->
+      <div>
+        <div class="ship-box-label">From</div>
+        <div class="ship-box-name">Hathekhori</div>
+        <div class="ship-box-line">Handmade crafts rooted in</div>
+        <div class="ship-box-line">Bengali tradition</div>
+        <div class="ship-box-line">www.hathekhori.com</div>
+      </div>
     </div>
-    <div class="inv-meta">
-      <div class="inv-num">INV-<%= String(invoice.id).padStart(4,'0') %></div>
-      <p>Date: <%= new Date(invoice.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' }) %></p>
-      <p style="margin-top:6px;font-size:0.72rem;background:#f5f0fb;color:#898AC4;padding:3px 10px;border-radius:4px;display:inline-block;">OFFLINE SALE</p>
+
+    <div class="ship-ref">
+      <div class="ship-ref-item">Order Ref: <strong>INV-<%= String(invoice.id).padStart(4,'0') %></strong></div>
+      <div class="ship-ref-item">Date: <strong><%= new Date(invoice.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) %></strong></div>
+      <div class="ship-ref-item">Items: <strong><%= items.length %></strong></div>
     </div>
   </div>
 
-  <!-- Bill To / From -->
-  <div class="inv-parties">
-    <div>
-      <div class="inv-party-label">Bill To</div>
-      <div class="inv-party-name"><%= invoice.customer_name %></div>
-      <% if (invoice.customer_phone) { %>
-        <div class="inv-party-detail">📞 <%= invoice.customer_phone %></div>
-      <% } %>
-      <% if (invoice.customer_address) { %>
-        <div class="inv-party-detail"><%= invoice.customer_address %></div>
-      <% } %>
-    </div>
-    <div>
-      <div class="inv-party-label">From</div>
-      <div class="inv-party-name">Hathekhori</div>
-      <div class="inv-party-detail">hathekhori.com</div>
-    </div>
-  </div>
+  <!-- ═══════════════ CUT LINE ═══════════════ -->
+  <hr class="cut-line">
+  <div class="cut-line-label">✂ &nbsp; cut here &nbsp; ✂</div>
+  <hr class="cut-line">
 
-  <!-- Items table -->
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Product</th>
-        <th style="text-align:center;">Qty</th>
-        <th style="text-align:right;">Unit Price</th>
-        <th>Subtotal</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% items.forEach((item, i) => { %>
+  <!-- ═══════════════ HALF 2 — INVOICE DETAIL ═══════════════ -->
+  <div class="inv-detail-half">
+    <div class="half-label">Invoice</div>
+
+    <!-- Header -->
+    <div class="inv-header">
+      <div class="inv-brand">
+        <h1>Hathekhori</h1>
+        <p>Handmade crafts rooted in Bengali tradition</p>
+        <p style="margin-top:2px;">www.hathekhori.com</p>
+      </div>
+      <div class="inv-meta">
+        <div class="inv-num">INV-<%= String(invoice.id).padStart(4,'0') %></div>
+        <p>Date: <%= new Date(invoice.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' }) %></p>
+        <p style="margin-top:5px;font-size:0.7rem;background:#f5f0fb;color:#898AC4;padding:3px 10px;border-radius:4px;display:inline-block;">OFFLINE SALE</p>
+      </div>
+    </div>
+
+    <!-- Bill To / From -->
+    <div class="inv-parties">
+      <div>
+        <div class="inv-party-label">Bill To</div>
+        <div class="inv-party-name"><%= invoice.customer_name %></div>
+        <% if (invoice.customer_phone) { %><div class="inv-party-detail">📞 <%= invoice.customer_phone %></div><% } %>
+        <% if (invoice.customer_address) { %><div class="inv-party-detail"><%= invoice.customer_address %></div><% } %>
+      </div>
+      <div>
+        <div class="inv-party-label">From</div>
+        <div class="inv-party-name">Hathekhori</div>
+        <div class="inv-party-detail">hathekhori.com</div>
+      </div>
+    </div>
+
+    <!-- Items table -->
+    <table>
+      <thead>
         <tr>
-          <td style="color:#898AC4;"><%= i + 1 %></td>
-          <td><%= item.product_name %></td>
-          <td style="text-align:center;"><%= item.quantity %></td>
-          <td style="text-align:right;">₹<%= item.unit_price.toFixed(2) %></td>
-          <td>₹<%= (item.unit_price * item.quantity).toFixed(2) %></td>
+          <th>#</th>
+          <th>Product</th>
+          <th style="text-align:center;">Qty</th>
+          <th style="text-align:right;">Unit Price</th>
+          <th>Subtotal</th>
         </tr>
-      <% }) %>
-    </tbody>
-  </table>
-
-  <!-- Totals -->
-  <div class="inv-totals">
-    <table class="inv-totals-table">
-      <tr class="grand">
-        <td>Total</td>
-        <td>₹<%= invoice.total.toFixed(2) %></td>
-      </tr>
+      </thead>
+      <tbody>
+        <% items.forEach((item, i) => { %>
+          <tr>
+            <td style="color:#898AC4;"><%= i + 1 %></td>
+            <td><%= item.product_name %></td>
+            <td style="text-align:center;"><%= item.quantity %></td>
+            <td style="text-align:right;">₹<%= item.unit_price.toFixed(2) %></td>
+            <td>₹<%= (item.unit_price * item.quantity).toFixed(2) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
     </table>
-  </div>
 
-  <!-- Notes -->
-  <% if (invoice.notes) { %>
-    <div class="inv-notes"><strong>Notes:</strong> <%= invoice.notes %></div>
-  <% } %>
+    <!-- Totals -->
+    <div class="inv-totals">
+      <table class="inv-totals-table">
+        <tr>
+          <td>Subtotal</td>
+          <td>₹<%= items.reduce((s,i) => s + i.unit_price * i.quantity, 0).toFixed(2) %></td>
+        </tr>
+        <% if (invoice.discount_amount && invoice.discount_amount > 0) { %>
+        <tr>
+          <td>Discount</td>
+          <td>− ₹<%= invoice.discount_amount.toFixed(2) %></td>
+        </tr>
+        <% } %>
+        <tr class="grand">
+          <td>Total</td>
+          <td>₹<%= invoice.total.toFixed(2) %></td>
+        </tr>
+      </table>
+    </div>
 
-  <!-- Footer -->
-  <div class="inv-footer">
-    Thank you for your purchase! 🌸 Each piece is handcrafted with love by artisans across India.
-  </div>
+    <!-- Notes -->
+    <% if (invoice.notes) { %>
+      <div class="inv-notes"><strong>Notes:</strong> <%= invoice.notes %></div>
+    <% } %>
 
-</div>
+    <!-- Footer -->
+    <div class="inv-footer">
+      Thank you for your purchase! 🌸 Each piece is handcrafted with love by artisans across India.
+    </div>
+
+  </div><!-- /inv-detail-half -->
+
+</div><!-- /invoice-wrap -->
 </body>
 </html>

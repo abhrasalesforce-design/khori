@@ -11,21 +11,64 @@
 
     <!-- Customer Details -->
     <div style="background:#fff;border:1px solid #e8dde3;border-radius:10px;padding:28px 32px;margin-bottom:24px;">
-      <h2 style="font-size:1rem;font-weight:700;color:#898AC4;margin-bottom:20px;letter-spacing:0.04em;">Customer Details</h2>
+      <h2 style="font-size:1rem;font-weight:700;color:#898AC4;margin-bottom:20px;letter-spacing:0.04em;">Billing Details</h2>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
         <div>
           <label style="font-size:0.75rem;font-weight:600;color:#898AC4;letter-spacing:0.08em;display:block;margin-bottom:6px;">CUSTOMER NAME *</label>
-          <input type="text" name="customer_name" required placeholder="e.g. Priya Sharma"
+          <input type="text" name="customer_name" required placeholder="e.g. Priya Sharma" id="billingName"
             style="width:100%;padding:10px 14px;border:1px solid #e8dde3;border-radius:6px;font-size:0.9rem;color:#3a2e2e;outline:none;">
         </div>
         <div>
           <label style="font-size:0.75rem;font-weight:600;color:#898AC4;letter-spacing:0.08em;display:block;margin-bottom:6px;">PHONE</label>
-          <input type="text" name="customer_phone" placeholder="e.g. 9876543210"
+          <input type="text" name="customer_phone" placeholder="e.g. 9876543210" id="billingPhone"
             style="width:100%;padding:10px 14px;border:1px solid #e8dde3;border-radius:6px;font-size:0.9rem;color:#3a2e2e;outline:none;">
         </div>
         <div style="grid-column:1/-1;">
-          <label style="font-size:0.75rem;font-weight:600;color:#898AC4;letter-spacing:0.08em;display:block;margin-bottom:6px;">ADDRESS</label>
-          <input type="text" name="customer_address" placeholder="Street, City"
+          <label style="font-size:0.75rem;font-weight:600;color:#898AC4;letter-spacing:0.08em;display:block;margin-bottom:6px;">BILLING ADDRESS</label>
+          <input type="text" name="customer_address" placeholder="Street, City" id="billingAddress"
+            style="width:100%;padding:10px 14px;border:1px solid #e8dde3;border-radius:6px;font-size:0.9rem;color:#3a2e2e;outline:none;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Shipping Address -->
+    <div style="background:#fff;border:1px solid #e8dde3;border-radius:10px;padding:28px 32px;margin-bottom:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <h2 style="font-size:1rem;font-weight:700;color:#898AC4;letter-spacing:0.04em;margin:0;">Shipping Address</h2>
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:#898AC4;cursor:pointer;">
+          <input type="checkbox" id="sameAsBilling" onchange="toggleSameAsBilling(this)" style="accent-color:#898AC4;">
+          Same as billing
+        </label>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:#898AC4;letter-spacing:0.08em;display:block;margin-bottom:6px;">RECIPIENT NAME</label>
+          <input type="text" name="shipping_name" placeholder="e.g. Priya Sharma" id="shippingName"
+            style="width:100%;padding:10px 14px;border:1px solid #e8dde3;border-radius:6px;font-size:0.9rem;color:#3a2e2e;outline:none;">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:#898AC4;letter-spacing:0.08em;display:block;margin-bottom:6px;">PHONE</label>
+          <input type="text" name="shipping_phone" placeholder="e.g. 9876543210" id="shippingPhone"
+            style="width:100%;padding:10px 14px;border:1px solid #e8dde3;border-radius:6px;font-size:0.9rem;color:#3a2e2e;outline:none;">
+        </div>
+        <div style="grid-column:1/-1;">
+          <label style="font-size:0.75rem;font-weight:600;color:#898AC4;letter-spacing:0.08em;display:block;margin-bottom:6px;">STREET ADDRESS</label>
+          <input type="text" name="shipping_address" placeholder="House no., Street, Area" id="shippingAddress"
+            style="width:100%;padding:10px 14px;border:1px solid #e8dde3;border-radius:6px;font-size:0.9rem;color:#3a2e2e;outline:none;">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:#898AC4;letter-spacing:0.08em;display:block;margin-bottom:6px;">CITY</label>
+          <input type="text" name="shipping_city" placeholder="e.g. Kolkata" id="shippingCity"
+            style="width:100%;padding:10px 14px;border:1px solid #e8dde3;border-radius:6px;font-size:0.9rem;color:#3a2e2e;outline:none;">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:#898AC4;letter-spacing:0.08em;display:block;margin-bottom:6px;">STATE</label>
+          <input type="text" name="shipping_state" placeholder="e.g. West Bengal" id="shippingState"
+            style="width:100%;padding:10px 14px;border:1px solid #e8dde3;border-radius:6px;font-size:0.9rem;color:#3a2e2e;outline:none;">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;font-weight:600;color:#898AC4;letter-spacing:0.08em;display:block;margin-bottom:6px;">PINCODE</label>
+          <input type="text" name="shipping_pincode" placeholder="e.g. 700001" id="shippingPincode"
             style="width:100%;padding:10px 14px;border:1px solid #e8dde3;border-radius:6px;font-size:0.9rem;color:#3a2e2e;outline:none;">
         </div>
       </div>
@@ -99,6 +142,20 @@
   <% products.forEach(p => { %>
     productData[<%= p.id %>] = { price: <%= Math.floor(p.price * 0.5) %>, stock: <%= p.stock %> };
   <% }) %>
+
+  function toggleSameAsBilling(cb) {
+    const fields = ['Name','Phone','Address'];
+    if (cb.checked) {
+      document.getElementById('shippingName').value    = document.getElementById('billingName').value;
+      document.getElementById('shippingPhone').value   = document.getElementById('billingPhone').value;
+      document.getElementById('shippingAddress').value = document.getElementById('billingAddress').value;
+      ['shippingName','shippingPhone','shippingAddress','shippingCity','shippingState','shippingPincode']
+        .forEach(id => { document.getElementById(id).readOnly = true; document.getElementById(id).style.background = '#f9f7f7'; });
+    } else {
+      ['shippingName','shippingPhone','shippingAddress','shippingCity','shippingState','shippingPincode']
+        .forEach(id => { document.getElementById(id).readOnly = false; document.getElementById(id).style.background = ''; });
+    }
+  }
 
   function fillPrice(select) {
     const row = select.closest('.item-row');
