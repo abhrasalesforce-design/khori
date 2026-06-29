@@ -19,10 +19,19 @@
     <div class="stat-card"><div class="stat-num"><%= stats.pendingOrders %></div><div class="stat-label">Pending</div></div>
   </div>
 
-  <!-- Bulk Import/Export -->
+  <!-- Bulk Import/Export + Category Filter -->
   <div class="bulk-bar">
-    <div class="bulk-bar-left">
+    <div class="bulk-bar-left" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
       <h2 style="margin:0">Products</h2>
+      <select onchange="window.location.href='/admin?category='+this.value" style="padding:7px 14px;font-size:0.78rem;border:1.5px solid rgba(137,138,196,0.4);border-radius:50px;color:#898AC4;font-family:'Inter',sans-serif;outline:none;cursor:pointer;background:#fff;">
+        <option value="">All Categories</option>
+        <% allCategories.forEach(cat => { %>
+          <option value="<%= cat %>" <%= filterCategory === cat ? 'selected' : '' %>><%= cat.charAt(0).toUpperCase() + cat.slice(1) %></option>
+        <% }) %>
+      </select>
+      <% if (filterCategory) { %>
+        <a href="/admin" style="font-size:0.75rem;color:#898AC4;">✕ Clear filter</a>
+      <% } %>
     </div>
     <div class="bulk-bar-right">
       <a href="/admin/products/export" class="btn-outline" style="font-size:0.78rem;">⬇ Download Excel</a>
@@ -62,15 +71,16 @@
   </div>
 
   <% if (totalPages > 1) { %>
+  <% const catParam = filterCategory ? '&category=' + encodeURIComponent(filterCategory) : ''; %>
   <nav class="pagination" style="padding: 24px 0 8px;">
     <% if (currentPage > 1) { %>
-      <a href="/admin?page=<%= currentPage - 1 %>" class="page-btn page-prev">&#8592;</a>
+      <a href="/admin?page=<%= currentPage - 1 %><%= catParam %>" class="page-btn page-prev">&#8592;</a>
     <% } %>
     <% for (let p = 1; p <= totalPages; p++) { %>
-      <a href="/admin?page=<%= p %>" class="page-btn <%= p === currentPage ? 'active' : '' %>"><%= p %></a>
+      <a href="/admin?page=<%= p %><%= catParam %>" class="page-btn <%= p === currentPage ? 'active' : '' %>"><%= p %></a>
     <% } %>
     <% if (currentPage < totalPages) { %>
-      <a href="/admin?page=<%= currentPage + 1 %>" class="page-btn page-next">&#8594;</a>
+      <a href="/admin?page=<%= currentPage + 1 %><%= catParam %>" class="page-btn page-next">&#8594;</a>
     <% } %>
   </nav>
   <% } %>

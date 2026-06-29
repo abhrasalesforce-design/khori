@@ -54,21 +54,32 @@ router.get('/', requireAdmin, async (req, res) => {
   const perPage = isMobile ? 10 : 30;
   const currentPage = Math.max(1, parseInt(req.query.page) || 1);
   const offset = (currentPage - 1) * perPage;
+  const filterCategory = req.query.category || '';
 
-  const countRow = await db.get('SELECT COUNT(*) as total FROM products');
+  const allCategories = (await db.all('SELECT DISTINCT category FROM products ORDER BY category')).map(r => r.category);
+
+  let countRow, products;
+  if (filterCategory) {
+    countRow = await db.get('SELECT COUNT(*) as total FROM products WHERE category = ?', [filterCategory]);
+    products = await db.all('SELECT * FROM products WHERE category = ? ORDER BY created_at DESC LIMIT ? OFFSET ?', [filterCategory, perPage, offset]);
+  } else {
+    countRow = await db.get('SELECT COUNT(*) as total FROM products');
+    products = await db.all('SELECT * FROM products ORDER BY created_at DESC LIMIT ? OFFSET ?', [perPage, offset]);
+  }
+
   const totalProducts = countRow ? countRow.total : 0;
   const totalPages = Math.ceil(totalProducts / perPage);
 
-  const products = await db.all('SELECT * FROM products ORDER BY created_at DESC LIMIT ? OFFSET ?', [perPage, offset]);
   const orders = await db.all('SELECT o.*, u.name AS user_name FROM orders o LEFT JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC');
+  const allProductsCount = (await db.get('SELECT COUNT(*) as total FROM products')).total;
   const stats = {
-    totalProducts,
+    totalProducts: allProductsCount,
     totalOrders: orders.length,
     totalRevenue: orders.filter(o => o.status === 'paid').reduce((s, o) => s + o.total, 0),
     pendingOrders: orders.filter(o => o.status === 'pending').length
   };
   const flashMsg = req.flash('error')[0] || null;
-  res.render('admin/dashboard', { products, orders, stats, user: req.session.user, currentPage, totalPages, flashMsg });
+  res.render('admin/dashboard', { products, orders, stats, user: req.session.user, currentPage, totalPages, flashMsg, allCategories, filterCategory });
 });
 
 router.get('/products/new', requireAdmin, (req, res) => {

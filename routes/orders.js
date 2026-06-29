@@ -20,7 +20,7 @@ router.get('/checkout', requireLogin, async (req, res) => {
     return { ...product, discountedPrice, quantity: item.quantity, subtotal: discountedPrice * item.quantity };
   }))).filter(Boolean);
   const subtotal = items.reduce((sum, i) => sum + i.subtotal, 0);
-  const shipping = subtotal < 499 ? 50 : 0;
+  const shipping = subtotal < 699 ? 50 : 0;
   const total = subtotal + shipping;
   res.render('checkout', { items, subtotal, shipping, total, user: req.session.user, paypalClientId: process.env.PAYPAL_CLIENT_ID });
 });
@@ -38,7 +38,7 @@ router.post('/checkout/place', requireLogin, async (req, res) => {
   }))).filter(Boolean);
 
   const productTotal = items.reduce((sum, i) => sum + i.discountedPrice * i.quantity, 0);
-  const total = productTotal + (productTotal < 499 ? 50 : 0);
+  const total = productTotal + (productTotal < 699 ? 50 : 0);
 
   const result = await db.run(
     'INSERT INTO orders (user_id, total, status, paypal_order_id, name, email, address, city, zip, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',

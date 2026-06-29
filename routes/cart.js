@@ -11,7 +11,7 @@ router.get('/cart', async (req, res) => {
     return { ...product, discountedPrice, quantity: item.quantity, subtotal: discountedPrice * item.quantity };
   }))).filter(Boolean);
   const subtotal = items.reduce((sum, i) => sum + i.subtotal, 0);
-  const shipping = subtotal < 499 ? 50 : 0;
+  const shipping = subtotal < 699 ? 50 : 0;
   const total = subtotal + shipping;
   res.render('cart', { items, subtotal, shipping, total, user: req.session.user || null });
 });

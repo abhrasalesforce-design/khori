@@ -53,6 +53,14 @@ app.use(session({
 app.use(flash());
 app.use(passport.initialize());
 
+// Ensure every visitor has a session so CSRF token stays stable across requests
+app.use((req, res, next) => {
+  if (!req.session.initialized) {
+    req.session.initialized = true;
+  }
+  next();
+});
+
 const isProduction = process.env.NODE_ENV === 'production';
 const { generateCsrfToken, doubleCsrfProtection, validateRequest } = doubleCsrf({
   getSecret: () => process.env.SESSION_SECRET || 'khori_dev_secret',
