@@ -23,9 +23,11 @@ router.get('/new', requireAdmin, async (req, res) => {
 // Create invoice
 router.post('/new', requireAdmin, async (req, res) => {
   try {
-    const { customer_name, customer_phone, customer_address,
-            shipping_name, shipping_phone, shipping_address, shipping_city, shipping_state, shipping_pincode,
+    const { customer_name, customer_phone,
+            shipping_address, shipping_city, shipping_state, shipping_pincode,
             notes, product_id, quantity, unit_price } = req.body;
+    // Single address used for both billing and shipping
+    const customer_address = [shipping_address, shipping_city, shipping_state, shipping_pincode].filter(Boolean).join(', ');
 
     // product_id, quantity, unit_price can be arrays (multiple rows)
     const ids      = Array.isArray(product_id)  ? product_id  : [product_id];
@@ -64,7 +66,7 @@ router.post('/new', requireAdmin, async (req, res) => {
     const result = await db.run(
       'INSERT INTO invoices (customer_name, customer_phone, customer_address, shipping_name, shipping_phone, shipping_address, shipping_city, shipping_state, shipping_pincode, total, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [customer_name, customer_phone || null, customer_address || null,
-       shipping_name || null, shipping_phone || null, shipping_address || null,
+       customer_name, customer_phone || null, shipping_address || null,
        shipping_city || null, shipping_state || null, shipping_pincode || null,
        total, notes || null, req.session.user.id]
     );

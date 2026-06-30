@@ -101,6 +101,7 @@
               <form method="POST" action="/admin/orders/status/<%= o.id %>">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <select name="status">
+                  <option value="received" <%= o.status==='received'?'selected':'' %>>received</option>
                   <option value="pending" <%= o.status==='pending'?'selected':'' %>>pending</option>
                   <option value="paid" <%= o.status==='paid'?'selected':'' %>>paid</option>
                   <option value="shipped" <%= o.status==='shipped'?'selected':'' %>>shipped</option>

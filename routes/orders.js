@@ -42,13 +42,32 @@ router.post('/checkout/place', requireLogin, async (req, res) => {
 
   const result = await db.run(
     'INSERT INTO orders (user_id, total, status, paypal_order_id, name, email, address, city, zip, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-    [req.session.user.id, total, paypal_order_id ? 'paid' : 'pending', paypal_order_id || null, name, email, address, city, zip, country]
+    [req.session.user.id, total, paypal_order_id ? 'paid' : 'received', paypal_order_id || null, name, email, address, city, zip, country]
   );
   const orderId = result.lastInsertRowid;
 
   for (const item of items) {
     await db.run('INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)', [orderId, item.id, item.quantity, item.discountedPrice]);
     await db.run('UPDATE products SET stock = stock - ? WHERE id = ?', [item.quantity, item.id]);
+  }
+
+  // Auto-generate invoice for this order
+  try {
+    const invResult = await db.run(
+      'INSERT INTO invoices (customer_name, customer_phone, customer_address, shipping_name, shipping_phone, shipping_address, shipping_city, shipping_state, shipping_pincode, total, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [name, null, `${address}, ${city}, ${zip}, ${country}`,
+       name, null, address, city, zip, country,
+       total, `Auto-generated from online order #${orderId}`, null]
+    );
+    const invoiceId = invResult.lastInsertRowid;
+    for (const item of items) {
+      await db.run(
+        'INSERT INTO invoice_items (invoice_id, product_id, product_name, quantity, unit_price) VALUES (?, ?, ?, ?, ?)',
+        [invoiceId, item.id, item.name, item.quantity, item.discountedPrice]
+      );
+    }
+  } catch (err) {
+    console.error('Auto-invoice generation failed:', err.message);
   }
 
   req.session.cart = [];

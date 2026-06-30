@@ -347,9 +347,9 @@ main { min-height: calc(100vh - 140px); }
 /* ===== Hero Carousel ===== */
 .hero-carousel {
   position: relative;
-  height: 100vh;
-  min-height: 560px;
-  max-height: 860px;
+  height: calc(100vh - 20px);
+  min-height: 540px;
+  max-height: 840px;
   overflow: hidden;
 }
 

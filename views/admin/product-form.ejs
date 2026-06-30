@@ -112,14 +112,19 @@
   document.getElementById('imagesInput').addEventListener('change', function() {
     const wrap = document.getElementById('imgPreviewWrap');
     wrap.innerHTML = '';
-    Array.from(this.files).forEach((file, i) => {
+    const files = Array.from(this.files);
+    // Pre-create slots in selection order so async readers don't scramble the sequence
+    const slots = files.map((_, i) => {
+      const div = document.createElement('div');
+      div.style.cssText = 'position:relative;display:inline-block;width:72px;height:72px;background:#f5f0fb;border-radius:6px;';
+      if (i === 0) div.innerHTML = '<span style="position:absolute;bottom:2px;left:2px;background:#898AC4;color:#fff;font-size:0.6rem;padding:1px 4px;border-radius:3px;z-index:1;">Main</span>';
+      wrap.appendChild(div);
+      return div;
+    });
+    files.forEach((file, i) => {
       const reader = new FileReader();
       reader.onload = e => {
-        const div = document.createElement('div');
-        div.style.cssText = 'position:relative;display:inline-block;';
-        div.innerHTML = '<img src="' + e.target.result + '" style="width:72px;height:72px;object-fit:cover;border-radius:6px;border:1px solid #e8dde3;">'
-          + (i === 0 ? '<span style="position:absolute;bottom:2px;left:2px;background:#898AC4;color:#fff;font-size:0.6rem;padding:1px 4px;border-radius:3px;">Main</span>' : '');
-        wrap.appendChild(div);
+        slots[i].insertAdjacentHTML('afterbegin', '<img src="' + e.target.result + '" style="width:72px;height:72px;object-fit:cover;border-radius:6px;border:1px solid #e8dde3;display:block;">');
       };
       reader.readAsDataURL(file);
     });
