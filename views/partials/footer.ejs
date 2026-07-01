@@ -24,6 +24,17 @@
       <a href="/orders">My Orders</a>
       <a href="/cart">Cart</a>
     </div>
+    <div class="footer-col footer-contact-col">
+      <h4>Contact Us</h4>
+      <p style="font-size:0.82rem;color:#898AC4;margin-bottom:12px;line-height:1.6;">Have a question? Write to us directly.</p>
+      <form class="footer-contact-form" id="footerContactForm" onsubmit="sendFooterContact(event)">
+        <input type="text" id="fcName" placeholder="Your name" required>
+        <input type="email" id="fcEmail" placeholder="Your email" required>
+        <textarea id="fcMsg" rows="3" placeholder="Your message…" required></textarea>
+        <button type="submit">Send Message</button>
+        <p class="footer-contact-msg" id="fcStatus" style="display:none;"></p>
+      </form>
+    </div>
   </div>
   <div class="footer-bottom">
     <p>&copy; 2026 Hathekhori. All rights reserved.</p>
@@ -32,6 +43,36 @@
 </footer>
 
 <script>
+async function sendFooterContact(e) {
+  e.preventDefault();
+  const status = document.getElementById('fcStatus');
+  const btn = e.target.querySelector('button');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    const res = await fetch('/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+      body: JSON.stringify({
+        name: document.getElementById('fcName').value,
+        email: document.getElementById('fcEmail').value,
+        message: document.getElementById('fcMsg').value
+      })
+    });
+    if (res.ok) {
+      status.textContent = '✓ Message sent! We\'ll get back to you soon.';
+      status.style.color = '#4caf50'; status.style.display = 'block';
+      e.target.reset();
+    } else {
+      throw new Error();
+    }
+  } catch {
+    status.textContent = 'Something went wrong. Email us at contact.hathekhori@gmail.com';
+    status.style.color = '#e57373'; status.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = 'Send Message';
+}
+
   // WebP support detection for CSS background fallbacks
   (function(){
     var i = new Image();

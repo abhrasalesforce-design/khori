@@ -104,6 +104,32 @@ app.use('/', require('./routes/orders'));
 app.use('/', require('./routes/wishlist'));
 app.use('/admin', require('./routes/admin'));
 app.use('/admin/invoices', require('./routes/invoices'));
+app.use('/reviews', require('./routes/reviews'));
+
+// Contact form — sends email to contact.hathekhori@gmail.com
+app.post('/contact', async (req, res) => {
+  const { name, email, message } = req.body || {};
+  if (!name || !email || !message) return res.status(400).json({ error: 'All fields required' });
+  try {
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD }
+    });
+    await transporter.sendMail({
+      from: `"Hathekhori Contact" <${process.env.GMAIL_USER}>`,
+      to: 'contact.hathekhori@gmail.com',
+      replyTo: email,
+      subject: `Message from ${name} via hathekhori.com`,
+      text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
+      html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><hr><p>${message.replace(/\n/g,'<br>')}</p>`
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Contact email failed:', err.message);
+    res.status(500).json({ error: 'Failed to send' });
+  }
+});
 
 // CSRF error handler — redirect back with a user-friendly message instead of raw 403
 app.use((err, req, res, next) => {
