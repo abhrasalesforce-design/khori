@@ -22,39 +22,52 @@ router.get('/', async (req, res) => {
 
   let countSql, dataSql, params;
 
+  let products, totalProducts;
+
   if (search) {
     countSql = 'SELECT COUNT(*) as total FROM products WHERE name LIKE ? OR description LIKE ?';
     dataSql  = `SELECT * FROM products WHERE name LIKE ? OR description LIKE ? ORDER BY ${orderBy} LIMIT ? OFFSET ?`;
     params   = [`%${search}%`, `%${search}%`];
+    const countRow = await db.get(countSql, params);
+    totalProducts = countRow ? countRow.total : 0;
+    products = await db.all(dataSql, [...params, perPage, offset]);
   } else if (category) {
     countSql = 'SELECT COUNT(*) as total FROM products WHERE category = ?';
     dataSql  = `SELECT * FROM products WHERE category = ? ORDER BY ${orderBy} LIMIT ? OFFSET ?`;
     params   = [category];
+    const countRow = await db.get(countSql, params);
+    totalProducts = countRow ? countRow.total : 0;
+    products = await db.all(dataSql, [...params, perPage, offset]);
   } else if (!sort) {
-    // No filter, no sort — round-robin across categories for a mixed view
-    countSql = 'SELECT COUNT(*) as total FROM products';
-    dataSql  = `
-      WITH ranked AS (
-        SELECT *, ROW_NUMBER() OVER (PARTITION BY category ORDER BY created_at DESC) as rn
-        FROM products
-      )
-      SELECT id, name, description, price, stock, image, category, dimension, material,
-             care_instructions, origin, craft_type, created_at
-      FROM ranked
-      ORDER BY rn, category
-      LIMIT ? OFFSET ?`;
-    params   = [];
+    // Round-robin across all categories, reshuffled on every request
+    const allProducts = await db.all('SELECT * FROM products ORDER BY RANDOM()');
+    totalProducts = allProducts.length;
+    // Group by category preserving random order
+    const byCategory = {};
+    for (const p of allProducts) {
+      if (!byCategory[p.category]) byCategory[p.category] = [];
+      byCategory[p.category].push(p);
+    }
+    // Interleave: one from each category per round
+    const interleaved = [];
+    const pools = Object.values(byCategory);
+    const maxLen = Math.max(...pools.map(a => a.length));
+    for (let i = 0; i < maxLen; i++) {
+      for (const pool of pools) {
+        if (pool[i]) interleaved.push(pool[i]);
+      }
+    }
+    products = interleaved.slice(offset, offset + perPage);
   } else {
     countSql = 'SELECT COUNT(*) as total FROM products';
     dataSql  = `SELECT * FROM products ORDER BY ${orderBy} LIMIT ? OFFSET ?`;
     params   = [];
+    const countRow = await db.get(countSql, params);
+    totalProducts = countRow ? countRow.total : 0;
+    products = await db.all(dataSql, [...params, perPage, offset]);
   }
 
-  const countRow = await db.get(countSql, params);
-  const totalProducts = countRow ? countRow.total : 0;
   const totalPages = Math.ceil(totalProducts / perPage);
-
-  const products = await db.all(dataSql, [...params, perPage, offset]);
 
   const catRows = await db.all('SELECT DISTINCT category FROM products');
   const categories = catRows.map(r => r.category);
