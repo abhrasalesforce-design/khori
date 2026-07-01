@@ -2554,6 +2554,7 @@ footer {
   .footer-brand .footer-logo img { width: 65vw; max-width: 65vw; height: auto; }
   .footer-brand p { max-width: 300px; }
   .footer-contact-col { grid-column: 1 / -1; }
+  .footer-bottom { flex-direction: column; align-items: center; gap: 6px; text-align: center; }
   .two-col { grid-template-columns: 1fr; }
   .confirm-actions { flex-direction: column; }
   .admin-container { padding: 0 20px; }
