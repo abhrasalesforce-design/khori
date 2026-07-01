@@ -23,17 +23,7 @@
       <a href="/register">Register</a>
       <a href="/orders">My Orders</a>
       <a href="/cart">Cart</a>
-    </div>
-    <div class="footer-col footer-contact-col">
-      <h4>Contact Us</h4>
-      <p style="font-size:0.82rem;color:#898AC4;margin-bottom:12px;line-height:1.6;">Have a question? Write to us directly.</p>
-      <form class="footer-contact-form" id="footerContactForm" onsubmit="sendFooterContact(event)">
-        <input type="text" id="fcName" placeholder="Your name" required>
-        <input type="email" id="fcEmail" placeholder="Your email" required>
-        <textarea id="fcMsg" rows="3" placeholder="Your message…" required></textarea>
-        <button type="submit">Send Message</button>
-        <p class="footer-contact-msg" id="fcStatus" style="display:none;"></p>
-      </form>
+      <a href="#" onclick="openContactBanner(event)">Contact Us</a>
     </div>
   </div>
   <div class="footer-bottom">
@@ -42,33 +32,73 @@
   </div>
 </footer>
 
+<!-- Contact Us slide-up banner -->
+<div id="contactBanner" style="
+  position:fixed; bottom:0; left:0; right:0; z-index:8000;
+  background:#fff; border-top:2px solid #e8dde3;
+  box-shadow:0 -4px 24px rgba(58,46,46,0.12);
+  transform:translateY(100%); transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  padding:28px 24px 24px; max-height:90vh; overflow-y:auto;
+">
+  <div style="max-width:480px;margin:0 auto;position:relative;">
+    <button onclick="closeContactBanner()" style="position:absolute;top:-8px;right:0;background:none;border:none;font-size:1.3rem;color:#aaa;cursor:pointer;line-height:1;">✕</button>
+    <h3 style="font-family:'Playfair Display',Georgia,serif;font-size:1.2rem;color:#898AC4;margin-bottom:4px;">Contact Us</h3>
+    <p style="font-size:0.8rem;color:#898AC4;margin-bottom:16px;">Or email us directly at <a href="mailto:contact.hathekhori@gmail.com" style="color:#898AC4;font-weight:600;">contact.hathekhori@gmail.com</a></p>
+    <form id="contactBannerForm" onsubmit="sendContactBanner(event)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <input type="text" id="cbName" placeholder="Your name" required style="padding:9px 12px;border:1px solid rgba(137,138,196,0.35);border-radius:6px;font-size:0.85rem;font-family:'Inter',sans-serif;outline:none;color:#3a2e2e;">
+        <input type="email" id="cbEmail" placeholder="Your email" required style="padding:9px 12px;border:1px solid rgba(137,138,196,0.35);border-radius:6px;font-size:0.85rem;font-family:'Inter',sans-serif;outline:none;color:#3a2e2e;">
+      </div>
+      <textarea id="cbMsg" rows="3" placeholder="Your message…" required style="width:100%;padding:9px 12px;border:1px solid rgba(137,138,196,0.35);border-radius:6px;font-size:0.85rem;font-family:'Inter',sans-serif;outline:none;color:#3a2e2e;resize:none;margin-bottom:10px;box-sizing:border-box;"></textarea>
+      <button type="submit" id="cbBtn" style="width:100%;padding:11px;background:#898AC4;color:#fff;border:none;border-radius:6px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background 0.2s;">Send Message</button>
+      <p id="cbStatus" style="display:none;margin-top:8px;font-size:0.8rem;text-align:center;"></p>
+    </form>
+  </div>
+</div>
+<div id="contactBannerBackdrop" onclick="closeContactBanner()" style="display:none;position:fixed;inset:0;z-index:7999;background:rgba(58,46,46,0.3);"></div>
+
 <script>
-async function sendFooterContact(e) {
+function openContactBanner(e) {
+  if (e) e.preventDefault();
+  document.getElementById('contactBanner').style.transform = 'translateY(0)';
+  document.getElementById('contactBannerBackdrop').style.display = 'block';
+}
+function closeContactBanner() {
+  document.getElementById('contactBanner').style.transform = 'translateY(100%)';
+  document.getElementById('contactBannerBackdrop').style.display = 'none';
+}
+
+async function sendContactBanner(e) {
   e.preventDefault();
-  const status = document.getElementById('fcStatus');
-  const btn = e.target.querySelector('button');
+  const btn = document.getElementById('cbBtn');
+  const status = document.getElementById('cbStatus');
+  const name = document.getElementById('cbName').value.trim();
+  const email = document.getElementById('cbEmail').value.trim();
+  const message = document.getElementById('cbMsg').value.trim();
   btn.disabled = true; btn.textContent = 'Sending…';
+  status.style.display = 'none';
+  let sent = false;
   try {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
     const res = await fetch('/contact', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
-      body: JSON.stringify({
-        name: document.getElementById('fcName').value,
-        email: document.getElementById('fcEmail').value,
-        message: document.getElementById('fcMsg').value
-      })
+      body: JSON.stringify({ name, email, message })
     });
-    if (res.ok) {
-      status.textContent = '✓ Message sent! We\'ll get back to you soon.';
-      status.style.color = '#4caf50'; status.style.display = 'block';
-      e.target.reset();
-    } else {
-      throw new Error();
-    }
-  } catch {
-    status.textContent = 'Something went wrong. Email us at contact.hathekhori@gmail.com';
-    status.style.color = '#e57373'; status.style.display = 'block';
+    if (res.ok) sent = true;
+  } catch (_) {}
+
+  if (sent) {
+    status.textContent = '✓ Message sent! We\'ll get back to you soon.';
+    status.style.color = '#4caf50'; status.style.display = 'block';
+    e.target.reset();
+  } else {
+    // Fallback: open mailto so nothing is lost
+    const subject = encodeURIComponent('Message from ' + name + ' via hathekhori.com');
+    const body = encodeURIComponent('Name: ' + name + '\nEmail: ' + email + '\n\n' + message);
+    window.location.href = 'mailto:contact.hathekhori@gmail.com?subject=' + subject + '&body=' + body;
+    status.textContent = 'Opening your email app… or write directly to contact.hathekhori@gmail.com';
+    status.style.color = '#898AC4'; status.style.display = 'block';
   }
   btn.disabled = false; btn.textContent = 'Send Message';
 }
