@@ -88,21 +88,23 @@
   <h2>Orders</h2>
   <div class="admin-table-wrap">
     <table class="admin-table">
-      <thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th><th>Update</th></tr></thead>
+      <thead><tr><th>#</th><th>Customer</th><th>WhatsApp</th><th>Total</th><th>UTR / Txn ID</th><th>Status</th><th>Date</th><th>Update</th></tr></thead>
       <tbody>
         <% orders.forEach(o => { %>
           <tr>
             <td><%= o.id %></td>
             <td><%= o.user_name || o.name %></td>
+            <td><%= o.phone || '—' %></td>
             <td>₹<%= o.total.toFixed(2) %></td>
+            <td><% if (o.upi_txn_id) { %><code style="font-size:0.78rem;background:#f5f0fb;padding:2px 6px;border-radius:4px;color:#898AC4;"><%= o.upi_txn_id %></code><% } else { %>—<% } %></td>
             <td><span class="badge badge-<%= o.status %>"><%= o.status %></span></td>
             <td><%= new Date(o.created_at).toLocaleDateString() %></td>
             <td>
               <form method="POST" action="/admin/orders/status/<%= o.id %>">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <select name="status">
+                  <option value="payment_pending" <%= o.status==='payment_pending'?'selected':'' %>>payment pending</option>
                   <option value="received" <%= o.status==='received'?'selected':'' %>>received</option>
-                  <option value="pending" <%= o.status==='pending'?'selected':'' %>>pending</option>
                   <option value="paid" <%= o.status==='paid'?'selected':'' %>>paid</option>
                   <option value="shipped" <%= o.status==='shipped'?'selected':'' %>>shipped</option>
                   <option value="delivered" <%= o.status==='delivered'?'selected':'' %>>delivered</option>
