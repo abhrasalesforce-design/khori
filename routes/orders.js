@@ -85,9 +85,13 @@ router.post('/checkout/place', requireLogin, async (req, res) => {
   // Email notification to shop owner
   try {
     const nodemailer = require('nodemailer');
-    if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+      console.warn('[Email] GMAIL_USER or GMAIL_APP_PASSWORD not set — skipping order notification email.');
+    } else {
       const transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
         auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD }
       });
       const itemLines = items.map(i => `• ${i.name} × ${i.quantity} — ₹${i.discountedPrice * i.quantity}`).join('\n');
@@ -112,13 +116,15 @@ router.post('/checkout/place', requireLogin, async (req, res) => {
           <p style="color:#aaa;font-size:12px;margin-top:16px;">Verify UTR in your UPI app, then mark the order as <strong>paid</strong> in admin.</p>
         `
       });
-    }
+    } // end else (gmail credentials present)
   } catch (err) {
     console.error('Order notification email failed:', err.message);
   }
 
   req.session.cart = [];
-  res.redirect(`/order-confirmation/${orderId}`);
+  req.session.save(() => {
+    res.redirect(`/order-confirmation/${orderId}`);
+  });
   } catch (err) {
     console.error('Checkout error:', err);
     req.flash('error', 'Something went wrong placing your order. Please try again.');
@@ -127,13 +133,16 @@ router.post('/checkout/place', requireLogin, async (req, res) => {
 });
 
 router.get('/order-confirmation/:id', requireLogin, async (req, res) => {
-  const order = await db.get('SELECT * FROM orders WHERE id = ? AND user_id = ?', [req.params.id, req.session.user.id]);
+  const order = await db.get('SELECT * FROM orders WHERE id = ?', [req.params.id]);
   if (!order) return res.redirect('/');
   const items = await db.all(`
     SELECT oi.*, p.name AS product_name, p.image FROM order_items oi
     JOIN products p ON oi.product_id = p.id
     WHERE oi.order_id = ?
   `, [order.id]);
+  // Ensure new columns have safe defaults so EJS never crashes
+  order.phone = order.phone || null;
+  order.upi_txn_id = order.upi_txn_id || null;
   res.render('confirmation', { order, items, user: req.session.user });
 });
 
