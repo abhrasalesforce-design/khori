@@ -86,8 +86,10 @@ app.use((req, res, next) => {
 });
 
 // Make CSRF token available to all EJS views
+// overwrite:false means the same token is reused for the session lifetime
+// so a token baked into a form stays valid even after navigating to other pages
 app.use((req, res, next) => {
-  res.locals.csrfToken = generateCsrfToken(req, res);
+  res.locals.csrfToken = generateCsrfToken(req, res, { overwrite: false });
   next();
 });
 
@@ -131,11 +133,13 @@ app.post('/contact', async (req, res) => {
   }
 });
 
-// CSRF error handler — redirect back with a user-friendly message instead of raw 403
+// CSRF error handler
 app.use((err, req, res, next) => {
   if (err.code === 'EBADCSRFTOKEN' || err.status === 403 || err.message?.toLowerCase().includes('csrf')) {
+    console.error('[CSRF] Failed on', req.method, req.path, '— token mismatch');
     req.flash('error', 'Your session expired. Please try again.');
-    return res.redirect('back');
+    const safeRedirect = req.path.includes('checkout') ? '/checkout' : '/';
+    return res.redirect(safeRedirect);
   }
   next(err);
 });
