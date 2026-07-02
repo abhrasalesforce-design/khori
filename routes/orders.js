@@ -26,6 +26,7 @@ router.get('/checkout', requireLogin, async (req, res) => {
 });
 
 router.post('/checkout/place', requireLogin, async (req, res) => {
+  try {
   const { name, email, phone, address, city, zip, country, upi_txn_id } = req.body;
   const cart = req.session.cart || [];
   if (cart.length === 0) return res.redirect('/cart');
@@ -40,10 +41,21 @@ router.post('/checkout/place', requireLogin, async (req, res) => {
   const productTotal = items.reduce((sum, i) => sum + i.discountedPrice * i.quantity, 0);
   const total = productTotal + (productTotal < 699 ? 50 : 0);
 
-  const result = await db.run(
-    'INSERT INTO orders (user_id, total, status, name, email, phone, address, city, zip, country, upi_txn_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-    [req.session.user.id, total, 'payment_pending', name, email, phone || null, address, city, zip, country, upi_txn_id || null]
-  );
+  // Try with new columns first, fall back if they don't exist yet on Postgres
+  let result;
+  try {
+    result = await db.run(
+      'INSERT INTO orders (user_id, total, status, name, email, phone, address, city, zip, country, upi_txn_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [req.session.user.id, total, 'payment_pending', name, email, phone || null, address, city, zip, country, upi_txn_id || null]
+    );
+  } catch (colErr) {
+    // Columns may not exist yet — insert without them and log
+    console.error('Order insert with new cols failed, retrying without:', colErr.message);
+    result = await db.run(
+      'INSERT INTO orders (user_id, total, status, name, email, address, city, zip, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [req.session.user.id, total, 'payment_pending', name, email, address, city, zip, country]
+    );
+  }
   const orderId = result.lastInsertRowid;
 
   for (const item of items) {
@@ -107,6 +119,11 @@ router.post('/checkout/place', requireLogin, async (req, res) => {
 
   req.session.cart = [];
   res.redirect(`/order-confirmation/${orderId}`);
+  } catch (err) {
+    console.error('Checkout error:', err);
+    req.flash('error', 'Something went wrong placing your order. Please try again.');
+    res.redirect('/checkout');
+  }
 });
 
 router.get('/order-confirmation/:id', requireLogin, async (req, res) => {

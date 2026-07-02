@@ -16,7 +16,7 @@
           <input type="email" name="email" placeholder="Email" value="<%= user.email %>" required>
         </div>
         <div class="form-row">
-          <input type="tel" name="phone" placeholder="WhatsApp Number (required for order confirmation)" required pattern="[0-9+\-\s]{7,15}">
+          <input type="tel" name="phone" placeholder="WhatsApp Number (required for order confirmation)" required>
         </div>
         <div class="form-row">
           <input type="text" name="address" placeholder="Street Address" required>
@@ -67,7 +67,7 @@
 
         <!-- Transaction ID + confirmation fields -->
         <div class="form-row" style="margin-top:20px;">
-          <input type="text" name="upi_txn_id" placeholder="Transaction ID / UTR Number (e.g. 123456789012)" required pattern=".{8,}" title="Please enter a valid Transaction ID">
+          <input type="text" name="upi_txn_id" placeholder="Transaction ID / UTR Number (e.g. 123456789012)" required>
         </div>
         <p class="upi-txn-hint">Find your Transaction ID in your UPI app under payment history after completing the payment.</p>
 
