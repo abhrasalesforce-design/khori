@@ -108,18 +108,24 @@ app.use('/admin', require('./routes/admin'));
 app.use('/admin/invoices', require('./routes/invoices'));
 app.use('/reviews', require('./routes/reviews'));
 
-// Contact form — sends email to contact.hathekhori@gmail.com
+// Contact form — sends email via Resend SMTP
 app.post('/contact', async (req, res) => {
   const { name, email, message } = req.body || {};
   if (!name || !email || !message) return res.status(400).json({ error: 'All fields required' });
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[Email] RESEND_API_KEY not set — contact form email skipped.');
+    return res.status(500).json({ error: 'Failed to send' });
+  }
   try {
     const nodemailer = require('nodemailer');
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD }
+      host: 'smtp.resend.com',
+      port: 465,
+      secure: true,
+      auth: { user: 'resend', pass: process.env.RESEND_API_KEY }
     });
     await transporter.sendMail({
-      from: `"Hathekhori Contact" <${process.env.GMAIL_USER}>`,
+      from: 'Hathekhori Contact <onboarding@resend.dev>',
       to: 'contact.hathekhori@gmail.com',
       replyTo: email,
       subject: `Message from ${name} via hathekhori.com`,

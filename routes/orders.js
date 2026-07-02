@@ -82,21 +82,21 @@ router.post('/checkout/place', requireLogin, async (req, res) => {
     console.error('Auto-invoice generation failed:', err.message);
   }
 
-  // Email notification to shop owner
+  // Email notification to shop owner via Resend SMTP
   try {
-    const nodemailer = require('nodemailer');
-    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-      console.warn('[Email] GMAIL_USER or GMAIL_APP_PASSWORD not set — skipping order notification email.');
+    if (!process.env.RESEND_API_KEY) {
+      console.warn('[Email] RESEND_API_KEY not set — skipping order notification email.');
     } else {
+      const nodemailer = require('nodemailer');
       const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
+        host: 'smtp.resend.com',
         port: 465,
         secure: true,
-        auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD }
+        auth: { user: 'resend', pass: process.env.RESEND_API_KEY }
       });
       const itemLines = items.map(i => `• ${i.name} × ${i.quantity} — ₹${i.discountedPrice * i.quantity}`).join('\n');
       await transporter.sendMail({
-        from: `"Hathekhori Orders" <${process.env.GMAIL_USER}>`,
+        from: 'Hathekhori Orders <onboarding@resend.dev>',
         to: 'contact.hathekhori@gmail.com',
         subject: `🛍 New Order #${orderId} — ₹${total} — UTR: ${upi_txn_id || 'N/A'}`,
         text: `New order received!\n\nOrder #${orderId}\nAmount: ₹${total}\nTransaction ID / UTR: ${upi_txn_id || 'Not provided'}\n\nCustomer Details:\nName: ${name}\nEmail: ${email}\nWhatsApp: ${phone || 'Not provided'}\nAddress: ${address}, ${city}, ${zip}, ${country}\n\nItems:\n${itemLines}\n\nVerify the UTR in your UPI app and mark the order as paid in admin:\nhttps://www.hathekhori.com/admin`,
@@ -116,7 +116,8 @@ router.post('/checkout/place', requireLogin, async (req, res) => {
           <p style="color:#aaa;font-size:12px;margin-top:16px;">Verify UTR in your UPI app, then mark the order as <strong>paid</strong> in admin.</p>
         `
       });
-    } // end else (gmail credentials present)
+      console.log(`[Email] Order #${orderId} notification sent.`);
+    }
   } catch (err) {
     console.error('Order notification email failed:', err.message);
   }
