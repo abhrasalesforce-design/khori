@@ -2,17 +2,14 @@
 
 <div class="page-container confirmation">
   <div class="confirm-icon">🌸</div>
-  <h1>Order Placed!</h1>
-  <p>Thank you, <strong><%= order.name %></strong>. Your order <strong>#<%= order.id %></strong> has been received.</p>
+  <h1>Thank You for Your Order!</h1>
+  <p>Your payment was successful, <strong><%= order.name %></strong>.</p>
+  <p>Order <strong>#<%= order.id %></strong> is confirmed and being prepared.</p>
 
-  <!-- Payment pending notice -->
   <div class="upi-confirm-box">
-    <p>⏳ <strong>Your payment is being verified.</strong></p>
-    <p>We'll confirm your order via <strong>WhatsApp</strong> on <strong><%= order.phone || 'the number you provided' %></strong> within <strong>2–3 hours</strong> of verifying your UPI transaction.</p>
-    <% if (order.upi_txn_id) { %>
-      <p style="margin-top:8px;">Transaction ID recorded: <code style="background:#f5f0fb;padding:2px 8px;border-radius:4px;color:#898AC4;font-size:0.9rem;"><%= order.upi_txn_id %></code></p>
-    <% } %>
-    <p style="margin-top:8px;font-size:0.85rem;color:#888;">Payments are processed between <strong>8:00 AM – 10:00 PM IST</strong>. Orders placed outside these hours will be confirmed the next morning.</p>
+    <p>✅ <strong>Payment received.</strong> Your order is now being processed.</p>
+    <p>We'll ship to: <em><%= order.address %>, <%= order.city %>, <%= order.zip %>, <%= order.country %></em></p>
+    <% if (order.phone) { %><p>We may contact you on <strong><%= order.phone %></strong> if needed.</p><% } %>
     <p style="margin-top:8px;font-size:0.85rem;color:#888;">Questions? Email us at <a href="mailto:contact.hathekhori@gmail.com" style="color:#898AC4;">contact.hathekhori@gmail.com</a></p>
   </div>
 
@@ -27,8 +24,6 @@
     <% }) %>
     <div class="confirm-total"><strong>Total: ₹<%= order.total.toFixed(2) %></strong></div>
   </div>
-
-  <p style="font-size:0.85rem;color:#898AC4;margin-bottom:20px;">Shipping to: <em><%= order.address %>, <%= order.city %>, <%= order.zip %>, <%= order.country %></em></p>
 
   <div class="confirm-actions">
     <a href="/orders" class="btn-primary">View My Orders</a>

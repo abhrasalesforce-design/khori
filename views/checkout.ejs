@@ -3,75 +3,45 @@
 <div class="page-container">
   <h1>Checkout</h1>
   <div class="checkout-layout">
-    <form id="checkout-form" method="POST" action="/checkout/place">
+
+    <form id="checkout-form">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
       <!-- Shipping Details -->
       <div class="form-section">
         <h2>Shipping Details</h2>
         <div class="form-row">
-          <input type="text" name="name" placeholder="Full Name" value="<%= user.name %>" required>
+          <input type="text" id="f-name" placeholder="Full Name" value="<%= user.name %>" required>
         </div>
         <div class="form-row">
-          <input type="email" name="email" placeholder="Email" value="<%= user.email %>" required>
+          <input type="email" id="f-email" placeholder="Email" value="<%= user.email %>" required>
         </div>
         <div class="form-row">
-          <input type="tel" name="phone" placeholder="WhatsApp Number (required for order confirmation)" required>
+          <input type="tel" id="f-phone" placeholder="Phone Number" required>
         </div>
         <div class="form-row">
-          <input type="text" name="address" placeholder="Street Address" required>
+          <input type="text" id="f-address" placeholder="Street Address" required>
         </div>
         <div class="form-row two-col">
-          <input type="text" name="city" placeholder="City" required>
-          <input type="text" name="zip" placeholder="ZIP / Postal Code" required>
+          <input type="text" id="f-city" placeholder="City" required>
+          <input type="text" id="f-zip" placeholder="ZIP / Postal Code" required>
         </div>
         <div class="form-row">
-          <input type="text" name="country" placeholder="Country" required>
+          <input type="text" id="f-country" placeholder="Country" value="India" required>
         </div>
       </div>
 
-      <!-- Payment — UPI QR -->
+      <!-- Payment -->
       <div class="form-section">
         <h2>Payment</h2>
-
-        <!-- Small business notice -->
-        <div class="upi-notice">
-          <p>🏪 <strong>We are a small, independent handmade crafts business.</strong> To keep things personal and secure for our customers, we currently accept payments via UPI rather than an automated payment gateway. This ensures every order is personally verified by us before processing.</p>
+        <div class="rzp-summary">
+          <p>You will be charged <strong>₹<%= total %></strong> via Razorpay.</p>
+          <p style="font-size:0.8rem;color:#888;margin-top:6px;">Secure payment powered by Razorpay — UPI, cards, netbanking and wallets accepted.</p>
         </div>
-
-        <!-- QR + instructions -->
-        <div class="upi-payment-wrap">
-          <div class="upi-qr-col">
-            <p class="upi-qr-label">Scan to Pay</p>
-            <img src="<%= (cdn && cdn['upi-qr.jpg']) || '/images/upi-qr.jpg' %>" alt="UPI QR Code" class="upi-qr-img" onerror="this.src='/images/upi-qr.jpg'">
-            <p class="upi-amount">Amount: <strong>₹<%= total %></strong></p>
-          </div>
-
-          <div class="upi-steps-col">
-            <h3 class="upi-steps-title">How to Pay</h3>
-            <ol class="upi-steps">
-              <li>Open GPay, PhonePe, Paytm or any UPI app</li>
-              <li>Scan the QR code on the left</li>
-              <li>Pay exactly <strong>₹<%= total %></strong></li>
-              <li>Copy your <strong>Transaction ID / UTR number</strong> from the payment confirmation screen</li>
-              <li>Paste it in the field below and place your order</li>
-            </ol>
-
-            <div class="upi-timing-box">
-              <p>🕗 <strong>Payments accepted: 8:00 AM – 10:00 PM IST</strong></p>
-              <p>⏱ Order confirmation will be shared via <strong>WhatsApp</strong> within 2–3 hours of payment verification.</p>
-              <p>📧 For any queries: <a href="mailto:contact.hathekhori@gmail.com">contact.hathekhori@gmail.com</a></p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Transaction ID + confirmation fields -->
-        <div class="form-row" style="margin-top:20px;">
-          <input type="text" name="upi_txn_id" placeholder="Transaction ID / UTR Number (e.g. 123456789012)" required>
-        </div>
-        <p class="upi-txn-hint">Find your Transaction ID in your UPI app under payment history after completing the payment.</p>
-
-        <button type="submit" class="btn-primary upi-submit-btn">Place Order →</button>
+        <p id="checkout-error" style="color:#e57373;font-size:0.85rem;display:none;margin-bottom:12px;"></p>
+        <button type="button" id="pay-btn" class="btn-primary" style="width:100%;padding:14px;font-size:1rem;">
+          Pay ₹<%= total %> →
+        </button>
       </div>
     </form>
 
@@ -89,7 +59,105 @@
       <div class="summary-divider"></div>
       <div class="summary-total"><span>Total</span><span>₹<%= total %></span></div>
     </div>
+
   </div>
 </div>
+
+<!-- Hidden form for final verified POST -->
+<form id="place-order-form" method="POST" action="/checkout/place" style="display:none;">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <input type="hidden" name="name" id="po-name">
+  <input type="hidden" name="email" id="po-email">
+  <input type="hidden" name="phone" id="po-phone">
+  <input type="hidden" name="address" id="po-address">
+  <input type="hidden" name="city" id="po-city">
+  <input type="hidden" name="zip" id="po-zip">
+  <input type="hidden" name="country" id="po-country">
+  <input type="hidden" name="razorpay_order_id" id="po-rzp-order-id">
+  <input type="hidden" name="razorpay_payment_id" id="po-rzp-payment-id">
+  <input type="hidden" name="razorpay_signature" id="po-rzp-signature">
+</form>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.getElementById('pay-btn').addEventListener('click', async function() {
+  const btn = this;
+  const errEl = document.getElementById('checkout-error');
+
+  const name    = document.getElementById('f-name').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+  const phone   = document.getElementById('f-phone').value.trim();
+  const address = document.getElementById('f-address').value.trim();
+  const city    = document.getElementById('f-city').value.trim();
+  const zip     = document.getElementById('f-zip').value.trim();
+  const country = document.getElementById('f-country').value.trim();
+
+  if (!name || !email || !phone || !address || !city || !zip || !country) {
+    errEl.textContent = 'Please fill in all shipping details before paying.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Initialising…';
+
+  try {
+    const csrf = document.querySelector('meta[name="csrf-token"]').content;
+    const res = await fetch('/checkout/create-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+      body: JSON.stringify({})
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to create order');
+
+    const options = {
+      key: '<%= razorpayKeyId %>',
+      amount: data.amount,
+      currency: data.currency,
+      name: 'Hathekhori',
+      description: 'Handmade Crafts',
+      order_id: data.orderId,
+      prefill: { name, email, contact: phone },
+      theme: { color: '#898AC4' },
+      handler: function(response) {
+        // Payment successful — fill hidden form and submit for server-side verification
+        document.getElementById('po-name').value    = name;
+        document.getElementById('po-email').value   = email;
+        document.getElementById('po-phone').value   = phone;
+        document.getElementById('po-address').value = address;
+        document.getElementById('po-city').value    = city;
+        document.getElementById('po-zip').value     = zip;
+        document.getElementById('po-country').value = country;
+        document.getElementById('po-rzp-order-id').value   = response.razorpay_order_id;
+        document.getElementById('po-rzp-payment-id').value = response.razorpay_payment_id;
+        document.getElementById('po-rzp-signature').value  = response.razorpay_signature;
+        document.getElementById('place-order-form').submit();
+      },
+      modal: {
+        ondismiss: function() {
+          btn.disabled = false;
+          btn.textContent = 'Pay ₹<%= total %> →';
+        }
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.on('payment.failed', function(response) {
+      errEl.textContent = 'Payment failed: ' + (response.error.description || 'Please try again.');
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Pay ₹<%= total %> →';
+    });
+    rzp.open();
+
+  } catch(err) {
+    errEl.textContent = err.message || 'Something went wrong. Please try again.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Pay ₹<%= total %> →';
+  }
+});
+</script>
 
 <%- include('partials/footer') %>
