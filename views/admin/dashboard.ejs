@@ -19,7 +19,37 @@
     <div class="stat-card"><div class="stat-num"><%= stats.pendingOrders %></div><div class="stat-label">Pending</div></div>
   </div>
 
-  <!-- Bulk Import/Export + Category Filter -->
+  <!-- ===== Hero Banner ===== -->
+  <div class="bulk-bar" style="margin-bottom:8px;">
+    <div class="bulk-bar-left">
+      <h2 style="margin:0">Hero Banner</h2>
+      <% if (banner) { %>
+        <span style="font-size:0.75rem;color:#4caf50;font-weight:600;">● Active</span>
+      <% } else { %>
+        <span style="font-size:0.75rem;color:#aaa;">● No banner set — carousel shows 4 slides</span>
+      <% } %>
+    </div>
+    <div class="bulk-bar-right" style="gap:8px;">
+      <a href="/admin/banner/new" class="btn-primary" style="font-size:0.78rem;">📷 <%= banner ? 'Update Banner' : 'Set Banner' %></a>
+      <% if (banner) { %>
+        <form method="POST" action="/admin/banner/clear" onsubmit="return confirm('Remove the banner slide?')">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn-outline" style="font-size:0.78rem;color:#e57373;border-color:#e57373;">✕ Clear Banner</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+  <% if (banner) { %>
+    <div style="display:flex;align-items:center;gap:16px;background:#f9f7f7;border:1px solid #e8dde3;border-radius:8px;padding:14px 18px;margin-bottom:24px;">
+      <img src="<%= banner.image.startsWith('http') ? banner.image : '/uploads/' + banner.image %>" style="width:100px;height:56px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'">
+      <div style="font-size:0.83rem;color:#555;line-height:1.7;">
+        <strong style="color:#898AC4;"><%= banner.heading || '(no heading)' %></strong><br>
+        <span style="color:#888;"><%= banner.eyebrow || '' %></span> &nbsp;·&nbsp; CTA: <em><%= banner.cta_text || '—' %></em> → <em><%= banner.cta_link || '—' %></em>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- ===== Products ===== -->
   <div class="bulk-bar">
     <div class="bulk-bar-left" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
       <h2 style="margin:0">Products</h2>
@@ -29,9 +59,7 @@
           <option value="<%= cat %>" <%= filterCategory === cat ? 'selected' : '' %>><%= cat.charAt(0).toUpperCase() + cat.slice(1) %></option>
         <% }) %>
       </select>
-      <% if (filterCategory) { %>
-        <a href="/admin" style="font-size:0.75rem;color:#898AC4;">✕ Clear filter</a>
-      <% } %>
+      <% if (filterCategory) { %><a href="/admin" style="font-size:0.75rem;color:#898AC4;">✕ Clear filter</a><% } %>
     </div>
     <div class="bulk-bar-right">
       <a href="/admin/products/export" class="btn-outline" style="font-size:0.78rem;">⬇ Download Excel</a>
@@ -44,7 +72,7 @@
       </form>
     </div>
   </div>
-  <p style="font-size:0.75rem;color:#898AC4;margin:-8px 0 16px;opacity:0.8;">Download the sheet, edit name / price / stock / category, then re-upload to apply changes in bulk.</p>
+  <p style="font-size:0.75rem;color:#898AC4;margin:-8px 0 16px;opacity:0.8;">Showing 20 per page.</p>
 
   <div class="admin-table-wrap">
     <table class="admin-table">
@@ -72,31 +100,36 @@
 
   <% if (totalPages > 1) { %>
   <% const catParam = filterCategory ? '&category=' + encodeURIComponent(filterCategory) : ''; %>
-  <nav class="pagination" style="padding: 24px 0 8px;">
-    <% if (currentPage > 1) { %>
-      <a href="/admin?page=<%= currentPage - 1 %><%= catParam %>" class="page-btn page-prev">&#8592;</a>
-    <% } %>
-    <% for (let p = 1; p <= totalPages; p++) { %>
-      <a href="/admin?page=<%= p %><%= catParam %>" class="page-btn <%= p === currentPage ? 'active' : '' %>"><%= p %></a>
-    <% } %>
-    <% if (currentPage < totalPages) { %>
-      <a href="/admin?page=<%= currentPage + 1 %><%= catParam %>" class="page-btn page-next">&#8594;</a>
-    <% } %>
+  <nav class="pagination" style="padding:24px 0 8px;">
+    <% if (currentPage > 1) { %><a href="/admin?page=<%= currentPage-1 %><%= catParam %>" class="page-btn page-prev">&#8592;</a><% } %>
+    <% for (let p = 1; p <= totalPages; p++) { %><a href="/admin?page=<%= p %><%= catParam %>" class="page-btn <%= p===currentPage?'active':'' %>"><%= p %></a><% } %>
+    <% if (currentPage < totalPages) { %><a href="/admin?page=<%= currentPage+1 %><%= catParam %>" class="page-btn page-next">&#8594;</a><% } %>
   </nav>
   <% } %>
 
-  <h2>Orders</h2>
+  <!-- ===== Orders ===== -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin:32px 0 12px;flex-wrap:wrap;gap:12px;">
+    <h2 style="margin:0;">Orders <span style="font-size:0.78rem;font-weight:400;color:#aaa;">(10 per page)</span></h2>
+    <form method="POST" action="/admin/orders/clear" onsubmit="return confirm('Delete ALL orders permanently? This cannot be undone.')">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button type="submit" class="btn-sm btn-danger">🗑 Clear All Orders</button>
+    </form>
+  </div>
+
   <div class="admin-table-wrap">
     <table class="admin-table">
-      <thead><tr><th>#</th><th>Customer</th><th>WhatsApp</th><th>Total</th><th>UTR / Txn ID</th><th>Status</th><th>Date</th><th>Update</th></tr></thead>
+      <thead><tr><th>#</th><th>Customer</th><th>Phone</th><th>Address</th><th>Total</th><th>Txn ID</th><th>Status</th><th>Date</th><th>Update</th></tr></thead>
       <tbody>
         <% orders.forEach(o => { %>
           <tr>
             <td><%= o.id %></td>
             <td><%= o.user_name || o.name %></td>
             <td><%= o.phone || '—' %></td>
+            <td style="font-size:0.78rem;color:#888;max-width:160px;">
+              <% if (o.address) { %><%= o.address %><% if (o.city) { %>, <%= o.city %><% } %><% if (o.zip) { %> – <%= o.zip %><% } %><% } else { %>—<% } %>
+            </td>
             <td>₹<%= o.total.toFixed(2) %></td>
-            <td><% if (o.upi_txn_id) { %><code style="font-size:0.78rem;background:#f5f0fb;padding:2px 6px;border-radius:4px;color:#898AC4;"><%= o.upi_txn_id %></code><% } else { %>—<% } %></td>
+            <td><% if (o.upi_txn_id) { %><code style="font-size:0.75rem;background:#f5f0fb;padding:2px 5px;border-radius:4px;color:#898AC4;"><%= o.upi_txn_id %></code><% } else { %>—<% } %></td>
             <td><span class="badge badge-<%= o.status %>"><%= o.status %></span></td>
             <td><%= new Date(o.created_at).toLocaleDateString() %></td>
             <td>
@@ -118,6 +151,15 @@
       </tbody>
     </table>
   </div>
+
+  <% if (totalOrderPages > 1) { %>
+  <% const opCatParam = filterCategory ? '&category=' + encodeURIComponent(filterCategory) : ''; %>
+  <nav class="pagination" style="padding:16px 0 8px;">
+    <% if (ordersPage > 1) { %><a href="/admin?opage=<%= ordersPage-1 %><%= opCatParam %>" class="page-btn page-prev">&#8592;</a><% } %>
+    <% for (let p = 1; p <= totalOrderPages; p++) { %><a href="/admin?opage=<%= p %><%= opCatParam %>" class="page-btn <%= p===ordersPage?'active':'' %>"><%= p %></a><% } %>
+    <% if (ordersPage < totalOrderPages) { %><a href="/admin?opage=<%= ordersPage+1 %><%= opCatParam %>" class="page-btn page-next">&#8594;</a><% } %>
+  </nav>
+  <% } %>
 </div>
 
 <%- include('../partials/footer') %>

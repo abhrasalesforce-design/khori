@@ -73,6 +73,7 @@ router.get('/', async (req, res) => {
   const categories = catRows.map(r => r.category);
 
   const lcpImageUrl = (req.app.locals.cdn && req.app.locals.cdn['mini-canvas.jpg']) || '/images/mini-canvas.jpg';
+  const banner = await db.get('SELECT * FROM banners WHERE active = 1 ORDER BY created_at DESC LIMIT 1');
   res.render('index', {
     lcpImageUrl,
     products,
@@ -83,7 +84,8 @@ router.get('/', async (req, res) => {
     user: req.session.user || null,
     currentPage,
     totalPages,
-    perPage
+    perPage,
+    banner: banner || null
   });
 });
 

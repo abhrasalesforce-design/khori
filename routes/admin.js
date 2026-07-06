@@ -49,11 +49,12 @@ function requireAdmin(req, res, next) {
 }
 
 router.get('/', requireAdmin, async (req, res) => {
-  const ua = req.headers['user-agent'] || '';
-  const isMobile = /Mobile|Android|iPhone|iPad|iPod/i.test(ua);
-  const perPage = isMobile ? 10 : 30;
+  const perPage = 20;
+  const ordersPerPage = 10;
   const currentPage = Math.max(1, parseInt(req.query.page) || 1);
+  const ordersPage  = Math.max(1, parseInt(req.query.opage) || 1);
   const offset = (currentPage - 1) * perPage;
+  const ordersOffset = (ordersPage - 1) * ordersPerPage;
   const filterCategory = req.query.category || '';
 
   const allCategories = (await db.all('SELECT DISTINCT category FROM products ORDER BY category')).map(r => r.category);
@@ -70,16 +71,72 @@ router.get('/', requireAdmin, async (req, res) => {
   const totalProducts = countRow ? countRow.total : 0;
   const totalPages = Math.ceil(totalProducts / perPage);
 
-  const orders = await db.all('SELECT o.*, u.name AS user_name FROM orders o LEFT JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC');
+  const ordersCountRow = await db.get('SELECT COUNT(*) as total FROM orders');
+  const totalOrders = ordersCountRow ? ordersCountRow.total : 0;
+  const totalOrderPages = Math.ceil(totalOrders / ordersPerPage);
+  const orders = await db.all(
+    'SELECT o.*, u.name AS user_name FROM orders o LEFT JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC LIMIT ? OFFSET ?',
+    [ordersPerPage, ordersOffset]
+  );
+
   const allProductsCount = (await db.get('SELECT COUNT(*) as total FROM products')).total;
+  const allOrdersRevenue = await db.all('SELECT total, status FROM orders');
   const stats = {
     totalProducts: allProductsCount,
-    totalOrders: orders.length,
-    totalRevenue: orders.filter(o => o.status === 'paid').reduce((s, o) => s + o.total, 0),
-    pendingOrders: orders.filter(o => o.status === 'pending').length
+    totalOrders,
+    totalRevenue: allOrdersRevenue.filter(o => o.status === 'paid').reduce((s, o) => s + o.total, 0),
+    pendingOrders: allOrdersRevenue.filter(o => o.status === 'payment_pending' || o.status === 'pending').length
   };
+
+  const banner = await db.get('SELECT * FROM banners WHERE active = 1 ORDER BY created_at DESC LIMIT 1');
   const flashMsg = req.flash('error')[0] || null;
-  res.render('admin/dashboard', { products, orders, stats, user: req.session.user, currentPage, totalPages, flashMsg, allCategories, filterCategory });
+  res.render('admin/dashboard', {
+    products, orders, stats, user: req.session.user,
+    currentPage, totalPages, flashMsg, allCategories, filterCategory,
+    ordersPage, totalOrderPages, banner
+  });
+});
+
+// ===== Banner routes =====
+router.get('/banner/new', requireAdmin, (req, res) => {
+  res.render('admin/banner-form', { user: req.session.user, error: req.flash('error') });
+});
+
+router.post('/banner/new', requireAdmin, upload.single('bannerImage'), csrfAfterMulter, async (req, res) => {
+  try {
+    const { eyebrow, heading, subheading, cta_text, cta_link } = req.body;
+    if (!req.file) {
+      req.flash('error', 'Banner image is required.');
+      return res.redirect('/admin/banner/new');
+    }
+    const image = await saveImage(req.file);
+    // Deactivate any existing banners
+    await db.run('UPDATE banners SET active = 0');
+    await db.run(
+      'INSERT INTO banners (image, eyebrow, heading, subheading, cta_text, cta_link, active) VALUES (?, ?, ?, ?, ?, ?, 1)',
+      [image, eyebrow || null, heading || null, subheading || null, cta_text || null, cta_link || null]
+    );
+    req.flash('error', '✓ Banner updated successfully.');
+    res.redirect('/admin');
+  } catch (err) {
+    console.error('Banner save error:', err);
+    req.flash('error', 'Failed to save banner.');
+    res.redirect('/admin/banner/new');
+  }
+});
+
+router.post('/banner/clear', requireAdmin, async (req, res) => {
+  await db.run('UPDATE banners SET active = 0');
+  req.flash('error', '✓ Banner cleared.');
+  res.redirect('/admin');
+});
+
+// ===== Clear all orders =====
+router.post('/orders/clear', requireAdmin, async (req, res) => {
+  await db.run('DELETE FROM order_items');
+  await db.run('DELETE FROM orders');
+  req.flash('error', '✓ All orders cleared.');
+  res.redirect('/admin');
 });
 
 router.get('/products/new', requireAdmin, (req, res) => {

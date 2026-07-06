@@ -1,0 +1,76 @@
+<%- include('../partials/header') %>
+
+<div class="admin-container">
+  <div class="admin-header">
+    <h1 style="color:#898AC4;">Hero Banner</h1>
+    <a href="/admin" style="font-size:0.82rem;color:#898AC4;">← Dashboard</a>
+  </div>
+
+  <% if (error && error.length) { %>
+    <div class="alert alert-error"><%= error %></div>
+  <% } %>
+
+  <div style="background:#fff;border:1px solid #e8dde3;border-radius:10px;padding:32px;max-width:560px;">
+    <p style="font-size:0.83rem;color:#888;margin-bottom:24px;line-height:1.7;">
+      This banner appears as the <strong>first slide</strong> in the hero carousel. Leave any text field blank to hide that element. If no banner is set, the carousel starts from the Mini Canvas slide.
+    </p>
+
+    <form method="POST" action="/admin/banner/new" enctype="multipart/form-data">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <div class="form-row">
+        <label>Banner Image <span style="color:#e57373;">*</span></label>
+        <input type="file" name="bannerImage" accept="image/*" required id="bannerImgInput">
+        <div id="bannerPreview" style="margin-top:10px;display:none;">
+          <img id="bannerPreviewImg" style="max-width:100%;border-radius:6px;border:1px solid #e8dde3;max-height:200px;object-fit:cover;">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>Eyebrow Text <span style="color:#aaa;font-weight:400;">(small label above heading)</span></label>
+        <input type="text" name="eyebrow" placeholder="e.g. New Collection">
+      </div>
+
+      <div class="form-row">
+        <label>Heading</label>
+        <input type="text" name="heading" placeholder="e.g. Summer Sale">
+      </div>
+
+      <div class="form-row">
+        <label>Subheading</label>
+        <input type="text" name="subheading" placeholder="e.g. Up to 50% off on selected items">
+      </div>
+
+      <div class="form-row two-col">
+        <div>
+          <label>CTA Button Text</label>
+          <input type="text" name="cta_text" placeholder="e.g. Shop Now">
+        </div>
+        <div>
+          <label>CTA Link</label>
+          <input type="text" name="cta_link" placeholder="e.g. /?category=earrings">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Save Banner</button>
+        <a href="/admin" class="btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.getElementById('bannerImgInput').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('bannerPreviewImg').src = e.target.result;
+      document.getElementById('bannerPreview').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  });
+</script>
+
+<%- include('../partials/footer') %>
