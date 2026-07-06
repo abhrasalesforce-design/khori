@@ -49,7 +49,7 @@ function requireAdmin(req, res, next) {
 }
 
 router.get('/', requireAdmin, async (req, res) => {
-  const perPage = 20;
+  const perPage = 10;
   const ordersPerPage = 10;
   const currentPage = Math.max(1, parseInt(req.query.page) || 1);
   const ordersPage  = Math.max(1, parseInt(req.query.opage) || 1);
@@ -139,8 +139,21 @@ router.post('/orders/clear', requireAdmin, async (req, res) => {
   res.redirect('/admin');
 });
 
-router.get('/products/new', requireAdmin, (req, res) => {
-  res.render('admin/product-form', { product: null, error: req.flash('error'), user: req.session.user });
+async function getProductSuggestions() {
+  const rows = await db.all('SELECT description, material, origin, craft_type, care_instructions FROM products');
+  const uniq = (field) => [...new Set(rows.map(r => r[field]).filter(Boolean))];
+  return {
+    descriptions:  uniq('description'),
+    materials:     uniq('material'),
+    origins:       uniq('origin'),
+    craftTypes:    uniq('craft_type'),
+    careInstructions: uniq('care_instructions'),
+  };
+}
+
+router.get('/products/new', requireAdmin, async (req, res) => {
+  const suggestions = await getProductSuggestions();
+  res.render('admin/product-form', { product: null, error: req.flash('error'), user: req.session.user, suggestions });
 });
 
 router.post('/products/new', requireAdmin, upload.array('images', 10), csrfAfterMulter, async (req, res) => {
@@ -169,7 +182,8 @@ router.post('/products/new', requireAdmin, upload.array('images', 10), csrfAfter
 router.get('/products/edit/:id', requireAdmin, async (req, res) => {
   const product = await db.get('SELECT * FROM products WHERE id = ?', [req.params.id]);
   if (!product) return res.redirect('/admin');
-  res.render('admin/product-form', { product, error: req.flash('error'), user: req.session.user });
+  const suggestions = await getProductSuggestions();
+  res.render('admin/product-form', { product, error: req.flash('error'), user: req.session.user, suggestions });
 });
 
 router.post('/products/edit/:id', requireAdmin, upload.array('images', 10), csrfAfterMulter, async (req, res) => {
