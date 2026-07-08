@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
 const { db } = require('../database');
+const { resolveCartItems } = require('./cartPricing');
 
 function requireLogin(req, res, next) {
   if (!req.session.user) {
@@ -22,12 +23,7 @@ function getRazorpay() {
 router.get('/checkout', requireLogin, async (req, res) => {
   const cart = req.session.cart || [];
   if (cart.length === 0) return res.redirect('/cart');
-  const items = (await Promise.all(cart.map(async item => {
-    const product = await db.get('SELECT * FROM products WHERE id = ?', [item.id]);
-    if (!product) return null;
-    const discountedPrice = Math.floor(product.price * 0.5);
-    return { ...product, discountedPrice, quantity: item.quantity, subtotal: discountedPrice * item.quantity };
-  }))).filter(Boolean);
+  const items = await resolveCartItems(cart);
   const subtotal = items.reduce((sum, i) => sum + i.subtotal, 0);
   const shipping = subtotal < 699 ? 50 : 0;
   const total = subtotal + shipping;
@@ -44,12 +40,7 @@ router.post('/checkout/create-order', requireLogin, async (req, res) => {
     const cart = req.session.cart || [];
     if (cart.length === 0) return res.status(400).json({ error: 'Cart is empty' });
 
-    const items = (await Promise.all(cart.map(async item => {
-      const product = await db.get('SELECT * FROM products WHERE id = ?', [item.id]);
-      if (!product) return null;
-      const discountedPrice = Math.floor(product.price * 0.5);
-      return { ...product, discountedPrice, quantity: item.quantity };
-    }))).filter(Boolean);
+    const items = await resolveCartItems(cart);
 
     const productTotal = items.reduce((sum, i) => sum + i.discountedPrice * i.quantity, 0);
     const total = productTotal + (productTotal < 699 ? 50 : 0);

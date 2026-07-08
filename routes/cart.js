@@ -1,15 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../database');
+const { resolveCartItems } = require('./cartPricing');
 
 router.get('/cart', async (req, res) => {
-  const cart = req.session.cart || [];
-  const items = (await Promise.all(cart.map(async item => {
-    const product = await db.get('SELECT * FROM products WHERE id = ?', [item.id]);
-    if (!product) return null;
-    const discountedPrice = Math.floor(product.price * 0.5);
-    return { ...product, discountedPrice, quantity: item.quantity, subtotal: discountedPrice * item.quantity };
-  }))).filter(Boolean);
+  const items = await resolveCartItems(req.session.cart || []);
   const subtotal = items.reduce((sum, i) => sum + i.subtotal, 0);
   const shipping = subtotal < 699 ? 50 : 0;
   const total = subtotal + shipping;
