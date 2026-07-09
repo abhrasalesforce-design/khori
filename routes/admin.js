@@ -252,10 +252,24 @@ router.post('/generate-description', requireAdmin, upload.single('image'), csrfA
   }
 });
 
+router.get('/orders/:id', requireAdmin, async (req, res) => {
+  const order = await db.get(
+    'SELECT o.*, u.name AS user_name FROM orders o LEFT JOIN users u ON o.user_id = u.id WHERE o.id = ?',
+    [req.params.id]
+  );
+  if (!order) return res.redirect('/admin');
+  const items = await db.all(
+    'SELECT oi.*, p.name AS product_name, p.image, p.images FROM order_items oi LEFT JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?',
+    [order.id]
+  );
+  res.render('admin/order-detail', { order, items, user: req.session.user });
+});
+
 router.post('/orders/status/:id', requireAdmin, async (req, res) => {
   const { status } = req.body;
+  const ref = req.get('Referer') || '/admin';
   await db.run('UPDATE orders SET status = ? WHERE id = ?', [status, req.params.id]);
-  res.redirect('/admin');
+  res.redirect(ref);
 });
 
 // ===== Bulk Export =====

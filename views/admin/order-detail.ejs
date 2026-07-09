@@ -1,0 +1,94 @@
+<%- include('../partials/header') %>
+
+<div class="admin-container">
+  <div class="admin-header">
+    <h1 style="color:#898AC4;">Order #<%= order.id %></h1>
+    <a href="/admin#orders" style="font-size:0.82rem;color:#898AC4;">← Back to Dashboard</a>
+  </div>
+
+  <!-- Order meta -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:28px;">
+    <div style="background:#fff;border:1px solid #e8dde3;border-radius:10px;padding:18px 20px;">
+      <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#898AC4;margin-bottom:6px;">Customer</p>
+      <p style="font-size:0.92rem;color:#3a2e2e;font-weight:600;"><%= order.user_name || order.name || '—' %></p>
+      <p style="font-size:0.82rem;color:#888;"><%= order.email || '—' %></p>
+      <p style="font-size:0.82rem;color:#888;"><%= order.phone || '—' %></p>
+    </div>
+    <div style="background:#fff;border:1px solid #e8dde3;border-radius:10px;padding:18px 20px;">
+      <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#898AC4;margin-bottom:6px;">Delivery Address</p>
+      <% if (order.address) { %>
+        <p style="font-size:0.88rem;color:#3a2e2e;line-height:1.6;"><%= order.address %><% if (order.city) { %>, <%= order.city %><% } %><% if (order.zip) { %> – <%= order.zip %><% } %><% if (order.country) { %>, <%= order.country %><% } %></p>
+      <% } else { %>
+        <p style="font-size:0.88rem;color:#aaa;">No address recorded</p>
+      <% } %>
+    </div>
+    <div style="background:#fff;border:1px solid #e8dde3;border-radius:10px;padding:18px 20px;">
+      <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#898AC4;margin-bottom:6px;">Payment</p>
+      <p style="margin-bottom:4px;"><span class="badge badge-<%= order.status %>"><%= order.status %></span></p>
+      <p style="font-size:0.88rem;color:#3a2e2e;font-weight:600;">₹<%= order.total.toFixed(2) %></p>
+      <% if (order.upi_txn_id) { %>
+        <p style="font-size:0.78rem;color:#888;margin-top:4px;">Txn: <code style="background:#f5f0fb;padding:2px 5px;border-radius:4px;color:#898AC4;"><%= order.upi_txn_id %></code></p>
+      <% } %>
+      <p style="font-size:0.78rem;color:#aaa;margin-top:4px;"><%= new Date(order.created_at).toLocaleString() %></p>
+    </div>
+  </div>
+
+  <!-- Update status -->
+  <div style="background:#fff;border:1px solid #e8dde3;border-radius:10px;padding:18px 20px;margin-bottom:28px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+    <span style="font-size:0.82rem;font-weight:600;color:#555;">Update Status:</span>
+    <form method="POST" action="/admin/orders/status/<%= order.id %>" style="display:flex;align-items:center;gap:10px;">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <select name="status" style="padding:7px 12px;border:1.5px solid rgba(137,138,196,0.4);border-radius:6px;font-size:0.82rem;color:#3a2e2e;outline:none;">
+        <option value="payment_pending" <%= order.status==='payment_pending'?'selected':'' %>>payment pending</option>
+        <option value="received" <%= order.status==='received'?'selected':'' %>>received</option>
+        <option value="paid" <%= order.status==='paid'?'selected':'' %>>paid</option>
+        <option value="shipped" <%= order.status==='shipped'?'selected':'' %>>shipped</option>
+        <option value="delivered" <%= order.status==='delivered'?'selected':'' %>>delivered</option>
+        <option value="cancelled" <%= order.status==='cancelled'?'selected':'' %>>cancelled</option>
+      </select>
+      <button type="submit" class="btn-primary" style="font-size:0.8rem;padding:7px 18px;">Save</button>
+    </form>
+  </div>
+
+  <!-- Items purchased -->
+  <h2 style="color:#3a2e2e;font-size:1rem;margin-bottom:14px;">Items Purchased</h2>
+  <% if (items.length === 0) { %>
+    <p style="color:#aaa;font-size:0.88rem;">No items found for this order.</p>
+  <% } else { %>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">
+      <% items.forEach(item => { %>
+        <%
+          let imgSrc = 'placeholder.jpg';
+          try {
+            const imgs = item.images ? JSON.parse(item.images) : [];
+            imgSrc = imgs[0] || item.image || 'placeholder.jpg';
+          } catch(e) {
+            imgSrc = item.image || 'placeholder.jpg';
+          }
+          const imgUrl = imgSrc.startsWith('http') ? imgSrc : '/uploads/' + imgSrc;
+        %>
+        <div style="background:#fff;border:1px solid #e8dde3;border-radius:10px;overflow:hidden;">
+          <a href="/product/<%= item.product_id %>" target="_blank">
+            <img src="<%= imgUrl %>" alt="<%= item.product_name %>" onerror="this.src='/images/placeholder.jpg'"
+              style="width:100%;height:160px;object-fit:cover;display:block;">
+          </a>
+          <div style="padding:12px 14px;">
+            <a href="/product/<%= item.product_id %>" target="_blank"
+              style="font-size:0.88rem;font-weight:600;color:#3a2e2e;text-decoration:none;line-height:1.4;display:block;margin-bottom:6px;">
+              <%= item.product_name || 'Deleted product' %>
+            </a>
+            <p style="font-size:0.8rem;color:#888;margin-bottom:2px;">Qty: <strong style="color:#3a2e2e;"><%= item.quantity %></strong></p>
+            <p style="font-size:0.8rem;color:#888;">Unit price: <strong style="color:#898AC4;">₹<%= item.price.toFixed(2) %></strong></p>
+            <p style="font-size:0.85rem;font-weight:600;color:#3a2e2e;margin-top:6px;">₹<%= (item.price * item.quantity).toFixed(2) %></p>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <div style="margin-top:20px;text-align:right;font-size:0.92rem;color:#3a2e2e;">
+      Order Total: <strong style="font-size:1.05rem;color:#898AC4;">₹<%= order.total.toFixed(2) %></strong>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>
