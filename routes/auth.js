@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const { rateLimit } = require('express-rate-limit');
@@ -99,6 +100,99 @@ router.post('/register', authLimiter, async (req, res) => {
 router.get('/logout', (req, res) => {
   req.session.destroy();
   res.redirect('/');
+});
+
+// ── Forgot Password ────────────────────────────────────────────────────────
+router.get('/forgot-password', (req, res) => {
+  res.render('forgot-password', {
+    error: req.flash('error'),
+    success: req.flash('success'),
+    user: req.session.user || null
+  });
+});
+
+router.post('/forgot-password', authLimiter, async (req, res) => {
+  const { email } = req.body;
+  const user = await db.get('SELECT * FROM users WHERE email = ?', [email]);
+  // Always show success to prevent email enumeration
+  if (!user || !user.password) {
+    req.flash('success', 'If that email exists, a reset link has been sent.');
+    return res.redirect('/forgot-password');
+  }
+
+  const token = crypto.randomBytes(32).toString('hex');
+  const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+  await db.run('DELETE FROM password_resets WHERE user_id = ?', [user.id]);
+  await db.run(
+    'INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)',
+    [user.id, token, expires.toISOString()]
+  );
+
+  const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+  const resetUrl = `${baseUrl}/reset-password/${token}`;
+
+  try {
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.resend.com', port: 465, secure: true,
+      auth: { user: 'resend', pass: process.env.RESEND_API_KEY }
+    });
+    await transporter.sendMail({
+      from: 'Hathekhori <onboarding@resend.dev>',
+      to: user.email,
+      subject: 'Reset your Hathekhori password',
+      text: `Hi ${user.name},\n\nClick the link below to reset your password. It expires in 1 hour.\n\n${resetUrl}\n\nIf you didn't request this, you can ignore this email.\n\n– Hathekhori`,
+      html: `<p>Hi ${user.name},</p><p>Click the button below to reset your password. The link expires in <strong>1 hour</strong>.</p><p><a href="${resetUrl}" style="display:inline-block;padding:12px 28px;background:#898AC4;color:#fff;border-radius:6px;text-decoration:none;font-family:Inter,sans-serif;font-weight:600;">Reset Password</a></p><p style="font-size:0.82rem;color:#888;">Or copy this link: ${resetUrl}</p><p style="font-size:0.82rem;color:#aaa;">If you didn't request this, ignore this email.</p>`
+    });
+  } catch (err) {
+    console.error('[ForgotPassword] Email error:', err.message);
+  }
+
+  req.flash('success', 'If that email exists, a reset link has been sent.');
+  res.redirect('/forgot-password');
+});
+
+// ── Reset Password ─────────────────────────────────────────────────────────
+router.get('/reset-password/:token', async (req, res) => {
+  const row = await db.get(
+    'SELECT * FROM password_resets WHERE token = ? AND used = 0',
+    [req.params.token]
+  );
+  if (!row || new Date(row.expires_at) < new Date()) {
+    req.flash('error', 'This reset link is invalid or has expired.');
+    return res.redirect('/forgot-password');
+  }
+  res.render('reset-password', {
+    token: req.params.token,
+    error: req.flash('error'),
+    user: req.session.user || null
+  });
+});
+
+router.post('/reset-password/:token', authLimiter, async (req, res) => {
+  const { password, confirm_password } = req.body;
+  const row = await db.get(
+    'SELECT * FROM password_resets WHERE token = ? AND used = 0',
+    [req.params.token]
+  );
+  if (!row || new Date(row.expires_at) < new Date()) {
+    req.flash('error', 'This reset link is invalid or has expired.');
+    return res.redirect('/forgot-password');
+  }
+  if (!password || password.length < 6) {
+    req.flash('error', 'Password must be at least 6 characters.');
+    return res.redirect(`/reset-password/${req.params.token}`);
+  }
+  if (password !== confirm_password) {
+    req.flash('error', 'Passwords do not match.');
+    return res.redirect(`/reset-password/${req.params.token}`);
+  }
+  const hash = await bcrypt.hash(password, 10);
+  await db.run('UPDATE users SET password = ? WHERE id = ?', [hash, row.user_id]);
+  await db.run('UPDATE password_resets SET used = 1 WHERE id = ?', [row.id]);
+  req.flash('success', 'Password updated! Please log in.');
+  res.redirect('/login');
 });
 
 // ── Google OAuth routes ────────────────────────────────────────────────────
