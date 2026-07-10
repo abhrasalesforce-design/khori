@@ -75,10 +75,14 @@
       <h1 class="pd-name"><%= product.name %></h1>
 
       <!-- Price -->
+      <% const __dp = applyDiscount(product.price, product.category, discountMap); %>
+      <% const __pct = discountMap[product.category] ?? discountMap['__all__'] ?? 0; %>
       <div class="pd-price-row">
-        <span class="pd-price">₹<%= Math.floor(product.price * 0.5) %></span>
-        <span class="price-original" style="font-size:1rem;color:#aaa;text-decoration:line-through;font-family:'Inter',sans-serif;">₹<%= product.price.toFixed(0) %></span>
-        <span class="price-badge" style="background:#F5AFAF;color:#fff;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;padding:3px 8px;border-radius:4px;font-family:'Inter',sans-serif;">50% OFF</span>
+        <span class="pd-price">₹<%= __dp %></span>
+        <% if (__dp < product.price) { %>
+          <span class="price-original" style="font-size:1rem;color:#aaa;text-decoration:line-through;font-family:'Inter',sans-serif;">₹<%= product.price.toFixed(0) %></span>
+          <span class="price-badge" style="background:#F5AFAF;color:#fff;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;padding:3px 8px;border-radius:4px;font-family:'Inter',sans-serif;"><%= __pct %>% OFF</span>
+        <% } %>
       </div>
       <p class="pd-tax-note" style="margin-top:4px;">Inclusive of all taxes</p>
 

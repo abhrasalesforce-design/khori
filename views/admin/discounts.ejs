@@ -1,0 +1,62 @@
+<%- include('../partials/header') %>
+
+<div class="admin-container">
+  <div class="admin-header">
+    <h1 style="color:#898AC4;">Category Discounts</h1>
+    <a href="/admin" class="btn-outline" style="font-size:0.78rem;">← Back to Dashboard</a>
+  </div>
+
+  <% if (locals.flashMsg) { %>
+    <div class="alert" style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:12px 20px;border-radius:6px;margin-bottom:20px;font-size:0.85rem;"><%= flashMsg %></div>
+  <% } %>
+
+  <div style="max-width:560px;">
+
+    <!-- All Categories at Once -->
+    <div style="background:#f9f7f7;border:1px solid #e8dde3;border-radius:10px;padding:22px 24px;margin-bottom:28px;">
+      <h3 style="margin:0 0 6px;font-size:0.97rem;color:#444;">Apply to All Categories</h3>
+      <p style="font-size:0.8rem;color:#888;margin:0 0 16px;">Setting this overrides all per-category discounts.</p>
+      <form method="POST" action="/admin/discounts">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <input
+            type="number" name="global_discount"
+            min="0" max="100" step="1"
+            placeholder="e.g. 50"
+            value="<%= globalDiscount %>"
+            style="width:110px;padding:8px 12px;border:1.5px solid rgba(137,138,196,0.4);border-radius:6px;font-size:0.9rem;outline:none;"
+          >
+          <span style="font-size:0.9rem;color:#666;">% off on all products</span>
+          <button type="submit" class="btn-primary" style="font-size:0.82rem;padding:8px 20px;">Save All</button>
+        </div>
+        <p style="font-size:0.75rem;color:#aaa;margin:10px 0 0;">Leave blank to use per-category settings below.</p>
+      </form>
+    </div>
+
+    <!-- Per-Category Discounts -->
+    <div style="background:#fff;border:1px solid #e8dde3;border-radius:10px;padding:22px 24px;">
+      <h3 style="margin:0 0 6px;font-size:0.97rem;color:#444;">Per-Category Discounts</h3>
+      <p style="font-size:0.8rem;color:#888;margin:0 0 18px;">These are ignored when "Apply to All" is set. Enter 0 or leave blank for no discount.</p>
+      <form method="POST" action="/admin/discounts">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <% allCategories.forEach(cat => { %>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+            <label style="width:160px;font-size:0.85rem;color:#555;text-transform:capitalize;"><%= cat %></label>
+            <input
+              type="number" name="cat_<%= cat %>"
+              min="0" max="100" step="1"
+              placeholder="0"
+              value="<%= discountMap[cat] != null ? discountMap[cat] : '' %>"
+              style="width:90px;padding:7px 10px;border:1.5px solid rgba(137,138,196,0.4);border-radius:6px;font-size:0.85rem;outline:none;"
+            >
+            <span style="font-size:0.82rem;color:#888;">%</span>
+          </div>
+        <% }) %>
+        <button type="submit" class="btn-primary" style="font-size:0.82rem;padding:8px 22px;margin-top:8px;">Save Per-Category</button>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

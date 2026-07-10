@@ -42,8 +42,9 @@
             <a href="/product/<%= product.id %>" class="cc-card-img-wrap">
               <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>" alt="<%= product.name %>" loading="lazy" decoding="async" onerror="this.src='/images/placeholder.jpg'">
               <span class="cc-card-overlay"><span class="cc-card-view">View Product</span></span>
+              <% const __pct = discountMap[product.category] ?? discountMap['__all__'] ?? 0; %>
               <% if (product.stock > 0) { %>
-                <span class="cc-card-badge">50% OFF</span>
+                <% if (__pct > 0) { %><span class="cc-card-badge"><%= __pct %>% OFF</span><% } %>
               <% } else { %>
                 <span class="cc-card-badge cc-card-badge-oos">Sold Out</span>
               <% } %>
@@ -51,9 +52,14 @@
             <div class="cc-card-body">
               <span class="cc-card-cat"><%= product.category %></span>
               <h3 class="cc-card-name"><%= product.name %></h3>
+              <% const __dp = applyDiscount(product.price, product.category, discountMap); %>
               <div class="cc-card-price">
-                <span class="cc-price-now">₹<%= Math.floor(product.price * 0.5) %></span>
-                <span class="cc-price-was">₹<%= product.price.toFixed(0) %></span>
+                <% if (__dp < product.price) { %>
+                  <span class="cc-price-now">₹<%= __dp %></span>
+                  <span class="cc-price-was">₹<%= product.price.toFixed(0) %></span>
+                <% } else { %>
+                  <span class="cc-price-now">₹<%= product.price.toFixed(0) %></span>
+                <% } %>
               </div>
             </div>
             <% if (product.stock > 0) { %>

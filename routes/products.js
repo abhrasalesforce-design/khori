@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../database');
+const { getDiscountMap, applyDiscount } = require('./cartPricing');
 
 router.get('/', async (req, res) => {
   const { search, category, page, sort } = req.query;
@@ -74,6 +75,7 @@ router.get('/', async (req, res) => {
 
   const lcpImageUrl = (req.app.locals.cdn && req.app.locals.cdn['mini-canvas.jpg']) || '/images/mini-canvas.jpg';
   const banner = await db.get('SELECT * FROM banners WHERE active = 1 ORDER BY created_at DESC LIMIT 1');
+  const discountMap = await getDiscountMap();
   res.render('index', {
     lcpImageUrl,
     products,
@@ -85,7 +87,9 @@ router.get('/', async (req, res) => {
     currentPage,
     totalPages,
     perPage,
-    banner: banner || null
+    banner: banner || null,
+    discountMap,
+    applyDiscount
   });
 });
 
@@ -109,11 +113,14 @@ router.get('/product/:id', async (req, res) => {
     isWishlisted = !!row;
   }
 
+  const discountMap = await getDiscountMap();
   res.render('product', {
     product,
     user: req.session.user || null,
     relatedProducts,
-    isWishlisted
+    isWishlisted,
+    discountMap,
+    applyDiscount
   });
 });
 
@@ -126,7 +133,8 @@ router.get('/collection/wearable-art', async (req, res) => {
   const products = sub
     ? await db.all('SELECT * FROM products WHERE category = ? ORDER BY created_at DESC', [sub])
     : await db.all("SELECT * FROM products WHERE category IN ('earrings','pendants','terracotta') ORDER BY created_at DESC");
-  res.render('collection-wearable-art', { user: req.session.user || null, products, sub });
+  const discountMap = await getDiscountMap();
+  res.render('collection-wearable-art', { user: req.session.user || null, products, sub, discountMap, applyDiscount });
 });
 
 router.get('/collection/artisan-totes', async (req, res) => {
@@ -134,7 +142,8 @@ router.get('/collection/artisan-totes', async (req, res) => {
   const products = sub
     ? await db.all('SELECT * FROM products WHERE category = ? ORDER BY created_at DESC', [sub])
     : await db.all("SELECT * FROM products WHERE category IN ('embroidered','hand-painted') ORDER BY created_at DESC");
-  res.render('collection-artisan-totes', { user: req.session.user || null, products, sub });
+  const discountMap = await getDiscountMap();
+  res.render('collection-artisan-totes', { user: req.session.user || null, products, sub, discountMap, applyDiscount });
 });
 
 router.get('/collection/canvas-tales', async (req, res) => {
@@ -142,7 +151,8 @@ router.get('/collection/canvas-tales', async (req, res) => {
   const products = sub
     ? await db.all('SELECT * FROM products WHERE category = ? ORDER BY created_at DESC', [sub])
     : await db.all("SELECT * FROM products WHERE category IN ('mini-canvas','scenic','mdf') ORDER BY created_at DESC");
-  res.render('collection-canvas-tales', { user: req.session.user || null, products, sub });
+  const discountMap = await getDiscountMap();
+  res.render('collection-canvas-tales', { user: req.session.user || null, products, sub, discountMap, applyDiscount });
 });
 
 router.get('/collection/handmade-treasures', async (req, res) => {
@@ -150,7 +160,8 @@ router.get('/collection/handmade-treasures', async (req, res) => {
   const products = sub
     ? await db.all('SELECT * FROM products WHERE category = ? ORDER BY created_at DESC', [sub])
     : await db.all("SELECT * FROM products WHERE category IN ('diaries','keychains','frames','bookmarks') ORDER BY created_at DESC");
-  res.render('collection-handmade-treasures', { user: req.session.user || null, products, sub });
+  const discountMap = await getDiscountMap();
+  res.render('collection-handmade-treasures', { user: req.session.user || null, products, sub, discountMap, applyDiscount });
 });
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../database');
+const { getDiscountMap, applyDiscount } = require('./cartPricing');
 
 // Middleware: require login
 function requireLogin(req, res, next) {
@@ -59,7 +60,8 @@ router.get('/wishlist', requireLogin, async (req, res) => {
      ORDER BY w.created_at DESC`,
     [userId]
   );
-  res.render('wishlist', { products, user: req.session.user });
+  const discountMap = await getDiscountMap();
+  res.render('wishlist', { products, user: req.session.user, discountMap, applyDiscount });
 });
 
 module.exports = router;

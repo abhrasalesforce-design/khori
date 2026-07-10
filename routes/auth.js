@@ -132,6 +132,12 @@ router.post('/forgot-password', authLimiter, async (req, res) => {
   const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
   const resetUrl = `${baseUrl}/reset-password/${token}`;
 
+  if (!process.env.RESEND_API_KEY) {
+    console.error('[ForgotPassword] RESEND_API_KEY is not set');
+    req.flash('error', 'Email service is not configured. Please contact support.');
+    return res.redirect('/forgot-password');
+  }
+
   try {
     const nodemailer = require('nodemailer');
     const transporter = nodemailer.createTransport({
@@ -147,6 +153,8 @@ router.post('/forgot-password', authLimiter, async (req, res) => {
     });
   } catch (err) {
     console.error('[ForgotPassword] Email error:', err.message);
+    req.flash('error', 'Failed to send reset email. Please try again later.');
+    return res.redirect('/forgot-password');
   }
 
   req.flash('success', 'If that email exists, a reset link has been sent.');
