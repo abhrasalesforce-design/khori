@@ -4,10 +4,14 @@ const BOOKMARK_BUNDLE_PRICE = 29;
 
 // Returns a map of { category: discount_pct } for all categories that have a discount set.
 async function getDiscountMap() {
-  const rows = await db.all('SELECT category, discount_pct FROM category_discounts');
-  const map = {};
-  for (const r of rows) map[r.category] = r.discount_pct;
-  return map;
+  try {
+    const rows = await db.all('SELECT category, discount_pct FROM category_discounts');
+    const map = {};
+    for (const r of rows) map[r.category] = r.discount_pct;
+    return map;
+  } catch (_) {
+    return {};
+  }
 }
 
 // Returns the discounted price for a product given the discount map.

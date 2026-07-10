@@ -351,56 +351,66 @@ router.post('/products/import', requireAdmin, upload.single('bulkFile'), csrfAft
 
 // ── Category Discounts ────────────────────────────────────────────────────
 router.get('/discounts', requireAdmin, async (req, res) => {
-  const allCategories = (await db.all('SELECT DISTINCT category FROM products ORDER BY category')).map(r => r.category);
-  const discountRows = await db.all('SELECT category, discount_pct FROM category_discounts');
-  const discountMap = {};
-  for (const r of discountRows) discountMap[r.category] = r.discount_pct;
-  res.render('admin/discounts', {
-    allCategories,
-    discountMap,
-    globalDiscount: discountMap['__all__'] ?? '',
-    flashMsg: req.flash('error')[0] || null,
-    user: req.session.user
-  });
+  try {
+    // Ensure table exists (in case migration hasn't run yet on this environment)
+    await db.run('CREATE TABLE IF NOT EXISTS category_discounts (category TEXT PRIMARY KEY, discount_pct REAL NOT NULL DEFAULT 0)');
+    const allCategories = (await db.all('SELECT DISTINCT category FROM products ORDER BY category')).map(r => r.category);
+    const discountRows = await db.all('SELECT category, discount_pct FROM category_discounts');
+    const discountMap = {};
+    for (const r of discountRows) discountMap[r.category] = r.discount_pct;
+    res.render('admin/discounts', {
+      allCategories,
+      discountMap,
+      globalDiscount: discountMap['__all__'] ?? '',
+      flashMsg: req.flash('error')[0] || null,
+      user: req.session.user
+    });
+  } catch (err) {
+    console.error('[Discounts] Load error:', err.message);
+    res.status(500).send('Error loading discounts: ' + err.message);
+  }
 });
 
 router.post('/discounts', requireAdmin, async (req, res) => {
-  const { global_discount, ...categoryDiscounts } = req.body;
+  try {
+    const { global_discount, ...categoryDiscounts } = req.body;
 
-  if (global_discount !== undefined && global_discount !== '') {
-    const pct = parseFloat(global_discount);
-    if (isNaN(pct) || pct < 0 || pct > 100) {
-      req.flash('error', 'Invalid discount percentage.');
-      return res.redirect('/admin/discounts');
-    }
-    await db.run(
-      'INSERT INTO category_discounts (category, discount_pct) VALUES (?, ?) ON CONFLICT(category) DO UPDATE SET discount_pct = excluded.discount_pct',
-      ['__all__', pct]
-    );
-    // Remove per-category overrides when global is set
-    await db.run("DELETE FROM category_discounts WHERE category != '__all__'");
-  } else {
-    // Remove global
-    await db.run("DELETE FROM category_discounts WHERE category = '__all__'");
-    // Set per-category
-    for (const [cat, val] of Object.entries(categoryDiscounts)) {
-      if (!cat.startsWith('cat_')) continue;
-      const category = cat.slice(4); // strip "cat_" prefix
-      const pct = parseFloat(val);
-      if (isNaN(pct) || pct < 0 || pct > 100) continue;
-      if (pct === 0) {
-        await db.run('DELETE FROM category_discounts WHERE category = ?', [category]);
-      } else {
-        await db.run(
-          'INSERT INTO category_discounts (category, discount_pct) VALUES (?, ?) ON CONFLICT(category) DO UPDATE SET discount_pct = excluded.discount_pct',
-          [category, pct]
-        );
+    if (global_discount !== undefined && global_discount !== '') {
+      const pct = parseFloat(global_discount);
+      if (isNaN(pct) || pct < 0 || pct > 100) {
+        req.flash('error', 'Invalid discount percentage.');
+        return res.redirect('/admin/discounts');
+      }
+      await db.run(
+        'INSERT INTO category_discounts (category, discount_pct) VALUES (?, ?) ON CONFLICT(category) DO UPDATE SET discount_pct = excluded.discount_pct',
+        ['__all__', pct]
+      );
+      await db.run("DELETE FROM category_discounts WHERE category != '__all__'");
+    } else {
+      await db.run("DELETE FROM category_discounts WHERE category = '__all__'");
+      for (const [cat, val] of Object.entries(categoryDiscounts)) {
+        if (!cat.startsWith('cat_')) continue;
+        const category = cat.slice(4);
+        const pct = parseFloat(val);
+        if (isNaN(pct) || pct < 0 || pct > 100) continue;
+        if (pct === 0) {
+          await db.run('DELETE FROM category_discounts WHERE category = ?', [category]);
+        } else {
+          await db.run(
+            'INSERT INTO category_discounts (category, discount_pct) VALUES (?, ?) ON CONFLICT(category) DO UPDATE SET discount_pct = excluded.discount_pct',
+            [category, pct]
+          );
+        }
       }
     }
-  }
 
-  req.flash('error', 'Discounts saved.');
-  res.redirect('/admin/discounts');
+    req.flash('error', 'Discounts saved.');
+    res.redirect('/admin/discounts');
+  } catch (err) {
+    console.error('[Discounts] Save error:', err.message);
+    req.flash('error', 'Error saving discounts: ' + err.message);
+    res.redirect('/admin/discounts');
+  }
 });
 
 module.exports = router;
