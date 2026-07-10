@@ -237,9 +237,13 @@ const db = {
     if (isPostgres) {
       let pgSql = toPostgres(sql);
       const isInsert = /^\s*INSERT/i.test(pgSql);
-      if (isInsert) pgSql += ' RETURNING id';
+      const hasReturning = /RETURNING/i.test(pgSql);
+      // Only append RETURNING id if the table likely has an id column (serial pk)
+      // Skip for upserts on tables with non-id primary keys (e.g. category_discounts)
+      const needsReturning = isInsert && !hasReturning && !/ON CONFLICT/i.test(pgSql);
+      if (needsReturning) pgSql += ' RETURNING id';
       const res = await pool.query(pgSql, params);
-      return { lastInsertRowid: isInsert ? res.rows[0]?.id : null, changes: res.rowCount };
+      return { lastInsertRowid: needsReturning ? res.rows[0]?.id : null, changes: res.rowCount };
     }
     const result = sqliteDb.prepare(sql).run(...params);
     return { lastInsertRowid: result.lastInsertRowid, changes: result.changes };
