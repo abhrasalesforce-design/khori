@@ -1,61 +1,23 @@
 <%- include('partials/header') %>
 
 <!-- ===== Hero Carousel ===== -->
-<% const totalSlides = banner ? 5 : 4; %>
+<% const totalSlides = slides.length; %>
 <section class="hero-carousel" id="heroCarousel">
 
-  <% if (banner) { %>
-  <!-- Slide 0 — Admin Banner (first slide when active) -->
-  <div class="hero-slide active hero-img-slide" data-bg="<%= banner.image.startsWith('http') ? banner.image : '/uploads/' + banner.image %>">
+  <% slides.forEach((slide, i) => {
+    const imgSrc = slide.image.startsWith('http') ? slide.image : '/uploads/' + slide.image;
+    const isFirst = i === 0;
+  %>
+  <div class="hero-slide <%= isFirst ? 'active' : '' %> hero-img-slide" <% if (!isFirst) { %>data-bg="<%= imgSrc %>"<% } %>>
+    <% if (isFirst) { %><img class="hero-bg-img" src="<%= imgSrc %>" alt="" fetchpriority="high" decoding="sync"><% } %>
     <div class="hero-slide-inner hero-slide-overlay">
-      <% if (banner.eyebrow) { %><span class="hero-eyebrow"><%= banner.eyebrow %></span><% } %>
-      <% if (banner.heading) { %><h1><%- banner.heading.replace(/\*(.*?)\*/g, '<em>$1</em>') %></h1><% } %>
-      <% if (banner.subheading) { %><p><%= banner.subheading %></p><% } %>
-      <% if (banner.cta_text && banner.cta_link) { %><a href="<%= banner.cta_link %>" class="hero-cta hero-cta-transparent"><%= banner.cta_text %> →</a><% } %>
+      <% if (slide.eyebrow) { %><span class="hero-eyebrow"><%= slide.eyebrow %></span><% } %>
+      <% if (slide.heading) { %><h1><%- slide.heading.replace(/\*(.*?)\*/g, '<em>$1</em>') %></h1><% } %>
+      <% if (slide.subheading) { %><p><%= slide.subheading %></p><% } %>
+      <% if (slide.cta_text && slide.cta_link) { %><a href="<%= slide.cta_link %>" class="hero-cta hero-cta-transparent"><%= slide.cta_text %> →</a><% } %>
     </div>
   </div>
-  <% } %>
-
-  <!-- Slide — Mini Canvas -->
-  <div class="hero-slide <%= !banner ? 'active' : '' %> hero-img-slide" <% if (banner) { %>data-bg="<%= cdn['mini-canvas.jpg'] || '/images/mini-canvas.jpg' %>"<% } %>>
-    <% if (!banner) { %><img class="hero-bg-img" src="<%= cdn['mini-canvas.jpg'] || '/images/mini-canvas.jpg' %>" alt="" fetchpriority="high" decoding="sync"><% } %>
-    <div class="hero-slide-inner hero-slide-overlay">
-      <span class="hero-eyebrow">New Arrival</span>
-      <h1>Mini <em>Canvas</em><br>Art</h1>
-      <p>Tiny masterpieces, big emotions. Each mini canvas is hand-painted by Indian artisans — perfect for gifting or adorning your space.</p>
-      <a href="/collection/canvas-tales" class="hero-cta hero-cta-transparent">Shop Decor →</a>
-    </div>
-  </div>
-
-  <!-- Slide — Tote Bags -->
-  <div class="hero-slide hero-img-slide" data-bg="<%= cdn['totebags.jpg'] || '/images/totebags.jpg' %>">
-    <div class="hero-slide-inner hero-slide-overlay">
-      <span class="hero-eyebrow">Carry with Purpose</span>
-      <h1>Handcrafted<br><em>Tote</em> Bags</h1>
-      <p>Block-printed, hand-stitched, and made to last — our tote bags are a statement of sustainable style rooted in Indian craft traditions.</p>
-      <a href="/collection/artisan-totes" class="hero-cta hero-cta-transparent">Shop Collection →</a>
-    </div>
-  </div>
-
-  <!-- Slide — Gift Box -->
-  <div class="hero-slide hero-img-slide" data-bg="<%= cdn['stationary.jpg'] || '/images/stationary.jpg' %>">
-    <div class="hero-slide-inner hero-slide-overlay">
-      <span class="hero-eyebrow">Curate & Gift</span>
-      <h1>Build Your Own<br><em>Gift Box</em></h1>
-      <p>Pick from our handcrafted stationery — notebooks, hand-painted pens, wax seals, and more — to create a gift box as unique as the person receiving it.</p>
-      <a href="/collection/handmade-treasures" class="hero-cta hero-cta-transparent">Build Your Box →</a>
-    </div>
-  </div>
-
-  <!-- Slide — Wearable Art -->
-  <div class="hero-slide hero-img-slide" data-bg="<%= cdn['wearable-art-banner.png'] || '/images/wearable-art-banner.png' %>">
-    <div class="hero-slide-inner hero-slide-overlay">
-      <span class="hero-eyebrow">Wear Your Story</span>
-      <h1>Wearable<br><em>Art</em></h1>
-      <p>Earrings, pendants and terracotta jewellery — each piece hand-crafted by artisans and painted with the spirit of Indian folk traditions. Art you can carry everywhere.</p>
-      <a href="/collection/wearable-art" class="hero-cta hero-cta-transparent">Explore Wearable Art →</a>
-    </div>
-  </div>
+  <% }) %>
 
   <!-- Controls -->
   <button class="hero-prev" aria-label="Previous slide">&#8592;</button>

@@ -1,0 +1,91 @@
+<%- include('../partials/header') %>
+
+<div class="admin-container">
+  <div class="admin-header">
+    <h1 style="color:#898AC4;"><%= slide ? 'Edit Slide' : 'Add Slide' %></h1>
+    <a href="/admin/carousel" class="btn-outline" style="font-size:0.82rem;">← Carousel</a>
+  </div>
+
+  <% if (error && error.length) { %>
+    <div class="alert alert-error"><%= error %></div>
+  <% } %>
+
+  <div style="background:#fff;border:1px solid #e8dde3;border-radius:10px;padding:32px;max-width:580px;">
+    <form method="POST" action="/admin/carousel/<%= slide ? 'edit/' + slide.id : 'new' %>" enctype="multipart/form-data">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <div class="form-row">
+        <label>Slide Image <% if (!slide) { %><span style="color:#e57373;">*</span><% } else { %><span style="color:#aaa;font-weight:400;">(leave blank to keep current)</span><% } %></label>
+        <% if (slide) { %>
+          <div style="margin-bottom:10px;">
+            <img src="<%= slide.image.startsWith('http') ? slide.image : '/uploads/' + slide.image %>" style="max-width:100%;max-height:160px;border-radius:6px;border:1px solid #e8dde3;object-fit:cover;" onerror="this.style.display='none'">
+          </div>
+        <% } %>
+        <input type="file" name="bannerImage" accept="image/*" id="bannerImgInput" <%= !slide ? 'required' : '' %>>
+        <div id="bannerPreview" style="margin-top:10px;display:none;">
+          <img id="bannerPreviewImg" style="max-width:100%;border-radius:6px;border:1px solid #e8dde3;max-height:160px;object-fit:cover;">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>Eyebrow <span style="color:#aaa;font-weight:400;">(small label above heading)</span></label>
+        <input type="text" name="eyebrow" placeholder="e.g. New Collection" value="<%= slide?.eyebrow || '' %>">
+      </div>
+
+      <div class="form-row">
+        <label>Heading <span style="color:#aaa;font-weight:400;">(wrap a word in *asterisks* for italic)</span></label>
+        <input type="text" name="heading" placeholder="e.g. Hand*crafted* Art" value="<%= slide?.heading || '' %>">
+      </div>
+
+      <div class="form-row">
+        <label>Subheading</label>
+        <input type="text" name="subheading" placeholder="e.g. Explore our new collection" value="<%= slide?.subheading || '' %>">
+      </div>
+
+      <div class="form-row two-col">
+        <div>
+          <label>CTA Button Text</label>
+          <input type="text" name="cta_text" placeholder="e.g. Shop Now" value="<%= slide?.cta_text || '' %>">
+        </div>
+        <div>
+          <label>CTA Link</label>
+          <input type="text" name="cta_link" placeholder="e.g. /collection/canvas-tales" value="<%= slide?.cta_link || '' %>">
+        </div>
+      </div>
+
+      <div class="form-row two-col">
+        <div>
+          <label>Order <span style="color:#aaa;font-weight:400;">(lower = first)</span></label>
+          <input type="number" name="sort_order" min="0" value="<%= slide?.sort_order ?? 0 %>" style="width:100px;">
+        </div>
+        <div>
+          <label>Active</label>
+          <select name="active" style="padding:8px 12px;border:1.5px solid rgba(137,138,196,0.4);border-radius:6px;font-size:0.88rem;">
+            <option value="1" <%= (!slide || slide.active) ? 'selected' : '' %>>Yes — show on site</option>
+            <option value="0" <%= (slide && !slide.active) ? 'selected' : '' %>>No — hidden</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary"><%= slide ? 'Save Changes' : 'Add Slide' %></button>
+        <a href="/admin/carousel" class="btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.getElementById('bannerImgInput').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('bannerPreviewImg').src = e.target.result;
+      document.getElementById('bannerPreview').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  });
+</script>
+
+<%- include('../partials/footer') %>

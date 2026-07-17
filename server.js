@@ -231,6 +231,24 @@ async function autoSeed() {
     console.log('Admin account created: admin@khori.com / admin123');
   }
 
+  // Seed default carousel slides if none exist yet
+  const slideCount = await db.get('SELECT COUNT(*) as count FROM banners').catch(() => ({ count: 0 }));
+  if (!slideCount || slideCount.count === 0) {
+    const defaultSlides = [
+      { image: '/images/mini-canvas.jpg', eyebrow: 'New Arrival', heading: 'Mini *Canvas* Art', subheading: 'Tiny masterpieces, big emotions. Each mini canvas is hand-painted by Indian artisans — perfect for gifting or adorning your space.', cta_text: 'Shop Decor', cta_link: '/collection/canvas-tales', sort_order: 0 },
+      { image: '/images/totebags.jpg', eyebrow: 'Carry with Purpose', heading: 'Handcrafted *Tote* Bags', subheading: 'Block-printed, hand-stitched, and made to last — our tote bags are a statement of sustainable style rooted in Indian craft traditions.', cta_text: 'Shop Collection', cta_link: '/collection/artisan-totes', sort_order: 1 },
+      { image: '/images/stationary.jpg', eyebrow: 'Curate & Gift', heading: 'Build Your Own *Gift Box*', subheading: 'Pick from our handcrafted stationery — notebooks, hand-painted pens, wax seals, and more — to create a gift box as unique as the person receiving it.', cta_text: 'Build Your Box', cta_link: '/collection/handmade-treasures', sort_order: 2 },
+      { image: '/images/wearable-art-banner.png', eyebrow: 'Wear Your Story', heading: 'Wearable *Art*', subheading: 'Earrings, pendants and terracotta jewellery — each piece hand-crafted by artisans and painted with the spirit of Indian folk traditions. Art you can carry everywhere.', cta_text: 'Explore Wearable Art', cta_link: '/collection/wearable-art', sort_order: 3 },
+    ];
+    for (const s of defaultSlides) {
+      await db.run(
+        'INSERT INTO banners (image, eyebrow, heading, subheading, cta_text, cta_link, active, sort_order) VALUES (?, ?, ?, ?, ?, ?, 1, ?)',
+        [s.image, s.eyebrow, s.heading, s.subheading, s.cta_text, s.cta_link, s.sort_order]
+      );
+    }
+    console.log('Default carousel slides seeded.');
+  }
+
   // Only seed products if database is completely empty
   const productCount = await db.get('SELECT COUNT(*) as count FROM products');
   if (productCount && productCount.count > 0) {

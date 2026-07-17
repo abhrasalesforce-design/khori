@@ -20,35 +20,16 @@
     <div class="stat-card"><div class="stat-num"><%= stats.pendingOrders %></div><div class="stat-label">Pending</div></div>
   </div>
 
-  <!-- ===== Hero Banner ===== -->
-  <div class="bulk-bar" style="margin-bottom:8px;">
+  <!-- ===== Hero Carousel ===== -->
+  <div class="bulk-bar" style="margin-bottom:16px;">
     <div class="bulk-bar-left">
-      <h2 style="margin:0">Hero Banner</h2>
-      <% if (banner) { %>
-        <span style="font-size:0.75rem;color:#4caf50;font-weight:600;">● Active</span>
-      <% } else { %>
-        <span style="font-size:0.75rem;color:#aaa;">● No banner set — carousel shows 4 slides</span>
-      <% } %>
+      <h2 style="margin:0">Hero Carousel</h2>
+      <a href="/admin/carousel" style="font-size:0.75rem;color:#898AC4;text-decoration:none;">View &amp; manage all slides →</a>
     </div>
     <div class="bulk-bar-right" style="gap:8px;">
-      <a href="/admin/banner/new" class="btn-primary" style="font-size:0.78rem;">📷 <%= banner ? 'Update Banner' : 'Set Banner' %></a>
-      <% if (banner) { %>
-        <form method="POST" action="/admin/banner/clear" onsubmit="return confirm('Remove the banner slide?')">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <button type="submit" class="btn-outline" style="font-size:0.78rem;color:#e57373;border-color:#e57373;">✕ Clear Banner</button>
-        </form>
-      <% } %>
+      <a href="/admin/carousel" class="btn-primary" style="font-size:0.78rem;">Manage Slides</a>
     </div>
   </div>
-  <% if (banner) { %>
-    <div style="display:flex;align-items:center;gap:16px;background:#f9f7f7;border:1px solid #e8dde3;border-radius:8px;padding:14px 18px;margin-bottom:24px;">
-      <img src="<%= banner.image.startsWith('http') ? banner.image : '/uploads/' + banner.image %>" style="width:100px;height:56px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'">
-      <div style="font-size:0.83rem;color:#555;line-height:1.7;">
-        <strong style="color:#898AC4;"><%= banner.heading || '(no heading)' %></strong><br>
-        <span style="color:#888;"><%= banner.eyebrow || '' %></span> &nbsp;·&nbsp; CTA: <em><%= banner.cta_text || '—' %></em> → <em><%= banner.cta_link || '—' %></em>
-      </div>
-    </div>
-  <% } %>
 
   <!-- ===== Products ===== -->
   <div class="bulk-bar">

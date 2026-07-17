@@ -1,0 +1,68 @@
+<%- include('../partials/header') %>
+
+<div class="admin-container">
+  <div class="admin-header">
+    <h1 style="color:#898AC4;">Hero Carousel</h1>
+    <div style="display:flex;gap:8px;">
+      <a href="/admin/carousel/new" class="btn-primary" style="font-size:0.82rem;">+ Add Slide</a>
+      <a href="/admin" class="btn-outline" style="font-size:0.82rem;">← Dashboard</a>
+    </div>
+  </div>
+
+  <% if (locals.flashMsg) { %>
+    <div class="alert" style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:12px 20px;border-radius:6px;margin-bottom:20px;font-size:0.85rem;"><%= flashMsg %></div>
+  <% } %>
+
+  <p style="font-size:0.82rem;color:#888;margin:-4px 0 20px;">Slides are shown on the homepage in order. Toggle Active to show or hide a slide.</p>
+
+  <% if (!slides.length) { %>
+    <div style="text-align:center;padding:48px 0;color:#aaa;font-size:0.9rem;">No slides yet. <a href="/admin/carousel/new" style="color:#898AC4;">Add the first one →</a></div>
+  <% } else { %>
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Image</th>
+          <th>Heading</th>
+          <th>Eyebrow</th>
+          <th>CTA</th>
+          <th>Active</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% slides.forEach(s => { %>
+        <tr style="<%= !s.active ? 'opacity:0.45;' : '' %>">
+          <td style="font-size:0.82rem;color:#aaa;"><%= s.sort_order ?? 0 %></td>
+          <td>
+            <img src="<%= s.image.startsWith('http') ? s.image : '/uploads/' + s.image %>"
+              style="width:80px;height:46px;object-fit:cover;border-radius:5px;border:1px solid #e8dde3;"
+              onerror="this.src='/images/placeholder.jpg'">
+          </td>
+          <td style="font-weight:600;color:#444;max-width:160px;"><%= s.heading || '—' %></td>
+          <td style="font-size:0.82rem;color:#888;"><%= s.eyebrow || '—' %></td>
+          <td style="font-size:0.78rem;color:#898AC4;">
+            <% if (s.cta_text) { %><em><%= s.cta_text %></em><br><span style="color:#bbb;"><%= s.cta_link %></span><% } else { %>—<% } %>
+          </td>
+          <td>
+            <span style="font-size:0.78rem;font-weight:600;color:<%= s.active ? '#4caf50' : '#e57373' %>;">
+              <%= s.active ? '● On' : '● Off' %>
+            </span>
+          </td>
+          <td style="white-space:nowrap;">
+            <a href="/admin/carousel/edit/<%= s.id %>" class="btn-sm">Edit</a>
+            <form method="POST" action="/admin/carousel/delete/<%= s.id %>" style="display:inline;" onsubmit="return confirm('Delete this slide?')">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="btn-sm btn-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

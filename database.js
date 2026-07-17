@@ -166,6 +166,7 @@ async function initDb() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
     await pool.query(`ALTER TABLE users ALTER COLUMN password DROP NOT NULL`).catch(() => {});
+    await pool.query(`ALTER TABLE banners ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0`).catch(() => {});
     await pool.query(`CREATE TABLE IF NOT EXISTS password_resets (id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL, token TEXT NOT NULL UNIQUE, expires_at TIMESTAMP NOT NULL, used INTEGER DEFAULT 0)`).catch(() => {});
     await pool.query(`CREATE TABLE IF NOT EXISTS invoices (
       id SERIAL PRIMARY KEY, customer_name TEXT NOT NULL, customer_phone TEXT,
@@ -199,6 +200,7 @@ async function initDb() {
     try { sqliteDb.exec(`ALTER TABLE orders ADD COLUMN upi_txn_id TEXT`); } catch (_) {}
     try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, product_id INTEGER NOT NULL, order_id INTEGER NOT NULL, rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5), comment TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, UNIQUE(user_id, product_id, order_id))`); } catch (_) {}
     try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS banners (id INTEGER PRIMARY KEY AUTOINCREMENT, image TEXT NOT NULL, eyebrow TEXT, heading TEXT, subheading TEXT, cta_text TEXT, cta_link TEXT, active INTEGER DEFAULT 1, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`); } catch (_) {}
+    try { sqliteDb.exec(`ALTER TABLE banners ADD COLUMN sort_order INTEGER DEFAULT 0`); } catch (_) {}
     try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS invoices (id INTEGER PRIMARY KEY AUTOINCREMENT, customer_name TEXT NOT NULL, customer_phone TEXT, customer_address TEXT, shipping_name TEXT, shipping_phone TEXT, shipping_address TEXT, shipping_city TEXT, shipping_state TEXT, shipping_pincode TEXT, total REAL NOT NULL, discount_amount REAL DEFAULT 0, notes TEXT, created_by INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`); } catch (_) {}
     try { sqliteDb.exec(`ALTER TABLE invoices ADD COLUMN shipping_name TEXT`); } catch (_) {}
     try { sqliteDb.exec(`ALTER TABLE invoices ADD COLUMN shipping_phone TEXT`); } catch (_) {}

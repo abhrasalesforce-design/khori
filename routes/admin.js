@@ -97,37 +97,83 @@ router.get('/', requireAdmin, async (req, res) => {
   });
 });
 
-// ===== Banner routes =====
-router.get('/banner/new', requireAdmin, (req, res) => {
-  res.render('admin/banner-form', { user: req.session.user, error: req.flash('error') });
+// ===== Carousel / Banner routes =====
+
+router.get('/carousel', requireAdmin, async (req, res) => {
+  const slides = await db.all('SELECT * FROM banners ORDER BY sort_order ASC, id ASC');
+  res.render('admin/carousel', {
+    slides,
+    user: req.session.user,
+    flashMsg: req.flash('error')[0] || null
+  });
 });
 
-router.post('/banner/new', requireAdmin, upload.single('bannerImage'), csrfAfterMulter, async (req, res) => {
+// Add new slide
+router.get('/carousel/new', requireAdmin, (req, res) => {
+  res.render('admin/carousel-form', { slide: null, user: req.session.user, error: req.flash('error') });
+});
+
+router.post('/carousel/new', requireAdmin, upload.single('bannerImage'), csrfAfterMulter, async (req, res) => {
   try {
-    const { eyebrow, heading, subheading, cta_text, cta_link } = req.body;
+    const { eyebrow, heading, subheading, cta_text, cta_link, active } = req.body;
     if (!req.file) {
-      req.flash('error', 'Banner image is required.');
-      return res.redirect('/admin/banner/new');
+      req.flash('error', 'Slide image is required.');
+      return res.redirect('/admin/carousel/new');
     }
     const image = await saveImage(req.file);
-    // Deactivate any existing banners
-    await db.run('UPDATE banners SET active = 0');
+    const maxOrder = await db.get('SELECT MAX(sort_order) as m FROM banners');
+    const sortOrder = (maxOrder?.m ?? -1) + 1;
     await db.run(
-      'INSERT INTO banners (image, eyebrow, heading, subheading, cta_text, cta_link, active) VALUES (?, ?, ?, ?, ?, ?, 1)',
-      [image, eyebrow || null, heading || null, subheading || null, cta_text || null, cta_link || null]
+      'INSERT INTO banners (image, eyebrow, heading, subheading, cta_text, cta_link, active, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [image, eyebrow || null, heading || null, subheading || null, cta_text || null, cta_link || null, active === '1' ? 1 : 0, sortOrder]
     );
-    req.flash('error', '✓ Banner updated successfully.');
-    res.redirect('/admin');
+    req.flash('error', '✓ Slide added.');
+    res.redirect('/admin/carousel');
   } catch (err) {
-    console.error('Banner save error:', err);
-    req.flash('error', 'Failed to save banner.');
-    res.redirect('/admin/banner/new');
+    console.error('Carousel add error:', err);
+    req.flash('error', 'Failed to add slide: ' + err.message);
+    res.redirect('/admin/carousel/new');
   }
 });
 
+// Edit slide
+router.get('/carousel/edit/:id', requireAdmin, async (req, res) => {
+  const slide = await db.get('SELECT * FROM banners WHERE id = ?', [req.params.id]);
+  if (!slide) return res.redirect('/admin/carousel');
+  res.render('admin/carousel-form', { slide, user: req.session.user, error: req.flash('error') });
+});
+
+router.post('/carousel/edit/:id', requireAdmin, upload.single('bannerImage'), csrfAfterMulter, async (req, res) => {
+  try {
+    const { eyebrow, heading, subheading, cta_text, cta_link, active, sort_order } = req.body;
+    const slide = await db.get('SELECT * FROM banners WHERE id = ?', [req.params.id]);
+    if (!slide) return res.redirect('/admin/carousel');
+    const image = req.file ? await saveImage(req.file) : slide.image;
+    await db.run(
+      'UPDATE banners SET image=?, eyebrow=?, heading=?, subheading=?, cta_text=?, cta_link=?, active=?, sort_order=? WHERE id=?',
+      [image, eyebrow || null, heading || null, subheading || null, cta_text || null, cta_link || null, active === '1' ? 1 : 0, parseInt(sort_order) || 0, req.params.id]
+    );
+    req.flash('error', '✓ Slide updated.');
+    res.redirect('/admin/carousel');
+  } catch (err) {
+    console.error('Carousel edit error:', err);
+    req.flash('error', 'Failed to update slide: ' + err.message);
+    res.redirect('/admin/carousel/edit/' + req.params.id);
+  }
+});
+
+// Delete slide
+router.post('/carousel/delete/:id', requireAdmin, async (req, res) => {
+  await db.run('DELETE FROM banners WHERE id = ?', [req.params.id]);
+  req.flash('error', '✓ Slide deleted.');
+  res.redirect('/admin/carousel');
+});
+
+// Legacy — keep old banner/new working, redirect to new carousel
+router.get('/banner/new', requireAdmin, (req, res) => res.redirect('/admin/carousel/new'));
 router.post('/banner/clear', requireAdmin, async (req, res) => {
   await db.run('UPDATE banners SET active = 0');
-  req.flash('error', '✓ Banner cleared.');
+  req.flash('error', '✓ All slides hidden.');
   res.redirect('/admin');
 });
 
