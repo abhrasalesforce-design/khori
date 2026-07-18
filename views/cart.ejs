@@ -16,7 +16,16 @@
             <img src="<%= item.image && item.image.startsWith('http') ? item.image : '/uploads/' + item.image %>" alt="<%= item.name %>" loading="lazy" decoding="async" onerror="this.src='/images/placeholder.jpg'">
             <div class="cart-item-info">
               <h3><a href="/product/<%= item.id %>"><%= item.name %></a></h3>
-              <p>₹<%= item.discountedPrice %> each<% if (item.category === 'bookmarks' && items.some(i => /hand[\s-]?block/i.test(i.name) && /diar/i.test(i.name))) { %> <span style="font-size:0.75rem;color:#898AC4;background:#f3f2fa;padding:2px 7px;border-radius:10px;">Bundle offer</span><% } %></p>
+              <% if (item.inCombo && item.comboQty === item.quantity) { %>
+                <p>₹<%= item.comboUnitPrice %> each <span style="font-size:0.75rem;color:#898AC4;background:#f3f2fa;padding:2px 7px;border-radius:10px;">Combo ₹259</span></p>
+              <% } else if (item.inCombo) { %>
+                <p>
+                  <%= item.comboQty %> × ₹<%= item.comboUnitPrice %> <span style="font-size:0.75rem;color:#898AC4;background:#f3f2fa;padding:2px 7px;border-radius:10px;">Combo ₹259</span>
+                  <% if (item.nonComboQty > 0) { %>+ <%= item.nonComboQty %> × ₹<%= item.normalPrice %><% } %>
+                </p>
+              <% } else { %>
+                <p>₹<%= item.discountedPrice %> each</p>
+              <% } %>
             </div>
             <div class="cart-subtotal">₹<%= item.subtotal %></div>
             <div class="cart-item-actions">
