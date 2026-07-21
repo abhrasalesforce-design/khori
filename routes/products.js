@@ -41,6 +41,22 @@ router.get('/', async (req, res) => {
     const countRow = await db.get(countSql, params);
     totalProducts = countRow ? countRow.total : 0;
     products = await db.all(dataSql, [...params, perPage, offset]);
+  } else if (category === 'hand-painted-tote-bags') {
+    countSql = 'SELECT COUNT(*) as total FROM products WHERE category = ?';
+    dataSql  = `SELECT * FROM products WHERE category = ? ORDER BY ${orderBy} LIMIT ? OFFSET ?`;
+    params   = ['hand-painted'];
+    const countRow = await db.get(countSql, params);
+    totalProducts = countRow ? countRow.total : 0;
+    products = await db.all(dataSql, [...params, perPage, offset]);
+  } else if (category === 'mini-canvas-art-work') {
+    const canvasCats = ['mini-canvas', 'scenic'];
+    const placeholders = canvasCats.map(() => '?').join(',');
+    countSql = `SELECT COUNT(*) as total FROM products WHERE category IN (${placeholders})`;
+    dataSql  = `SELECT * FROM products WHERE category IN (${placeholders}) ORDER BY ${orderBy} LIMIT ? OFFSET ?`;
+    params   = canvasCats;
+    const countRow = await db.get(countSql, params);
+    totalProducts = countRow ? countRow.total : 0;
+    products = await db.all(dataSql, [...params, perPage, offset]);
   } else if (category) {
     countSql = 'SELECT COUNT(*) as total FROM products WHERE category = ?';
     dataSql  = `SELECT * FROM products WHERE category = ? ORDER BY ${orderBy} LIMIT ? OFFSET ?`;
@@ -80,10 +96,20 @@ router.get('/', async (req, res) => {
   const totalPages = Math.ceil(totalProducts / perPage);
 
   const catRows = await db.all('SELECT DISTINCT category FROM products');
-  const jewelrySet = new Set(['earrings', 'pendants', 'terracotta']);
-  const baseCategories = catRows.map(r => r.category).filter(c => !jewelrySet.has(c));
-  const hasJewelry = catRows.some(r => jewelrySet.has(r.category));
-  const categories = hasJewelry ? [...baseCategories, 'hand-made-jewelry'] : baseCategories;
+  const rawCats = catRows.map(r => r.category);
+
+  const jewelrySet  = new Set(['earrings', 'pendants', 'terracotta']);
+  const toteSet     = new Set(['hand-painted']);
+  const canvasSet   = new Set(['mini-canvas', 'scenic']);
+
+  const suppressedSet = new Set([...jewelrySet, ...toteSet, ...canvasSet]);
+  const baseCategories = rawCats.filter(c => !suppressedSet.has(c));
+
+  if (rawCats.some(c => jewelrySet.has(c)))  baseCategories.push('hand-made-jewelry');
+  if (rawCats.some(c => toteSet.has(c)))     baseCategories.push('hand-painted-tote-bags');
+  if (rawCats.some(c => canvasSet.has(c)))   baseCategories.push('mini-canvas-art-work');
+
+  const categories = baseCategories;
 
   const lcpImageUrl = (req.app.locals.cdn && req.app.locals.cdn['mini-canvas.jpg']) || '/images/mini-canvas.jpg';
   const slides = await db.all('SELECT * FROM banners WHERE active = 1 ORDER BY sort_order ASC, id ASC');
