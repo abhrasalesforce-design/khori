@@ -162,7 +162,7 @@
           <div class="pd-accordion-body" hidden>
             <ul class="pd-details-list">
               <% if (product.material) { %><li><span>Material</span><%= product.material %></li><% } %>
-              <% if (product.dimension) { %><li><span>Dimensions</span><%= product.dimension %></li><% } %>
+              <% if (product.dimension) { %><li><span>Dimensions</span><%= product.dimension %> inches</li><% } %>
               <% if (product.craft_type) { %><li><span>Craft</span><%= product.craft_type %></li><% } %>
               <% if (product.origin) { %><li><span>Origin</span><%= product.origin %></li><% } %>
               <% if (product.category) { %><li><span>Category</span><%= product.category.charAt(0).toUpperCase() + product.category.slice(1) %></li><% } %>
