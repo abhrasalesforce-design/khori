@@ -103,7 +103,7 @@
         <select class="cc-sort-select" onchange="window.location.href=this.value + '#shop'">
           <option value="/" <%= !category ? 'selected' : '' %>>All</option>
           <% categories.forEach(cat => { %>
-            <option value="/?category=<%= encodeURIComponent(cat) %>" <%= category === cat ? 'selected' : '' %>><%= cat.charAt(0).toUpperCase() + cat.slice(1) %></option>
+            <option value="/?category=<%= encodeURIComponent(cat) %>" <%= category === cat ? 'selected' : '' %>><%= cat === 'hand-made-jewelry' ? 'Hand-Made Jewelry' : cat.charAt(0).toUpperCase() + cat.slice(1) %></option>
           <% }) %>
         </select>
       </div>

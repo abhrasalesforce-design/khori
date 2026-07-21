@@ -32,6 +32,15 @@ router.get('/', async (req, res) => {
     const countRow = await db.get(countSql, params);
     totalProducts = countRow ? countRow.total : 0;
     products = await db.all(dataSql, [...params, perPage, offset]);
+  } else if (category === 'hand-made-jewelry') {
+    const jewelryCats = ['earrings', 'pendants', 'terracotta'];
+    const placeholders = jewelryCats.map(() => '?').join(',');
+    countSql = `SELECT COUNT(*) as total FROM products WHERE category IN (${placeholders})`;
+    dataSql  = `SELECT * FROM products WHERE category IN (${placeholders}) ORDER BY ${orderBy} LIMIT ? OFFSET ?`;
+    params   = jewelryCats;
+    const countRow = await db.get(countSql, params);
+    totalProducts = countRow ? countRow.total : 0;
+    products = await db.all(dataSql, [...params, perPage, offset]);
   } else if (category) {
     countSql = 'SELECT COUNT(*) as total FROM products WHERE category = ?';
     dataSql  = `SELECT * FROM products WHERE category = ? ORDER BY ${orderBy} LIMIT ? OFFSET ?`;
@@ -71,7 +80,10 @@ router.get('/', async (req, res) => {
   const totalPages = Math.ceil(totalProducts / perPage);
 
   const catRows = await db.all('SELECT DISTINCT category FROM products');
-  const categories = catRows.map(r => r.category);
+  const jewelrySet = new Set(['earrings', 'pendants', 'terracotta']);
+  const baseCategories = catRows.map(r => r.category).filter(c => !jewelrySet.has(c));
+  const hasJewelry = catRows.some(r => jewelrySet.has(r.category));
+  const categories = hasJewelry ? [...baseCategories, 'hand-made-jewelry'] : baseCategories;
 
   const lcpImageUrl = (req.app.locals.cdn && req.app.locals.cdn['mini-canvas.jpg']) || '/images/mini-canvas.jpg';
   const slides = await db.all('SELECT * FROM banners WHERE active = 1 ORDER BY sort_order ASC, id ASC');
