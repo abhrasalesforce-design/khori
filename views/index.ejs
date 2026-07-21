@@ -102,7 +102,7 @@
         <label class="cc-sort-label">Category</label>
         <select class="cc-sort-select" onchange="window.location.href=this.value + '#shop'">
           <option value="/" <%= !category ? 'selected' : '' %>>All</option>
-          <% const catLabels = { 'hand-made-jewelry': 'Hand-Made Jewelry', 'hand-painted-tote-bags': 'Hand Painted Tote Bags', 'mini-canvas-art-work': 'Mini Canvas Art Work' }; %>
+          <% const catLabels = { 'hand-made-jewelry': 'Hand-Made Jewellery', 'hand-painted-tote-bags': 'Hand Painted Tote Bags', 'mini-canvas-art-work': 'Mini Canvas Art Work', 'frames': 'Hand Blocked Photo Frame', 'diaries': 'Hand Blocked Diaries', 'keychains': 'Hand Blocked Keychain' }; %>
           <% categories.forEach(cat => { %>
             <option value="/?category=<%= encodeURIComponent(cat) %>" <%= category === cat ? 'selected' : '' %>><%= catLabels[cat] || (cat.charAt(0).toUpperCase() + cat.slice(1)) %></option>
           <% }) %>
