@@ -2599,6 +2599,147 @@ footer {
   .cart-summary .btn-primary, .cart-summary .btn-outline { padding: 14px; font-size: 0.8rem; }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   CREATE YOUR BASKET  –  Landing + Builder
+═══════════════════════════════════════════════════════════ */
+
+/* ── Landing page ── */
+.basket-landing { padding: 64px 24px 80px; background: #faf8f4; min-height: 70vh; }
+.basket-landing-inner { max-width: 1200px; margin: 0 auto; }
+.basket-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #898AC4; margin-bottom: 10px; }
+.basket-hero-title { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(2rem, 5vw, 3.2rem); color: #3a2e2e; font-weight: 700; margin-bottom: 12px; line-height: 1.15; }
+.basket-hero-sub { font-size: 1rem; color: #7a6a6a; max-width: 580px; line-height: 1.75; margin-bottom: 56px; }
+
+.basket-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; }
+.basket-card {
+  background: #fff;
+  border: 1.5px solid #ede6dc;
+  border-radius: 16px;
+  padding: 28px 24px 22px;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+}
+.basket-card:hover { box-shadow: 0 10px 32px rgba(137,138,196,0.18); transform: translateY(-4px); border-color: #898AC4; }
+.basket-card-icon { font-size: 2.2rem; line-height: 1; }
+.basket-card-body h3 { font-family: 'Playfair Display', Georgia, serif; font-size: 1.2rem; color: #3a2e2e; margin-bottom: 6px; font-weight: 600; }
+.basket-card-body p { font-size: 0.85rem; color: #7a6a6a; line-height: 1.6; margin-bottom: 12px; }
+.basket-card-includes { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.basket-card-includes li { font-size: 0.8rem; color: #5a4a4a; padding-left: 16px; position: relative; }
+.basket-card-includes li::before { content: '•'; position: absolute; left: 0; color: #898AC4; }
+.basket-card-optional { color: #a09060 !important; font-style: italic; }
+.basket-card-cta { font-size: 0.8rem; font-weight: 600; color: #898AC4; letter-spacing: 0.06em; margin-top: auto; }
+
+/* ── Builder page ── */
+.basket-builder-section { padding: 48px 24px 80px; background: #faf8f4; }
+.basket-builder-inner { max-width: 1280px; margin: 0 auto; }
+.basket-breadcrumb { font-size: 0.75rem; color: #aaa; letter-spacing: 0.06em; margin-bottom: 24px; }
+.basket-breadcrumb a { color: #aaa; text-decoration: none; }
+.basket-breadcrumb a:hover { color: #898AC4; }
+.basket-builder-title { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: #3a2e2e; font-weight: 700; margin-bottom: 8px; }
+.basket-builder-sub { font-size: 0.95rem; color: #7a6a6a; margin-bottom: 32px; line-height: 1.7; }
+.basket-errors { background: #fff5f5; border: 1px solid #ffcdd2; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; }
+.basket-errors p { color: #c62828; font-size: 0.85rem; margin: 4px 0; }
+
+/* two-column layout */
+.basket-layout { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
+
+/* Slot cards */
+.bslot-card { background: #fff; border: 1.5px solid #ede6dc; border-radius: 14px; padding: 24px; margin-bottom: 20px; }
+.basket-addon-card { border-color: #d4c9a8; background: #fffdf5; }
+.bslot-header { margin-bottom: 20px; }
+.bslot-tag { display: inline-block; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 10px; border-radius: 50px; margin-bottom: 8px; }
+.bslot-tag.required { background: #f3f0ff; color: #898AC4; }
+.bslot-tag.optional  { background: #fef9ec; color: #a09060; }
+.bslot-title { font-family: 'Playfair Display', Georgia, serif; font-size: 1.15rem; color: #3a2e2e; font-weight: 600; margin-bottom: 4px; }
+.bslot-hint  { font-size: 0.8rem; color: #999; }
+.bslot-empty { font-size: 0.85rem; color: #bbb; font-style: italic; }
+
+/* Basket addon toggle */
+.basket-addon-toggle { display: block; cursor: pointer; }
+.basket-addon-toggle input { display: none; }
+.basket-addon-label {
+  display: flex; align-items: center; gap: 14px;
+  border: 2px solid #ede6dc; border-radius: 10px; padding: 14px 16px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.basket-addon-toggle input:checked ~ .basket-addon-label {
+  border-color: #898AC4; background: #f6f4ff;
+}
+.basket-addon-img { font-size: 2rem; }
+.basket-addon-label strong { display: block; font-size: 0.9rem; color: #3a2e2e; margin-bottom: 2px; }
+.basket-addon-label em { font-size: 0.8rem; color: #898AC4; font-style: normal; font-weight: 600; }
+.basket-addon-tick {
+  margin-left: auto; width: 22px; height: 22px; border-radius: 50%;
+  background: #898AC4; color: #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700; opacity: 0; transition: opacity 0.15s;
+}
+.basket-addon-toggle input:checked ~ .basket-addon-label .basket-addon-tick { opacity: 1; }
+
+/* Product grid */
+.bprod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 14px; }
+.bprod-card {
+  border: 2px solid #ede6dc; border-radius: 10px; overflow: hidden; cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  position: relative; background: #fff;
+}
+.bprod-card:hover { border-color: #898AC4; box-shadow: 0 4px 16px rgba(137,138,196,0.15); transform: translateY(-2px); }
+.bprod-card.selected { border-color: #898AC4; box-shadow: 0 4px 20px rgba(137,138,196,0.25); background: #f8f7ff; }
+.bprod-card img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.bprod-info { padding: 10px 10px 12px; }
+.bprod-name { font-size: 0.78rem; color: #3a2e2e; font-weight: 500; line-height: 1.4; margin-bottom: 5px; }
+.bprod-price { font-size: 0.82rem; font-weight: 700; color: #898AC4; }
+.bprod-original { text-decoration: line-through; color: #bbb; font-weight: 400; margin-right: 4px; font-size: 0.75rem; }
+.bprod-check {
+  position: absolute; top: 8px; right: 8px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #898AC4; color: #fff;
+  font-size: 0.7rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.15s;
+}
+.bprod-card.selected .bprod-check { opacity: 1; }
+
+/* Summary sidebar */
+.basket-summary {
+  background: #fff; border: 1.5px solid #ede6dc; border-radius: 14px; padding: 24px;
+  position: sticky; top: 90px;
+}
+.bs-title { font-family: 'Playfair Display', Georgia, serif; font-size: 1.1rem; color: #3a2e2e; font-weight: 600; margin-bottom: 18px; }
+.bs-addon-line, .bs-row { display: flex; justify-content: space-between; align-items: flex-start; font-size: 0.83rem; color: #5a4a4a; padding: 6px 0; border-bottom: 1px solid #f3ede5; gap: 8px; }
+.bs-row span:first-child { flex: 1; }
+.bs-row span:last-child { font-weight: 600; white-space: nowrap; }
+.bs-empty-slot span:last-child { color: #ccc; }
+.bs-pending { color: #ccc; }
+.bs-divider { height: 1px; background: #ede6dc; margin: 14px 0; }
+.bs-total { font-weight: 700; font-size: 0.95rem; color: #3a2e2e; border-bottom: none; padding-top: 10px; }
+.bs-shipping-note { font-size: 0.72rem; color: #aaa; margin-bottom: 20px; text-align: center; }
+.bs-cta {
+  width: 100%; padding: 14px; background: #898AC4; color: #fff;
+  border: none; border-radius: 50px; font-size: 0.88rem; font-weight: 600;
+  cursor: pointer; font-family: 'Inter', sans-serif; letter-spacing: 0.04em;
+  transition: background 0.2s, opacity 0.2s;
+}
+.bs-cta:disabled { background: #c8c9e4; cursor: not-allowed; opacity: 0.7; }
+.bs-cta:not(:disabled):hover { background: #6a6ba8; }
+.bs-validation-msg { font-size: 0.75rem; color: #aaa; text-align: center; margin-top: 10px; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .basket-layout { grid-template-columns: 1fr; }
+  .basket-summary { position: static; margin-top: 8px; }
+  .bs-cta { position: sticky; bottom: 16px; box-shadow: 0 4px 16px rgba(137,138,196,0.3); }
+}
+@media (max-width: 600px) {
+  .basket-card-grid { grid-template-columns: 1fr; }
+  .bprod-grid { grid-template-columns: 1fr 1fr; }
+  .basket-landing { padding: 40px 16px 60px; }
+  .basket-builder-section { padding: 32px 16px 60px; }
+}
+
 @media (max-width: 480px) {
   .header-inner { padding: 12px 16px; height: auto; }
   .logo img { width: 54vw; max-width: 54vw; }

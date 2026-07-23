@@ -107,6 +107,7 @@ app.use('/', require('./routes/wishlist'));
 app.use('/admin', require('./routes/admin'));
 app.use('/admin/invoices', require('./routes/invoices'));
 app.use('/reviews', require('./routes/reviews'));
+app.use('/', require('./routes/baskets'));
 
 // Contact form — sends email via Resend SMTP
 app.post('/contact', async (req, res) => {

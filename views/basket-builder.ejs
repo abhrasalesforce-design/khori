@@ -1,0 +1,274 @@
+<%- include('partials/header') %>
+
+<section class="basket-builder-section">
+  <div class="basket-builder-inner">
+
+    <!-- Breadcrumb -->
+    <p class="basket-breadcrumb">
+      <a href="/">Home</a> › <a href="/baskets">Create Your Basket</a> › <%= basketLabel %>
+    </p>
+
+    <h1 class="basket-builder-title"><%= basketLabel %></h1>
+    <p class="basket-builder-sub"><%= basketTagline %></p>
+
+    <% if (errors && errors.length) { %>
+    <div class="basket-errors">
+      <% errors.forEach(e => { %><p>⚠ <%= e %></p><% }) %>
+    </div>
+    <% } %>
+
+    <form id="basketForm" method="POST" action="/baskets/<%= basketType %>/add">
+      <input type="hidden" name="_csrf" value="<%= locals.csrfToken %>">
+
+      <div class="basket-layout">
+
+        <!-- ── Left: selection panels ── -->
+        <div class="basket-selections">
+
+          <!-- Optional basket add-on -->
+          <div class="bslot-card basket-addon-card" id="addonCard">
+            <div class="bslot-header">
+              <span class="bslot-tag optional">Optional</span>
+              <h2 class="bslot-title">Handcrafted Gift Basket</h2>
+              <p class="bslot-hint">Add a beautiful handcrafted gift basket for just ₹50.</p>
+            </div>
+            <label class="basket-addon-toggle">
+              <input type="checkbox" name="add_basket" value="1" id="addonCheck" onchange="updateSummary()" <%= addBasket ? 'checked' : '' %>>
+              <span class="basket-addon-label">
+                <span class="basket-addon-img">🧺</span>
+                <span>
+                  <strong>Gift Basket</strong>
+                  <em>+₹50</em>
+                </span>
+                <span class="basket-addon-tick">✓</span>
+              </span>
+            </label>
+          </div>
+
+          <!-- Product slots -->
+          <% slots.forEach(function(slot) { %>
+          <div class="bslot-card" id="slot-<%= slot.key %>">
+            <div class="bslot-header">
+              <span class="bslot-tag required">Required</span>
+              <h2 class="bslot-title"><%= slot.label %></h2>
+              <% if (slot.min === slot.max) { %>
+                <p class="bslot-hint">Select exactly <%= slot.min %></p>
+              <% } else { %>
+                <p class="bslot-hint">Select <%= slot.min %>–<%= slot.max %></p>
+              <% } %>
+            </div>
+
+            <% if (slot.products.length === 0) { %>
+              <p class="bslot-empty">No products available in this category right now.</p>
+            <% } else { %>
+            <div class="bprod-grid" data-slot="<%= slot.key %>" data-min="<%= slot.min %>" data-max="<%= slot.max %>">
+              <% slot.products.forEach(function(product) { %>
+              <%
+                const discPx = applyDiscount(product.price, product.category, discountMap);
+                const rawSel = selected && selected[slot.key];
+                const selArr = Array.isArray(rawSel) ? rawSel : (rawSel ? [rawSel] : []);
+                const isSelected = selArr.includes(String(product.id));
+              %>
+              <div class="bprod-card <%= isSelected ? 'selected' : '' %>"
+                   data-id="<%= product.id %>"
+                   data-price="<%= discPx %>"
+                   data-slot="<%= slot.key %>"
+                   data-max="<%= slot.max %>"
+                   onclick="selectProduct(this)">
+                <img
+                  src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>"
+                  alt="<%= product.name %>"
+                  onerror="this.src='/images/placeholder.jpg'"
+                  loading="lazy">
+                <div class="bprod-info">
+                  <p class="bprod-name"><%= product.name %></p>
+                  <p class="bprod-price">
+                    <% if (discPx < product.price) { %>
+                      <span class="bprod-original">₹<%= product.price %></span>
+                    <% } %>
+                    ₹<%= discPx %>
+                  </p>
+                </div>
+                <div class="bprod-check">✓</div>
+                <!-- Hidden input activated when selected -->
+                <input type="radio"  name="<%= slot.key %>" value="<%= product.id %>" <%= isSelected ? 'checked' : '' %> style="display:none" class="bprod-input-single" data-slot="<%= slot.key %>">
+              </div>
+              <% }) %>
+            </div>
+            <% } %>
+          </div>
+          <% }) %>
+
+          <!-- Multi-select slots (mdf max=3) render checkboxes separately -->
+          <!-- (handled via JS: selectProduct toggling checkboxes) -->
+
+        </div>
+
+        <!-- ── Right: live summary ── -->
+        <aside class="basket-summary" id="basketSummary">
+          <h3 class="bs-title">Your Basket</h3>
+
+          <div class="bs-addon-line" id="bs-addon" style="display:none">
+            <span>🧺 Gift Basket</span>
+            <span>+₹50</span>
+          </div>
+
+          <div id="bs-lines">
+            <!-- filled by JS -->
+          </div>
+
+          <div class="bs-divider"></div>
+
+          <div class="bs-row bs-total">
+            <span>Subtotal</span>
+            <span id="bs-total">₹0</span>
+          </div>
+          <p class="bs-shipping-note">Shipping calculated at checkout</p>
+
+          <button type="submit" class="bs-cta" id="bsCta" disabled>
+            Add to Cart
+          </button>
+          <p class="bs-validation-msg" id="bsValidMsg">Complete all selections above to continue.</p>
+        </aside>
+
+      </div><!-- .basket-layout -->
+    </form>
+
+  </div>
+</section>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+const slotDefs = <%- JSON.stringify(slots.map(s => ({
+  key: s.key,
+  label: s.label,
+  min: s.min,
+  max: s.max,
+  products: s.products.map(p => ({ id: p.id, name: p.name, price: (() => {
+    const pct = discountMap[p.category] ?? discountMap['__all__'] ?? 0;
+    return pct > 0 ? Math.floor(p.price * (1 - pct/100)) : p.price;
+  })() }))
+}))) %>;
+
+const selections = {};   // { slotKey: [ { id, name, price }, ... ] }
+slotDefs.forEach(s => {
+  // Restore server-side selected values
+  const existing = document.querySelectorAll(`.bprod-card.selected[data-slot="${s.key}"]`);
+  selections[s.key] = [];
+  existing.forEach(card => {
+    const prod = s.products.find(p => p.id == card.dataset.id);
+    if (prod) selections[s.key].push(prod);
+  });
+});
+
+function selectProduct(card) {
+  const slotKey = card.dataset.slot;
+  const max     = parseInt(card.dataset.max);
+  const id      = parseInt(card.dataset.id);
+  const def     = slotDefs.find(s => s.key === slotKey);
+  const prod    = def.products.find(p => p.id === id);
+
+  if (max === 1) {
+    // Radio behaviour: deselect all in slot, select this one
+    document.querySelectorAll(`.bprod-card[data-slot="${slotKey}"]`).forEach(c => {
+      c.classList.remove('selected');
+      const inp = c.querySelector('input');
+      if (inp) inp.checked = false;
+    });
+    card.classList.add('selected');
+    const inp = card.querySelector('input');
+    if (inp) inp.checked = true;
+    selections[slotKey] = [prod];
+  } else {
+    // Checkbox behaviour: toggle
+    const alreadyIdx = selections[slotKey].findIndex(p => p.id === id);
+    if (alreadyIdx >= 0) {
+      card.classList.remove('selected');
+      const inp = card.querySelector('input');
+      if (inp) inp.checked = false;
+      selections[slotKey].splice(alreadyIdx, 1);
+    } else {
+      if (selections[slotKey].length >= max) {
+        // Swap out the oldest selection
+        const oldest = selections[slotKey].shift();
+        const oldCard = document.querySelector(`.bprod-card[data-slot="${slotKey}"][data-id="${oldest.id}"]`);
+        if (oldCard) {
+          oldCard.classList.remove('selected');
+          const inp = oldCard.querySelector('input');
+          if (inp) inp.checked = false;
+        }
+      }
+      card.classList.add('selected');
+      selections[slotKey].push(prod);
+      // For multi-select we use checkboxes
+      let inp = card.querySelector('input[type="checkbox"]');
+      if (!inp) {
+        // convert radio to checkbox on first multi-select interaction
+        const radio = card.querySelector('input[type="radio"]');
+        if (radio) {
+          radio.type = 'checkbox';
+          inp = radio;
+        }
+      }
+      if (inp) inp.checked = true;
+    }
+  }
+  updateSummary();
+}
+
+function updateSummary() {
+  const addonChecked = document.getElementById('addonCheck').checked;
+  let total = addonChecked ? 50 : 0;
+
+  // Addon line
+  const addonLine = document.getElementById('bs-addon');
+  addonLine.style.display = addonChecked ? 'flex' : 'none';
+
+  // Product lines
+  const linesEl = document.getElementById('bs-lines');
+  linesEl.innerHTML = '';
+  slotDefs.forEach(def => {
+    const picks = selections[def.key] || [];
+    if (picks.length === 0) {
+      const row = document.createElement('div');
+      row.className = 'bs-row bs-empty-slot';
+      row.innerHTML = `<span>${def.label}</span><span class="bs-pending">—</span>`;
+      linesEl.appendChild(row);
+    } else {
+      picks.forEach(p => {
+        total += p.price;
+        const row = document.createElement('div');
+        row.className = 'bs-row';
+        row.innerHTML = `<span>${p.name}</span><span>₹${p.price}</span>`;
+        linesEl.appendChild(row);
+      });
+    }
+  });
+
+  document.getElementById('bs-total').textContent = '₹' + total;
+
+  // Validate
+  const allFilled = slotDefs.every(def => {
+    const picks = selections[def.key] || [];
+    return picks.length >= def.min && picks.length <= def.max;
+  });
+  const btn = document.getElementById('bsCta');
+  const msg = document.getElementById('bsValidMsg');
+  btn.disabled = !allFilled;
+  msg.style.display = allFilled ? 'none' : 'block';
+}
+
+// Multi-select slots: switch radio inputs to checkboxes on page load
+slotDefs.forEach(def => {
+  if (def.max > 1) {
+    document.querySelectorAll(`.bprod-card[data-slot="${def.key}"] input`).forEach(inp => {
+      inp.type = 'checkbox';
+      inp.name = def.key;
+    });
+  }
+});
+
+updateSummary();
+</script>
+
+<%- include('partials/footer') %>
