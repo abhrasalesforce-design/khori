@@ -84,7 +84,7 @@ router.get('/', requireAdmin, async (req, res) => {
   const stats = {
     totalProducts: allProductsCount,
     totalOrders,
-    totalRevenue: allOrdersRevenue.filter(o => o.status === 'paid').reduce((s, o) => s + o.total, 0),
+    totalRevenue: allOrdersRevenue.filter(o => ['paid','shipped','delivered'].includes(o.status)).reduce((s, o) => s + o.total, 0),
     pendingOrders: allOrdersRevenue.filter(o => o.status === 'payment_pending' || o.status === 'pending').length
   };
 
