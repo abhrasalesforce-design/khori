@@ -14,6 +14,13 @@ const app = express();
 // Gzip all responses
 app.use(compression());
 
+// Allow the site to be embedded in iframes (e.g. Scaler, external platforms)
+app.use((req, res, next) => {
+  res.removeHeader('X-Frame-Options');
+  res.setHeader('Content-Security-Policy', "frame-ancestors *");
+  next();
+});
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
