@@ -55,9 +55,13 @@
 <script>
   async function removeFromWishlist(productId) {
     try {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
       const res = await fetch('/wishlist/toggle', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRF-Token': csrfToken
+        },
         body: 'product_id=' + encodeURIComponent(productId)
       });
       if (!res.ok) throw new Error('Failed');
