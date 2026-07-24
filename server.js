@@ -47,7 +47,7 @@ app.use(session({
   cookie: {
     maxAge: 1000 * 60 * 60 * 24,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax'
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
 }));
 app.use(flash());
@@ -68,7 +68,7 @@ const { generateCsrfToken, doubleCsrfProtection, validateRequest } = doubleCsrf(
   cookieName: isProduction ? '__Host-x-csrf-token' : 'x-csrf-token',
   cookieOptions: {
     secure: isProduction,
-    sameSite: 'lax',
+    sameSite: isProduction ? 'none' : 'lax',
     path: '/',
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24, // 24 hours — same as session
