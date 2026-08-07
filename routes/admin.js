@@ -197,9 +197,16 @@ async function getProductSuggestions() {
   };
 }
 
+async function getCategoryTree() {
+  const all = await db.all('SELECT * FROM categories ORDER BY sort_order');
+  const parents = all.filter(c => !c.parent_id);
+  return parents.map(p => ({ ...p, children: all.filter(c => c.parent_id === p.id) }));
+}
+
 router.get('/products/new', requireAdmin, async (req, res) => {
   const suggestions = await getProductSuggestions();
-  res.render('admin/product-form', { product: null, error: req.flash('error'), user: req.session.user, suggestions });
+  const categoryTree = await getCategoryTree();
+  res.render('admin/product-form', { product: null, error: req.flash('error'), user: req.session.user, suggestions, categoryTree });
 });
 
 router.post('/products/new', requireAdmin, upload.array('images', 10), csrfAfterMulter, async (req, res) => {
@@ -229,7 +236,8 @@ router.get('/products/edit/:id', requireAdmin, async (req, res) => {
   const product = await db.get('SELECT * FROM products WHERE id = ?', [req.params.id]);
   if (!product) return res.redirect('/admin');
   const suggestions = await getProductSuggestions();
-  res.render('admin/product-form', { product, error: req.flash('error'), user: req.session.user, suggestions });
+  const categoryTree = await getCategoryTree();
+  res.render('admin/product-form', { product, error: req.flash('error'), user: req.session.user, suggestions, categoryTree });
 });
 
 router.post('/products/edit/:id', requireAdmin, upload.array('images', 10), csrfAfterMulter, async (req, res) => {
@@ -457,6 +465,96 @@ router.post('/discounts', requireAdmin, async (req, res) => {
     req.flash('error', 'Error saving discounts: ' + err.message);
     res.redirect('/admin/discounts');
   }
+});
+
+// ── Categories ──────────────────────────────────────────────────────────────
+
+router.get('/categories', requireAdmin, async (req, res) => {
+  const categories = await db.all(`
+    SELECT c.*, p.name AS parent_name
+    FROM categories c
+    LEFT JOIN categories p ON c.parent_id = p.id
+    ORDER BY COALESCE(c.parent_id, c.id), c.parent_id IS NOT NULL, c.sort_order
+  `);
+  res.render('admin/categories', {
+    categories,
+    user: req.session.user,
+    flashMsg: req.flash('error')[0] || null
+  });
+});
+
+router.get('/categories/new', requireAdmin, async (req, res) => {
+  const parents = await db.all('SELECT id, name, slug FROM categories WHERE parent_id IS NULL ORDER BY sort_order');
+  res.render('admin/category-form', {
+    category: null,
+    parents,
+    user: req.session.user,
+    error: req.flash('error')[0] || null
+  });
+});
+
+router.post('/categories/new', requireAdmin, async (req, res) => {
+  try {
+    const { name, slug, parent_id, sort_order } = req.body;
+    if (!name || !slug) {
+      req.flash('error', 'Name and slug are required.');
+      return res.redirect('/admin/categories/new');
+    }
+    const cleanSlug = slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+    await db.run(
+      'INSERT INTO categories (name, slug, parent_id, sort_order) VALUES (?, ?, ?, ?)',
+      [name.trim(), cleanSlug, parent_id || null, parseInt(sort_order) || 0]
+    );
+    req.flash('error', '✓ Category created.');
+    res.redirect('/admin/categories');
+  } catch (err) {
+    req.flash('error', err.message.includes('UNIQUE') ? 'Slug already exists.' : 'Failed: ' + err.message);
+    res.redirect('/admin/categories/new');
+  }
+});
+
+router.get('/categories/edit/:id', requireAdmin, async (req, res) => {
+  const category = await db.get('SELECT * FROM categories WHERE id = ?', [req.params.id]);
+  if (!category) return res.redirect('/admin/categories');
+  const parents = await db.all('SELECT id, name, slug FROM categories WHERE parent_id IS NULL AND id != ? ORDER BY sort_order', [req.params.id]);
+  res.render('admin/category-form', {
+    category,
+    parents,
+    user: req.session.user,
+    error: req.flash('error')[0] || null
+  });
+});
+
+router.post('/categories/edit/:id', requireAdmin, async (req, res) => {
+  try {
+    const { name, slug, parent_id, sort_order } = req.body;
+    if (!name || !slug) {
+      req.flash('error', 'Name and slug are required.');
+      return res.redirect('/admin/categories/edit/' + req.params.id);
+    }
+    const cleanSlug = slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+    await db.run(
+      'UPDATE categories SET name=?, slug=?, parent_id=?, sort_order=? WHERE id=?',
+      [name.trim(), cleanSlug, parent_id || null, parseInt(sort_order) || 0, req.params.id]
+    );
+    req.flash('error', '✓ Category updated.');
+    res.redirect('/admin/categories');
+  } catch (err) {
+    req.flash('error', err.message.includes('UNIQUE') ? 'Slug already exists.' : 'Failed: ' + err.message);
+    res.redirect('/admin/categories/edit/' + req.params.id);
+  }
+});
+
+router.post('/categories/delete/:id', requireAdmin, async (req, res) => {
+  const inUse = await db.get('SELECT COUNT(*) as n FROM products WHERE category = (SELECT slug FROM categories WHERE id = ?)', [req.params.id]);
+  const hasChildren = await db.get('SELECT COUNT(*) as n FROM categories WHERE parent_id = ?', [req.params.id]);
+  if ((inUse && inUse.n > 0) || (hasChildren && hasChildren.n > 0)) {
+    req.flash('error', 'Cannot delete: category has products or subcategories assigned to it.');
+    return res.redirect('/admin/categories');
+  }
+  await db.run('DELETE FROM categories WHERE id = ?', [req.params.id]);
+  req.flash('error', '✓ Category deleted.');
+  res.redirect('/admin/categories');
 });
 
 module.exports = router;

@@ -1,0 +1,72 @@
+<%- include('../partials/header') %>
+
+<div class="admin-container">
+  <% if (locals.flashMsg) { %>
+    <div class="alert" style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:12px 20px;border-radius:6px;margin-bottom:20px;font-size:0.85rem;"><%= flashMsg %></div>
+  <% } %>
+
+  <div class="admin-header">
+    <h1>Categories</h1>
+    <div class="admin-actions">
+      <a href="/admin" class="btn-outline">← Dashboard</a>
+      <a href="/admin/categories/new" class="btn-primary">+ New Category</a>
+    </div>
+  </div>
+
+  <p style="font-size:0.82rem;color:#888;margin:-8px 0 20px;">
+    Top-level categories act as groups. Subcategories (with a parent) are the values assigned to products.
+  </p>
+
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Slug</th>
+          <th>Parent</th>
+          <th>Order</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% const parents = categories.filter(c => !c.parent_id); %>
+        <% parents.forEach(parent => { %>
+          <tr style="background:#f9f7ff;">
+            <td><strong><%= parent.name %></strong></td>
+            <td><code style="font-size:0.78rem;color:#898AC4;"><%= parent.slug %></code></td>
+            <td style="color:#bbb;">—</td>
+            <td><%= parent.sort_order %></td>
+            <td>
+              <a href="/admin/categories/edit/<%= parent.id %>" class="btn-outline" style="font-size:0.75rem;padding:4px 10px;">Edit</a>
+              <form method="POST" action="/admin/categories/delete/<%= parent.id %>" style="display:inline;" onsubmit="return confirm('Delete this category?')">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn-outline" style="font-size:0.75rem;padding:4px 10px;color:#e57373;border-color:#e57373;">Delete</button>
+              </form>
+            </td>
+          </tr>
+          <% const children = categories.filter(c => c.parent_id === parent.id); %>
+          <% children.forEach(child => { %>
+            <tr>
+              <td style="padding-left:28px;">↳ <%= child.name %></td>
+              <td><code style="font-size:0.78rem;color:#898AC4;"><%= child.slug %></code></td>
+              <td style="font-size:0.82rem;color:#888;"><%= parent.name %></td>
+              <td><%= child.sort_order %></td>
+              <td>
+                <a href="/admin/categories/edit/<%= child.id %>" class="btn-outline" style="font-size:0.75rem;padding:4px 10px;">Edit</a>
+                <form method="POST" action="/admin/categories/delete/<%= child.id %>" style="display:inline;" onsubmit="return confirm('Delete this subcategory?')">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button type="submit" class="btn-outline" style="font-size:0.75rem;padding:4px 10px;color:#e57373;border-color:#e57373;">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% }) %>
+        <% if (categories.length === 0) { %>
+          <tr><td colspan="5" style="text-align:center;color:#bbb;padding:32px;">No categories yet. <a href="/admin/categories/new">Add one</a>.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

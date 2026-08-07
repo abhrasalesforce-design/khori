@@ -141,6 +141,14 @@ async function initDb() {
       unit_price REAL NOT NULL,
       FOREIGN KEY (invoice_id) REFERENCES invoices(id)
     );
+    CREATE TABLE IF NOT EXISTS categories (
+      id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE,
+      parent_id INTEGER DEFAULT NULL,
+      sort_order INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
   `;
 
   if (isPostgres) {
@@ -187,6 +195,15 @@ async function initDb() {
       FOREIGN KEY (invoice_id) REFERENCES invoices(id)
     )`);
     await pool.query(`CREATE TABLE IF NOT EXISTS category_discounts (category TEXT PRIMARY KEY, discount_pct REAL NOT NULL DEFAULT 0)`).catch(() => {});
+    await pool.query(`CREATE TABLE IF NOT EXISTS categories (
+      id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE,
+      parent_id INTEGER DEFAULT NULL,
+      sort_order INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`).catch(() => {});
+    await seedDefaultCategories(pool, true);
   } else {
     sqliteDb.exec(schema.replace(/SERIAL PRIMARY KEY/g, 'INTEGER PRIMARY KEY AUTOINCREMENT').replace(/TIMESTAMP/g, 'DATETIME'));
     try { sqliteDb.exec(`ALTER TABLE products ADD COLUMN dimension TEXT`); } catch (_) {}
@@ -211,6 +228,59 @@ async function initDb() {
     try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS invoice_items (id INTEGER PRIMARY KEY AUTOINCREMENT, invoice_id INTEGER NOT NULL, product_id INTEGER, product_name TEXT NOT NULL, quantity INTEGER NOT NULL, unit_price REAL NOT NULL)`); } catch (_) {}
     try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS password_resets (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, token TEXT NOT NULL UNIQUE, expires_at DATETIME NOT NULL, used INTEGER DEFAULT 0)`); } catch (_) {}
     try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS category_discounts (category TEXT PRIMARY KEY, discount_pct REAL NOT NULL DEFAULT 0)`); } catch (_) {}
+    try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, slug TEXT NOT NULL UNIQUE, parent_id INTEGER DEFAULT NULL, sort_order INTEGER DEFAULT 0, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`); } catch (_) {}
+    await seedDefaultCategories(sqliteDb, false);
+  }
+}
+
+async function seedDefaultCategories(conn, isPostgres) {
+  const defaults = [
+    { name: 'Wearable Art', slug: 'wearable-art', parent: null, children: [
+      { name: 'Earrings', slug: 'earrings' },
+      { name: 'Fabric Painted Pendants', slug: 'pendants' },
+      { name: 'Terracotta Jewellery', slug: 'terracotta' },
+    ]},
+    { name: 'Artisan Totes', slug: 'artisan-totes', parent: null, children: [
+      { name: 'Embroidered Tote Bags', slug: 'embroidered' },
+      { name: 'Hand Painted Tote Bags', slug: 'hand-painted' },
+    ]},
+    { name: 'Canvas Tales', slug: 'canvas-tales', parent: null, children: [
+      { name: 'Mini Canvas Art', slug: 'mini-canvas' },
+      { name: 'Scenic Mini Canvases', slug: 'scenic' },
+      { name: 'Round MDF Paintings', slug: 'mdf' },
+    ]},
+    { name: 'Handmade Treasures', slug: 'handmade-treasures', parent: null, children: [
+      { name: 'Hand Block Diaries', slug: 'diaries' },
+      { name: 'Diary Keychains', slug: 'keychains' },
+      { name: 'Handcrafted Photo Frames', slug: 'frames' },
+      { name: 'Artistic Bookmarks', slug: 'bookmarks' },
+    ]},
+  ];
+
+  const upsert = isPostgres
+    ? (name, slug, parentId, order) =>
+        conn.query(`INSERT INTO categories (name, slug, parent_id, sort_order) VALUES ($1,$2,$3,$4) ON CONFLICT(slug) DO NOTHING`, [name, slug, parentId, order])
+    : (name, slug, parentId, order) => {
+        try { conn.prepare(`INSERT OR IGNORE INTO categories (name, slug, parent_id, sort_order) VALUES (?,?,?,?)`).run(name, slug, parentId, order); } catch (_) {}
+      };
+
+  for (let i = 0; i < defaults.length; i++) {
+    const group = defaults[i];
+    await upsert(group.name, group.slug, null, i);
+
+    let parentId = null;
+    if (isPostgres) {
+      const r = await conn.query(`SELECT id FROM categories WHERE slug=$1`, [group.slug]);
+      parentId = r.rows[0]?.id ?? null;
+    } else {
+      const r = conn.prepare(`SELECT id FROM categories WHERE slug=?`).get(group.slug);
+      parentId = r?.id ?? null;
+    }
+
+    for (let j = 0; j < group.children.length; j++) {
+      const child = group.children[j];
+      await upsert(child.name, child.slug, parentId, j);
+    }
   }
 }
 

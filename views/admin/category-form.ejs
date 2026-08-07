@@ -1,0 +1,61 @@
+<%- include('../partials/header') %>
+
+<div class="page-container">
+  <h1><%= category ? 'Edit Category' : 'New Category' %></h1>
+  <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+  <form method="POST" action="<%= category ? '/admin/categories/edit/' + category.id : '/admin/categories/new' %>" class="product-form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <div class="form-row">
+      <label>Name *</label>
+      <input type="text" name="name" value="<%= category ? category.name : '' %>" required
+        placeholder="e.g. Earrings" oninput="autoSlug(this)">
+    </div>
+
+    <div class="form-row">
+      <label>Slug *
+        <span style="font-size:0.75rem;font-weight:400;color:#888;margin-left:6px;">URL-safe identifier used on products (e.g. <code>earrings</code>)</span>
+      </label>
+      <input type="text" name="slug" id="slugField" value="<%= category ? category.slug : '' %>" required
+        placeholder="e.g. earrings" pattern="[a-z0-9-]+" title="Lowercase letters, numbers and hyphens only">
+    </div>
+
+    <div class="form-row">
+      <label>Parent Category
+        <span style="font-size:0.75rem;font-weight:400;color:#888;margin-left:6px;">Leave blank to make this a top-level group</span>
+      </label>
+      <select name="parent_id">
+        <option value="">— None (top-level) —</option>
+        <% parents.forEach(p => { %>
+          <option value="<%= p.id %>" <%= category && category.parent_id == p.id ? 'selected' : '' %>><%= p.name %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Sort Order
+        <span style="font-size:0.75rem;font-weight:400;color:#888;margin-left:6px;">Lower numbers appear first</span>
+      </label>
+      <input type="number" name="sort_order" value="<%= category ? category.sort_order : 0 %>" min="0" style="width:120px;">
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-primary"><%= category ? 'Save Changes' : 'Create Category' %></button>
+      <a href="/admin/categories" class="btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<script>
+  let slugEdited = <%= category ? 'true' : 'false' %>;
+  document.getElementById('slugField').addEventListener('input', () => { slugEdited = true; });
+
+  function autoSlug(nameInput) {
+    if (slugEdited) return;
+    document.getElementById('slugField').value = nameInput.value
+      .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+</script>
+
+<%- include('../partials/footer') %>
