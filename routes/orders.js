@@ -167,6 +167,7 @@ router.post('/checkout/place', async (req, res) => {
     req.session.cart = [];
     req.session.pendingOrder = null;
     req.session.lastOrderId = orderId;
+    await db.run('DELETE FROM carts WHERE session_id = ?', [req.sessionID]);
     req.session.save(() => {
       res.redirect(`/order-confirmation/${orderId}`);
     });

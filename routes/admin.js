@@ -81,6 +81,29 @@ router.get('/', requireAdmin, async (req, res) => {
 
   const allProductsCount = (await db.get('SELECT COUNT(*) as total FROM products')).total;
   const allOrdersRevenue = await db.all('SELECT total, status FROM orders');
+  const abandonedCarts = await db.all('SELECT * FROM carts ORDER BY updated_at DESC');
+  const abandonedCartCount = abandonedCarts.length;
+
+  // Tally which products appear most in abandoned carts
+  const productFreq = {};
+  for (const cart of abandonedCarts) {
+    let items = [];
+    try { items = JSON.parse(cart.items); } catch (_) {}
+    for (const item of items) {
+      productFreq[item.id] = (productFreq[item.id] || 0) + item.quantity;
+    }
+  }
+  const topAbandonedIds = Object.entries(productFreq)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([id, qty]) => ({ id: parseInt(id), qty }));
+  const topAbandonedProducts = await Promise.all(
+    topAbandonedIds.map(async ({ id, qty }) => {
+      const p = await db.get('SELECT id, name, price, image FROM products WHERE id = ?', [id]);
+      return p ? { ...p, qty } : null;
+    })
+  ).then(r => r.filter(Boolean));
+
   const stats = {
     totalProducts: allProductsCount,
     totalOrders,
@@ -93,7 +116,8 @@ router.get('/', requireAdmin, async (req, res) => {
   res.render('admin/dashboard', {
     products, orders, stats, user: req.session.user,
     currentPage, totalPages, flashMsg, allCategories, filterCategory,
-    ordersPage, totalOrderPages, banner
+    ordersPage, totalOrderPages, banner,
+    abandonedCartCount, topAbandonedProducts
   });
 });
 

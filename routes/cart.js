@@ -3,6 +3,21 @@ const router = express.Router();
 const { db } = require('../database');
 const { resolveCartItems } = require('./cartPricing');
 
+async function syncCart(req) {
+  const sessionId = req.sessionID;
+  const items = req.session.cart || [];
+  const userId = req.session.user?.id || null;
+  if (items.length === 0) {
+    await db.run('DELETE FROM carts WHERE session_id = ?', [sessionId]);
+  } else {
+    await db.run(
+      `INSERT INTO carts (session_id, user_id, items, updated_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+       ON CONFLICT(session_id) DO UPDATE SET user_id = excluded.user_id, items = excluded.items, updated_at = CURRENT_TIMESTAMP`,
+      [sessionId, userId, JSON.stringify(items)]
+    );
+  }
+}
+
 router.get('/cart', async (req, res) => {
   const items = await resolveCartItems(req.session.cart || []);
   const subtotal = items.reduce((sum, i) => sum + i.subtotal, 0);
@@ -23,6 +38,7 @@ router.post('/cart/add', async (req, res) => {
   } else {
     req.session.cart.push({ id: parseInt(product_id), quantity: qty });
   }
+  await syncCart(req);
   res.redirect('/cart');
 });
 
@@ -36,12 +52,14 @@ router.post('/cart/update', async (req, res) => {
     const item = req.session.cart.find(i => i.id == product_id);
     if (item) item.quantity = qty;
   }
+  await syncCart(req);
   res.redirect('/cart');
 });
 
-router.post('/cart/remove', (req, res) => {
+router.post('/cart/remove', async (req, res) => {
   const { product_id } = req.body;
   if (req.session.cart) req.session.cart = req.session.cart.filter(i => i.id != product_id);
+  await syncCart(req);
   res.redirect('/cart');
 });
 

@@ -149,6 +149,12 @@ async function initDb() {
       sort_order INTEGER DEFAULT 0,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+    CREATE TABLE IF NOT EXISTS carts (
+      session_id TEXT PRIMARY KEY,
+      user_id INTEGER DEFAULT NULL,
+      items TEXT NOT NULL DEFAULT '[]',
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
   `;
 
   if (isPostgres) {
@@ -203,6 +209,12 @@ async function initDb() {
       sort_order INTEGER DEFAULT 0,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`).catch(() => {});
+    await pool.query(`CREATE TABLE IF NOT EXISTS carts (
+      session_id TEXT PRIMARY KEY,
+      user_id INTEGER DEFAULT NULL,
+      items TEXT NOT NULL DEFAULT '[]',
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`).catch(() => {});
     await seedDefaultCategories(pool, true);
   } else {
     sqliteDb.exec(schema.replace(/SERIAL PRIMARY KEY/g, 'INTEGER PRIMARY KEY AUTOINCREMENT').replace(/TIMESTAMP/g, 'DATETIME'));
@@ -229,6 +241,7 @@ async function initDb() {
     try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS password_resets (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, token TEXT NOT NULL UNIQUE, expires_at DATETIME NOT NULL, used INTEGER DEFAULT 0)`); } catch (_) {}
     try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS category_discounts (category TEXT PRIMARY KEY, discount_pct REAL NOT NULL DEFAULT 0)`); } catch (_) {}
     try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, slug TEXT NOT NULL UNIQUE, parent_id INTEGER DEFAULT NULL, sort_order INTEGER DEFAULT 0, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`); } catch (_) {}
+    try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS carts (session_id TEXT PRIMARY KEY, user_id INTEGER DEFAULT NULL, items TEXT NOT NULL DEFAULT '[]', updated_at DATETIME DEFAULT CURRENT_TIMESTAMP)`); } catch (_) {}
     await seedDefaultCategories(sqliteDb, false);
   }
 }

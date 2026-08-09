@@ -90,6 +90,30 @@
   </nav>
   <% } %>
 
+  <!-- ===== Abandoned Carts ===== -->
+  <div style="margin:32px 0 12px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+      <h2 style="margin:0;">Abandoned Carts</h2>
+      <span style="background:#f3f2fa;color:#898AC4;font-size:0.78rem;font-weight:600;padding:3px 12px;border-radius:50px;"><%= abandonedCartCount %> active</span>
+    </div>
+    <% if (topAbandonedProducts.length > 0) { %>
+      <p style="font-size:0.78rem;color:#888;margin:0 0 10px;">Top products sitting in unpurchased carts:</p>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <% topAbandonedProducts.forEach(p => { %>
+          <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid rgba(137,138,196,0.2);border-radius:10px;padding:8px 14px;min-width:200px;">
+            <img src="<%= p.image && p.image.startsWith('http') ? p.image : '/uploads/' + p.image %>" width="36" height="36" style="object-fit:cover;border-radius:6px;" onerror="this.src='/images/placeholder.jpg'">
+            <div>
+              <div style="font-size:0.82rem;font-weight:600;color:#333;"><%= p.name %></div>
+              <div style="font-size:0.75rem;color:#898AC4;"><%= p.qty %> unit<%= p.qty !== 1 ? 's' : '' %> in carts · ₹<%= p.price %></div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <p style="font-size:0.82rem;color:#bbb;">No abandoned carts yet.</p>
+    <% } %>
+  </div>
+
   <!-- ===== Orders ===== -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin:32px 0 12px;flex-wrap:wrap;gap:12px;">
     <h2 style="margin:0;">Orders <span style="font-size:0.78rem;font-weight:400;color:#aaa;">(10 per page)</span></h2>
