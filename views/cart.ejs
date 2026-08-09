@@ -52,10 +52,11 @@
         <div class="summary-row"><span>Subtotal</span><span>₹<%= subtotal %></span></div>
         <div class="summary-row"><span>Shipping</span><span><%= shipping === 0 ? 'Free' : '₹' + shipping %></span></div>
         <div class="summary-row total-row"><span>Total</span><span>₹<%= total %></span></div>
-        <% if (user) { %>
-          <a href="/checkout" class="btn-primary full-width">Proceed to Checkout</a>
-        <% } else { %>
-          <a href="/login" class="btn-primary full-width">Login to Checkout</a>
+        <a href="/checkout" class="btn-primary full-width">Proceed to Checkout</a>
+        <% if (!user) { %>
+          <p style="font-size:0.78rem;color:#888;text-align:center;margin:10px 0 0;">
+            <a href="/login" style="color:#898AC4;">Log in</a> to track your orders, or continue as guest.
+          </p>
         <% } %>
         <a href="/" class="btn-outline full-width">Continue Shopping</a>
       </div>

@@ -20,7 +20,7 @@ function getRazorpay() {
   });
 }
 
-router.get('/checkout', requireLogin, async (req, res) => {
+router.get('/checkout', async (req, res) => {
   const cart = req.session.cart || [];
   if (cart.length === 0) return res.redirect('/cart');
   const items = await resolveCartItems(cart);
@@ -29,13 +29,13 @@ router.get('/checkout', requireLogin, async (req, res) => {
   const total = subtotal + shipping;
   res.render('checkout', {
     items, subtotal, shipping, total,
-    user: req.session.user,
+    user: req.session.user || null,
     razorpayKeyId: process.env.RAZORPAY_KEY_ID || ''
   });
 });
 
 // Step 1 — create a Razorpay order (called via AJAX before showing the popup)
-router.post('/checkout/create-order', requireLogin, async (req, res) => {
+router.post('/checkout/create-order', async (req, res) => {
   try {
     const cart = req.session.cart || [];
     if (cart.length === 0) return res.status(400).json({ error: 'Cart is empty' });
@@ -68,7 +68,7 @@ router.post('/checkout/create-order', requireLogin, async (req, res) => {
 });
 
 // Step 2 — verify signature and save order after Razorpay payment success
-router.post('/checkout/place', requireLogin, async (req, res) => {
+router.post('/checkout/place', async (req, res) => {
   try {
     const { name, email, phone, address, city, zip, country,
             razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
@@ -95,10 +95,10 @@ router.post('/checkout/place', requireLogin, async (req, res) => {
 
     const { total, items } = pending;
 
-    // Save order
+    // Save order (user_id is null for guest checkouts)
     const result = await db.run(
       'INSERT INTO orders (user_id, total, status, name, email, phone, address, city, zip, country, upi_txn_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [req.session.user.id, total, 'paid', name, email, phone || null, address, city, zip, country, razorpay_payment_id]
+      [req.session.user?.id || null, total, 'paid', name, email, phone || null, address, city, zip, country, razorpay_payment_id]
     );
     const orderId = result.lastInsertRowid;
 
@@ -166,6 +166,7 @@ router.post('/checkout/place', requireLogin, async (req, res) => {
 
     req.session.cart = [];
     req.session.pendingOrder = null;
+    req.session.lastOrderId = orderId;
     req.session.save(() => {
       res.redirect(`/order-confirmation/${orderId}`);
     });
@@ -177,9 +178,13 @@ router.post('/checkout/place', requireLogin, async (req, res) => {
   }
 });
 
-router.get('/order-confirmation/:id', requireLogin, async (req, res) => {
+router.get('/order-confirmation/:id', async (req, res) => {
   const order = await db.get('SELECT * FROM orders WHERE id = ?', [req.params.id]);
   if (!order) return res.redirect('/');
+  // Allow access if logged in as the order's owner, or if this is the session's just-placed order
+  const isOwner = req.session.user && order.user_id === req.session.user.id;
+  const isGuestSession = req.session.lastOrderId == req.params.id;
+  if (!isOwner && !isGuestSession) return res.redirect('/');
   const items = await db.all(`
     SELECT oi.*, p.name AS product_name, p.image FROM order_items oi
     JOIN products p ON oi.product_id = p.id
