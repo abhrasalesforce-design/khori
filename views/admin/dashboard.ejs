@@ -35,7 +35,7 @@
   <!-- ===== Products ===== -->
   <div class="bulk-bar">
     <div class="bulk-bar-left" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-      <h2 style="margin:0">Products</h2>
+      <h2 id="products" style="margin:0">Products</h2>
       <select onchange="window.location.href='/admin?category='+this.value" style="padding:7px 14px;font-size:0.78rem;border:1.5px solid rgba(137,138,196,0.4);border-radius:50px;color:#898AC4;font-family:'Inter',sans-serif;outline:none;cursor:pointer;background:#fff;">
         <option value="">All Categories</option>
         <% allCategories.forEach(cat => { %>
@@ -55,7 +55,7 @@
       </form>
     </div>
   </div>
-  <p style="font-size:0.75rem;color:#898AC4;margin:-8px 0 16px;opacity:0.8;">Showing 20 per page.</p>
+  <p style="font-size:0.75rem;color:#898AC4;margin:-8px 0 16px;opacity:0.8;">Showing 10 per page.</p>
 
   <div class="admin-table-wrap">
     <table class="admin-table">
@@ -72,6 +72,9 @@
               <a href="/admin/products/edit/<%= p.id %>" class="btn-sm">Edit</a>
               <form method="POST" action="/admin/products/delete/<%= p.id %>" style="display:inline" onsubmit="return confirm('Delete this product?')">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="page" value="<%= currentPage %>">
+                <input type="hidden" name="opage" value="<%= ordersPage %>">
+                <input type="hidden" name="category" value="<%= filterCategory %>">
                 <button type="submit" class="btn-sm btn-danger">Delete</button>
               </form>
             </td>

@@ -294,7 +294,25 @@ router.post('/products/edit/:id', requireAdmin, upload.array('images', 10), csrf
 
 router.post('/products/delete/:id', requireAdmin, async (req, res) => {
   await db.run('DELETE FROM products WHERE id = ?', [req.params.id]);
-  res.redirect('/admin');
+
+  // Send the admin back to the page/filter they were on, so they can keep deleting.
+  const perPage = 10;
+  const category = typeof req.body.category === 'string' ? req.body.category : '';
+  let page = Math.max(1, parseInt(req.body.page) || 1);
+  const opage = Math.max(1, parseInt(req.body.opage) || 1);
+
+  const countRow = category
+    ? await db.get('SELECT COUNT(*) as total FROM products WHERE category = ?', [category])
+    : await db.get('SELECT COUNT(*) as total FROM products');
+  const totalPages = Math.max(1, Math.ceil((countRow ? countRow.total : 0) / perPage));
+  if (page > totalPages) page = totalPages; // last item on the page was deleted
+
+  const params = new URLSearchParams();
+  if (page > 1) params.set('page', page);
+  if (opage > 1) params.set('opage', opage);
+  if (category) params.set('category', category);
+  const qs = params.toString();
+  res.redirect('/admin' + (qs ? '?' + qs : '') + '#products');
 });
 
 router.post('/generate-description', requireAdmin, upload.single('image'), csrfAfterMulter, async (req, res) => {
