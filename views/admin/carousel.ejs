@@ -38,7 +38,7 @@
           <td>
             <img src="<%= s.image.startsWith('http') ? s.image : '/uploads/' + s.image %>"
               style="width:80px;height:46px;object-fit:cover;border-radius:5px;border:1px solid #e8dde3;"
-              onerror="this.src='/images/placeholder.jpg'">
+              onerror="this.onerror=null;this.src='/images/no-image.jpg'">
           </td>
           <td style="font-weight:600;color:#444;max-width:160px;"><%= s.heading || '—' %></td>
           <td style="font-size:0.82rem;color:#888;"><%= s.eyebrow || '—' %></td>

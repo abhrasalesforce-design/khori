@@ -78,7 +78,7 @@
                 <img
                   src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>"
                   alt="<%= product.name %>"
-                  onerror="this.src='/images/placeholder.jpg'"
+                  onerror="this.onerror=null;this.src='/images/no-image.jpg'"
                   loading="lazy">
                 <div class="bprod-info">
                   <p class="bprod-name"><%= product.name %></p>

@@ -40,7 +40,7 @@
         <% products.forEach(function(product) { %>
           <div class="cc-card">
             <a href="/product/<%= product.id %>" class="cc-card-img-wrap">
-              <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>" alt="<%= product.name %>" loading="lazy" decoding="async" onerror="this.src='/images/placeholder.jpg'">
+              <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>" alt="<%= product.name %>" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/images/no-image.jpg'">
               <span class="cc-card-overlay"><span class="cc-card-view">View Product</span></span>
               <% const __pct = discountMap[product.category] ?? discountMap['__all__'] ?? 0; %>
               <% if (product.stock > 0) { %>

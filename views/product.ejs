@@ -35,7 +35,7 @@
                 alt="<%= product.name %> — image <%= i + 1 %>"
                 loading="<%= i === 0 ? 'eager' : 'lazy' %>"
                 decoding="async"
-                onerror="this.src='/images/placeholder.jpg'"
+                onerror="this.onerror=null;this.src='/images/no-image.jpg'"
               >
             </div>
           <% }) %>
@@ -45,7 +45,7 @@
         <div class="pd-carousel-thumbs">
           <% pdImages.forEach((img, i) => { %>
             <button class="pd-carousel-thumb <%= i === 0 ? 'active' : '' %>" data-index="<%= i %>">
-              <img src="<%= toUrl(img) %>" alt="" loading="lazy" onerror="this.src='/images/placeholder.jpg'">
+              <img src="<%= toUrl(img) %>" alt="" loading="lazy" onerror="this.onerror=null;this.src='/images/no-image.jpg'">
             </button>
           <% }) %>
         </div>
@@ -57,7 +57,7 @@
           alt="<%= product.name %>"
           loading="eager"
           decoding="async"
-          onerror="this.src='/images/placeholder.jpg'"
+          onerror="this.onerror=null;this.src='/images/no-image.jpg'"
         >
       </div>
       <% } %>

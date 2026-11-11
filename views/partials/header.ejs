@@ -264,7 +264,7 @@
       const imgUrl = imgSrc.startsWith('http') ? imgSrc : '/uploads/' + imgSrc;
       document.getElementById('reviewModalBody').innerHTML = `
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
-          <img src="${imgUrl}" onerror="this.src='/images/placeholder.jpg'" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #e8dde3;">
+          <img src="${imgUrl}" onerror="this.onerror=null;this.src='/images/no-image.jpg'" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #e8dde3;">
           <div>
             <p style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#898AC4;margin-bottom:3px;">How was your order?</p>
             <p style="font-size:0.95rem;font-weight:600;color:#3a2e2e;">${item.name}</p>
