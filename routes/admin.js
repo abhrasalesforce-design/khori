@@ -395,6 +395,25 @@ router.get('/products/export', requireAdmin, async (req, res) => {
   res.send(buf);
 });
 
+// ===== PDF downloads (catalogue + Create Your Basket) =====
+function sendPdf(builder, name) {
+  return async (req, res) => {
+    const stamp = new Date().toISOString().slice(0, 10);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${name}-${stamp}.pdf"`);
+    try {
+      await builder(res);
+    } catch (err) {
+      console.error('PDF generation error:', err);
+      if (!res.headersSent) res.status(500).send('Could not generate PDF.');
+      else res.end();
+    }
+  };
+}
+const { buildCatalogue, buildBaskets } = require('./catalogPdf');
+router.get('/pdf/catalogue', requireAdmin, sendPdf(buildCatalogue, 'Hathekhori-Product-Catalogue'));
+router.get('/pdf/baskets', requireAdmin, sendPdf(buildBaskets, 'Hathekhori-Create-Your-Basket'));
+
 // ===== Bulk Import =====
 router.post('/products/import', requireAdmin, upload.single('bulkFile'), csrfAfterMulter, async (req, res) => {
   try {

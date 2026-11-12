@@ -46,6 +46,8 @@
     </div>
     <div class="bulk-bar-right">
       <a href="/admin/products/export" class="btn-outline" style="font-size:0.78rem;">⬇ Download Excel</a>
+      <a href="/admin/pdf/catalogue" class="btn-outline pdf-dl" style="font-size:0.78rem;" title="All products as a printable catalogue">⬇ Catalogue PDF</a>
+      <a href="/admin/pdf/baskets" class="btn-outline pdf-dl" style="font-size:0.78rem;" title="Create Your Basket combos and their options">⬇ Basket PDF</a>
       <form method="POST" action="/admin/products/import" enctype="multipart/form-data" class="bulk-import-form">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <label class="btn-outline" style="font-size:0.78rem;cursor:pointer;">
@@ -83,6 +85,14 @@
       </tbody>
     </table>
   </div>
+
+  <script>
+  document.querySelectorAll('.pdf-dl').forEach(a => a.addEventListener('click', () => {
+    const label = a.textContent;
+    a.textContent = 'Preparing PDF…'; a.style.pointerEvents = 'none'; a.style.opacity = '0.6';
+    setTimeout(() => { a.textContent = label; a.style.pointerEvents = ''; a.style.opacity = ''; }, 15000);
+  }));
+</script>
 
   <% if (totalPages > 1) { %>
   <% const catParam = filterCategory ? '&category=' + encodeURIComponent(filterCategory) : ''; %>
