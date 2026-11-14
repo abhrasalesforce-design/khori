@@ -1,0 +1,21 @@
+{
+  "name": "Hathekhori – Handmade Crafts",
+  "short_name": "Hathekhori",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#F6F4E8",
+  "background_color": "#F6F4E8",
+  "display": "browser",
+  "start_url": "/"
+}
