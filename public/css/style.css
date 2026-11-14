@@ -125,6 +125,8 @@ header {
 }
 .nav-mega-col:first-child { padding-left: 0; }
 .nav-mega-col:last-child { border-right: none; padding-right: 0; }
+.nav-mega-col:nth-child(4n) { border-right: none; padding-right: 0; }
+.nav-mega-col:nth-child(4n+1) { padding-left: 0; }
 
 .nav-mega-heading {
   display: block;
@@ -188,6 +190,17 @@ header {
   transition: color 0.15s, padding-left 0.15s;
 }
 .mobile-nav-sub-inner a:hover { color: #898AC4; padding-left: 28px; opacity: 1; }
+/* A collection with no sub-categories: a plain link styled like the accordion rows */
+.mobile-nav-single {
+  display: block;
+  font-size: 0.82rem; font-weight: 500;
+  color: #6b6b8a;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 0 10px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+.mobile-nav-single:hover { color: #898AC4; opacity: 1; }
 
 .cart-link {
   background: #898AC4;

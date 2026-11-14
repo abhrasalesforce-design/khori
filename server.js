@@ -100,6 +100,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Navigation categories (from Admin → Manage categories) for the header menu
+app.use(require('./routes/navCategories').navCategoriesMiddleware);
+
 // Expose CSRF validator for routes that run multer before CSRF check
 app.locals.validateCsrf = validateRequest;
 
@@ -172,12 +175,21 @@ app.get('/sitemap.xml', async (req, res) => {
     { loc: '/login', priority: '0.4', changefreq: 'yearly' },
     { loc: '/register', priority: '0.4', changefreq: 'yearly' },
   ];
+  // Add any collection created in Admin → Manage categories
+  try {
+    const parents = await db.all('SELECT slug FROM categories WHERE parent_id IS NULL ORDER BY sort_order, id');
+    for (const c of parents) {
+      const loc = '/collection/' + c.slug;
+      if (!staticUrls.some(u => u.loc === loc)) staticUrls.push({ loc, priority: '0.9', changefreq: 'weekly' });
+    }
+  } catch (_) {}
   const products = await db.all('SELECT id, created_at FROM products ORDER BY id');
   const today = new Date().toISOString().split('T')[0];
   const urls = [
     ...staticUrls.map(u => `  <url>\n    <loc>${base}${u.loc}</loc>\n    <changefreq>${u.changefreq}</changefreq>\n    <priority>${u.priority}</priority>\n  </url>`),
     ...products.map(p => {
-      const lastmod = p.created_at ? new Date(p.created_at).toISOString().split('T')[0] : today;
+      const d = p.created_at ? new Date(p.created_at) : null;
+      const lastmod = d && !isNaN(d) ? d.toISOString().split('T')[0] : today;
       return `  <url>\n    <loc>${base}/product/${p.id}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>`;
     }),
   ];

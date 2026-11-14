@@ -554,6 +554,12 @@ router.get('/categories/new', requireAdmin, async (req, res) => {
   });
 });
 
+// Refresh the site menu after any category add/edit/delete
+router.post(/^\/categories\//, (req, res, next) => {
+  res.on('finish', require('./navCategories').clearNavCache);
+  next();
+});
+
 router.post('/categories/new', requireAdmin, async (req, res) => {
   try {
     const { name, slug, parent_id, sort_order } = req.body;

@@ -166,40 +166,49 @@ router.get('/about', (req, res) => {
   res.render('about', { user: req.session.user });
 });
 
-router.get('/collection/wearable-art', async (req, res) => {
-  const sub = req.query.sub || null;
-  const products = sub
-    ? await db.all('SELECT * FROM products WHERE category = ? ORDER BY created_at DESC', [sub])
-    : await db.all("SELECT * FROM products WHERE category IN ('earrings','pendants','terracotta') ORDER BY created_at DESC");
-  const discountMap = await getDiscountMap();
-  res.render('collection-wearable-art', { user: req.session.user || null, products, sub, discountMap, applyDiscount });
-});
+// ===== Collection pages =====
+// Built from the categories table (Admin → Manage categories). A top-level
+// category is a collection; its sub-categories are the ?sub= filters.
+// The original four collections keep their hand-written pages and blurbs.
+const fs = require('fs');
+const path = require('path');
+const { getNavCategories } = require('./navCategories');
 
-router.get('/collection/artisan-totes', async (req, res) => {
-  const sub = req.query.sub || null;
-  const products = sub
-    ? await db.all('SELECT * FROM products WHERE category = ? ORDER BY created_at DESC', [sub])
-    : await db.all("SELECT * FROM products WHERE category IN ('embroidered','hand-painted') ORDER BY created_at DESC");
-  const discountMap = await getDiscountMap();
-  res.render('collection-artisan-totes', { user: req.session.user || null, products, sub, discountMap, applyDiscount });
-});
+const COLLECTION_FALLBACK = {   // used only if the categories table is empty
+  'wearable-art': ['earrings', 'pendants', 'terracotta'],
+  'artisan-totes': ['embroidered', 'hand-painted'],
+  'canvas-tales': ['mini-canvas', 'scenic', 'mdf'],
+  'handmade-treasures': ['diaries', 'keychains', 'frames', 'bookmarks'],
+};
 
-router.get('/collection/canvas-tales', async (req, res) => {
-  const sub = req.query.sub || null;
-  const products = sub
-    ? await db.all('SELECT * FROM products WHERE category = ? ORDER BY created_at DESC', [sub])
-    : await db.all("SELECT * FROM products WHERE category IN ('mini-canvas','scenic','mdf') ORDER BY created_at DESC");
-  const discountMap = await getDiscountMap();
-  res.render('collection-canvas-tales', { user: req.session.user || null, products, sub, discountMap, applyDiscount });
-});
+router.get('/collection/:slug', async (req, res, next) => {
+  const slug = req.params.slug;
+  const nav = await getNavCategories().catch(() => []);
+  let group = nav.find(g => g.slug === slug);
 
-router.get('/collection/handmade-treasures', async (req, res) => {
-  const sub = req.query.sub || null;
-  const products = sub
-    ? await db.all('SELECT * FROM products WHERE category = ? ORDER BY created_at DESC', [sub])
-    : await db.all("SELECT * FROM products WHERE category IN ('diaries','keychains','frames','bookmarks') ORDER BY created_at DESC");
+  if (!group) {
+    // A sub-category slug was used directly: send it to its parent collection
+    const parent = nav.find(g => g.children.some(c => c.slug === slug));
+    if (parent) return res.redirect(301, `/collection/${parent.slug}?sub=${encodeURIComponent(slug)}`);
+    if (!COLLECTION_FALLBACK[slug]) return next();
+    group = { name: slug, slug, children: COLLECTION_FALLBACK[slug].map(s => ({ name: s, slug: s })) };
+  }
+
+  const slugs = group.children.length ? group.children.map(c => c.slug) : [group.slug];
+  const sub = typeof req.query.sub === 'string' && req.query.sub ? req.query.sub : null;
+  let products;
+  if (sub) {
+    products = await db.all('SELECT * FROM products WHERE category = ? ORDER BY created_at DESC', [sub]);
+  } else {
+    const ph = slugs.map(() => '?').join(',');
+    products = await db.all(`SELECT * FROM products WHERE category IN (${ph}) ORDER BY created_at DESC`, slugs);
+  }
   const discountMap = await getDiscountMap();
-  res.render('collection-handmade-treasures', { user: req.session.user || null, products, sub, discountMap, applyDiscount });
+  const subName = sub ? ((group.children.find(c => c.slug === sub) || {}).name || sub.replace(/-/g, ' ')) : null;
+
+  const custom = `collection-${slug}`;
+  const view = fs.existsSync(path.join(__dirname, '..', 'views', custom + '.ejs')) ? custom : 'collection';
+  res.render(view, { user: req.session.user || null, products, sub, subName, collection: group, discountMap, applyDiscount });
 });
 
 module.exports = router;

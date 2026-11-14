@@ -10,7 +10,7 @@
       <span style="color: #898AC4;">Canvas Tales</span>
       <% if (sub) { %>
         <span style="margin: 0 8px;">›</span>
-        <span style="color: #898AC4;"><%= sub %></span>
+        <span style="color: #898AC4;"><%= subName %></span>
       <% } %>
     </p>
 
@@ -20,7 +20,7 @@
     </h1>
     <% if (sub) { %>
       <p style="font-size: 1rem; color: #898AC4; opacity: 0.75; margin-bottom: 40px; letter-spacing: 0.06em; text-transform: capitalize;">
-        <%= sub.replace(/-/g, ' ') %>
+        <%= subName %>
       </p>
     <% } else { %>
       <p style="font-size: 0.95rem; color: #898AC4; opacity: 0.7; margin-bottom: 40px; max-width: 560px; line-height: 1.7;">
