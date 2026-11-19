@@ -14,6 +14,16 @@ const app = express();
 // Gzip all responses
 app.use(compression());
 
+// Send the bare domain to www (only takes effect once hathekhori.com points at Railway
+// instead of GoDaddy's forwarding service, which refuses TLS 1.2 and gets reset by
+// some corporate firewalls).
+app.use((req, res, next) => {
+  if ((req.hostname || '').toLowerCase() === 'hathekhori.com') {
+    return res.redirect(301, 'https://www.hathekhori.com' + req.originalUrl);
+  }
+  next();
+});
+
 // Allow the site to be embedded in iframes (e.g. Scaler, external platforms)
 app.use((req, res, next) => {
   res.removeHeader('X-Frame-Options');
