@@ -1,4 +1,5 @@
 const express = require('express');
+const { gaItem, ecommerce } = require('./analytics');
 const router = express.Router();
 const { db } = require('../database');
 const { getDiscountMap, applyDiscount } = require('./cartPricing');
@@ -152,7 +153,9 @@ router.get('/product/:id', async (req, res) => {
   }
 
   const discountMap = await getDiscountMap();
+  const salePrice = applyDiscount(product.price, product.category, discountMap);
   res.render('product', {
+    gaPageEvents: [{ name: 'view_item', params: ecommerce([gaItem(product, 1, salePrice)]) }],
     product,
     user: req.session.user || null,
     relatedProducts,

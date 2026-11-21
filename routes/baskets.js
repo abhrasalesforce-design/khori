@@ -172,6 +172,14 @@ router.post('/baskets/:type/add', async (req, res) => {
     else req.session.cart.push({ id: addonId, quantity: 1 });
   }
 
+  {
+    const { gaItem, ecommerce, queueGaEvent } = require('./analytics');
+    const ids = addBasket ? [await getOrCreateBasketAddon(), ...toAdd] : toAdd;
+    const rows = await Promise.all(ids.map(id => db.get('SELECT * FROM products WHERE id = ?', [id])));
+    const gaItems = rows.filter(Boolean).map(p => gaItem(p, 1, applyDiscount(p.price, p.category, discountMap)));
+    if (gaItems.length) queueGaEvent(req, 'add_to_cart', ecommerce(gaItems));
+  }
+
   for (const pid of toAdd) {
     const existing = req.session.cart.find(i => i.id === pid);
     if (existing) existing.quantity = Math.min(existing.quantity + 1, 99);

@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../database');
-const { resolveCartItems } = require('./cartPricing');
+const { resolveCartItems, getDiscountMap, applyDiscount } = require('./cartPricing');
+const { gaItem, ecommerce, queueGaEvent } = require('./analytics');
 
 async function syncCart(req) {
   const sessionId = req.sessionID;
@@ -23,7 +24,8 @@ router.get('/cart', async (req, res) => {
   const subtotal = items.reduce((sum, i) => sum + i.subtotal, 0);
   const shipping = subtotal < 699 ? 50 : 0;
   const total = subtotal + shipping;
-  res.render('cart', { items, subtotal, shipping, total, user: req.session.user || null });
+  const gaPageEvents = items.length ? [{ name: 'view_cart', params: ecommerce(items.map(i => gaItem(i, i.quantity, i.discountedPrice))) }] : [];
+  res.render('cart', { items, subtotal, shipping, total, user: req.session.user || null, gaPageEvents });
 });
 
 router.post('/cart/add', async (req, res) => {
@@ -38,6 +40,8 @@ router.post('/cart/add', async (req, res) => {
   } else {
     req.session.cart.push({ id: parseInt(product_id), quantity: qty });
   }
+  const price = applyDiscount(product.price, product.category, await getDiscountMap());
+  queueGaEvent(req, 'add_to_cart', ecommerce([gaItem(product, qty, price)]));
   await syncCart(req);
   res.redirect('/cart');
 });
@@ -58,6 +62,14 @@ router.post('/cart/update', async (req, res) => {
 
 router.post('/cart/remove', async (req, res) => {
   const { product_id } = req.body;
+  const removed = (req.session.cart || []).find(i => i.id == product_id);
+  if (removed) {
+    const product = await db.get('SELECT * FROM products WHERE id = ?', [removed.id]);
+    if (product) {
+      const price = applyDiscount(product.price, product.category, await getDiscountMap());
+      queueGaEvent(req, 'remove_from_cart', ecommerce([gaItem(product, removed.quantity, price)]));
+    }
+  }
   if (req.session.cart) req.session.cart = req.session.cart.filter(i => i.id != product_id);
   await syncCart(req);
   res.redirect('/cart');

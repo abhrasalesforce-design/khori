@@ -110,6 +110,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Google Analytics e-commerce events queued in the session (see routes/analytics.js)
+app.use(require('./routes/analytics').gaMiddleware);
+
 // Navigation categories (from Admin → Manage categories) for the header menu
 app.use(require('./routes/navCategories').navCategoriesMiddleware);
 

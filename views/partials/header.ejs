@@ -34,6 +34,11 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-MLV8DMQJ3Q');
+<% const __gaEvents = [].concat(locals.gaPageEvents || [], locals.takeGaEvents ? takeGaEvents() : []); %>
+<% if (__gaEvents.length) { %>
+    <%# Purchase / cart events (routes/analytics.js). JSON is escaped so it can't break out of the script tag. %>
+    (<%- JSON.stringify(__gaEvents).replace(/</g, '\\u003c') %>).forEach(function (e) { gtag('event', e.name, e.params); });
+<% } %>
   </script>
 </head>
 <body>

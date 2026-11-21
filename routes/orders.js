@@ -3,6 +3,7 @@ const router = express.Router();
 const crypto = require('crypto');
 const { db } = require('../database');
 const { resolveCartItems } = require('./cartPricing');
+const { gaItem, ecommerce, queueGaEvent } = require('./analytics');
 
 function requireLogin(req, res, next) {
   if (!req.session.user) {
@@ -28,6 +29,7 @@ router.get('/checkout', async (req, res) => {
   const shipping = subtotal < 699 ? 50 : 0;
   const total = subtotal + shipping;
   res.render('checkout', {
+    gaPageEvents: [{ name: 'begin_checkout', params: ecommerce(items.map(i => gaItem(i, i.quantity, i.discountedPrice))) }],
     items, subtotal, shipping, total,
     user: req.session.user || null,
     razorpayKeyId: process.env.RAZORPAY_KEY_ID || ''
@@ -162,6 +164,20 @@ router.post('/checkout/place', async (req, res) => {
       }
     } catch (err) {
       console.error('Order notification email failed:', err.message);
+    }
+
+    // GA4 purchase — queued so it fires once, on the confirmation page
+    try {
+      const products = await Promise.all(items.map(i => db.get('SELECT id, name, category FROM products WHERE id = ?', [i.id])));
+      const gaItems = items.map((i, k) => gaItem({ ...(products[k] || {}), id: i.id, name: i.name }, i.quantity, i.price));
+      const itemsTotal = gaItems.reduce((s, i) => s + i.price * i.quantity, 0);
+      queueGaEvent(req, 'purchase', ecommerce(gaItems, {
+        transaction_id: String(orderId),
+        value: Number(total),
+        shipping: Math.max(0, Number(total) - itemsTotal),
+      }));
+    } catch (err) {
+      console.error('GA purchase event failed:', err.message);
     }
 
     req.session.cart = [];
