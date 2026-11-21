@@ -2,6 +2,8 @@
 
 <div class="page-container">
   <h1>My Orders</h1>
+  <% if (locals.success && success.length) { %><div class="alert alert-success"><%= success %></div><% } %>
+  <% if (locals.error && error.length) { %><div class="alert alert-error"><%= error %></div><% } %>
   <% if (orders.length === 0) { %>
     <div class="empty"><p>You haven't placed any orders yet.</p><a href="/" class="btn-primary">Start Shopping</a></div>
   <% } else { %>
@@ -15,6 +17,23 @@
             <span>₹<%= order.total.toFixed(2) %></span>
           </div>
           <div class="order-addr"><%= order.address %>, <%= order.city %>, <%= order.country %></div>
+          <% if (order.items && order.items.length) { %>
+          <div class="order-items">
+            <% order.items.forEach(function (it) { %>
+              <div class="order-item">
+                <img src="<%= it.imageUrl %>" alt="" onerror="this.onerror=null;this.src='/images/no-image.jpg'">
+                <span class="order-item-name"><%= it.name || 'Product' %> × <%= it.quantity %></span>
+                <% if (order.status === 'delivered' && it.name) { %>
+                  <% if (it.my_rating) { %>
+                    <span class="reviewed">★ <%= it.my_rating %>/5 reviewed · <a href="/reviews/write/<%= order.id %>/<%= it.product_id %>" style="color:#898AC4;">Edit</a></span>
+                  <% } else { %>
+                    <a href="/reviews/write/<%= order.id %>/<%= it.product_id %>" class="btn-review">★ Write a review</a>
+                  <% } %>
+                <% } %>
+              </div>
+            <% }) %>
+          </div>
+          <% } %>
           <a href="/order-confirmation/<%= order.id %>" class="btn-sm">View Details</a>
         </div>
       <% }) %>

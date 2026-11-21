@@ -73,6 +73,9 @@
 
       <!-- Name -->
       <h1 class="pd-name"><%= product.name %></h1>
+      <% if (locals.rating) { %>
+        <div class="pd-rating-row"><%- include('partials/stars', { avg: rating.avg, count: rating.count, size: 'md', link: '#reviews' }) %></div>
+      <% } %>
 
       <!-- Price -->
       <% const __dp = applyDiscount(product.price, product.category, discountMap); %>
@@ -208,6 +211,31 @@
 
     </div><!-- /.pd-info-col -->
   </div><!-- /.pd-layout -->
+
+  <!-- Customer reviews -->
+  <section class="pd-reviews" id="reviews">
+    <h2>Customer Reviews</h2>
+    <% if (locals.rating) { %>
+      <div class="pd-reviews-summary">
+        <%- include('partials/stars', { avg: rating.avg, count: rating.count, size: 'md' }) %>
+        <span>Based on <%= rating.count %> review<%= rating.count === 1 ? '' : 's' %> from verified buyers</span>
+      </div>
+      <% reviews.forEach(function (r) { %>
+        <article class="pd-review">
+          <div class="pd-review-head">
+            <%- include('partials/stars', { avg: r.rating, count: 1, size: 'sm' }) %>
+            <span class="pd-review-name"><%= r.first_name %></span>
+            <span class="pd-review-badge">✓ Verified buyer</span>
+            <% const __d = new Date(r.created_at); %>
+            <% if (!isNaN(__d)) { %><span class="pd-review-date"><%= __d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></span><% } %>
+          </div>
+          <% if (r.comment) { %><p><%= r.comment %></p><% } %>
+        </article>
+      <% }) %>
+    <% } else { %>
+      <p class="pd-reviews-empty">No reviews yet. Customers who buy this piece can review it from My Orders once it's delivered.</p>
+    <% } %>
+  </section>
 
 </div>
 

@@ -52,6 +52,8 @@
             <div class="cc-card-body">
               <span class="cc-card-cat"><%= product.category %></span>
               <h3 class="cc-card-name"><%= product.name %></h3>
+              <% const __r = locals.ratingMap && ratingMap[product.id]; %>
+              <% if (__r) { %><div class="cc-card-rating"><%- include('partials/stars', { avg: __r.avg, count: __r.count, size: 'sm' }) %></div><% } %>
               <% const __dp = applyDiscount(product.price, product.category, discountMap); %>
               <div class="cc-card-price">
                 <% if (__dp < product.price) { %>

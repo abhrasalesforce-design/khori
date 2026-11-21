@@ -1,0 +1,27 @@
+<%- include('partials/header') %>
+
+<div class="auth-container review-page">
+  <h1 style="color:#898AC4;"><%= existing ? 'Edit your review' : 'Write a review' %></h1>
+  <div class="review-product">
+    <img src="<%= imageUrl %>" alt="" width="64" height="64" onerror="this.onerror=null;this.src='/images/no-image.jpg'">
+    <span><%= item.name %></span>
+  </div>
+  <% if (error && error.length) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+  <form method="POST" action="/reviews/write/<%= item.order_id %>/<%= item.product_id %>" class="auth-form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <fieldset class="star-picker">
+      <legend>Your rating</legend>
+      <% for (let n = 5; n >= 1; n--) { %>
+        <input type="radio" id="star<%= n %>" name="rating" value="<%= n %>" <%= existing && existing.rating === n ? 'checked' : '' %> required>
+        <label for="star<%= n %>" title="<%= n %> star<%= n > 1 ? 's' : '' %>">★</label>
+      <% } %>
+    </fieldset>
+    <textarea name="comment" rows="5" maxlength="2000" placeholder="What did you love about it? (optional)"><%= existing && existing.comment ? existing.comment : '' %></textarea>
+    <p class="review-note">Your first name and review will appear on the product page.</p>
+    <button type="submit" class="btn-primary" style="background:#898AC4;border-color:#898AC4;color:#fff;"><%= existing ? 'Update review' : 'Post review' %></button>
+  </form>
+  <p class="auth-link"><a href="/orders" style="color:#898AC4;">← Back to My Orders</a></p>
+</div>
+
+<%- include('partials/footer') %>

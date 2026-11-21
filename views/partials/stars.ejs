@@ -1,0 +1,6 @@
+<%# Star rating display. Locals: avg (0–5), count, size ('sm' | 'md'), link (optional href) %>
+<% const __avg = Number(locals.avg) || 0, __pct = Math.max(0, Math.min(100, (__avg / 5) * 100)); %>
+<<%= locals.link ? 'a href="' + link + '"' : 'span' %> class="stars stars-<%= locals.size || 'sm' %>" aria-label="Rated <%= __avg.toFixed(1) %> out of 5 from <%= count %> review<%= count === 1 ? '' : 's' %>">
+  <span class="stars-track" aria-hidden="true">★★★★★<span class="stars-fill" style="width:<%= __pct.toFixed(0) %>%">★★★★★</span></span>
+  <span class="stars-text"><%= __avg.toFixed(1) %> (<%= count %>)</span>
+</<%= locals.link ? 'a' : 'span' %>>

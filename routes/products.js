@@ -1,5 +1,6 @@
 const express = require('express');
 const { gaItem, ecommerce } = require('./analytics');
+const { getRatingMap, getProductReviews } = require('./reviews');
 const router = express.Router();
 const { db } = require('../database');
 const { getDiscountMap, applyDiscount } = require('./cartPricing');
@@ -154,7 +155,10 @@ router.get('/product/:id', async (req, res) => {
 
   const discountMap = await getDiscountMap();
   const salePrice = applyDiscount(product.price, product.category, discountMap);
+  const reviews = await getProductReviews(product.id);
+  const rating = reviews.length ? { avg: reviews.reduce((s, r) => s + r.rating, 0) / reviews.length, count: reviews.length } : null;
   res.render('product', {
+    reviews, rating,
     gaPageEvents: [{ name: 'view_item', params: ecommerce([gaItem(product, 1, salePrice)]) }],
     product,
     user: req.session.user || null,
@@ -211,7 +215,8 @@ router.get('/collection/:slug', async (req, res, next) => {
 
   const custom = `collection-${slug}`;
   const view = fs.existsSync(path.join(__dirname, '..', 'views', custom + '.ejs')) ? custom : 'collection';
-  res.render(view, { user: req.session.user || null, products, sub, subName, collection: group, discountMap, applyDiscount });
+  const ratingMap = await getRatingMap(products.map(p => p.id));
+  res.render(view, { user: req.session.user || null, products, sub, subName, collection: group, discountMap, applyDiscount, ratingMap });
 });
 
 module.exports = router;

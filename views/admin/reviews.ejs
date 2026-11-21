@@ -1,0 +1,56 @@
+<%- include('../partials/header') %>
+
+<div class="admin-container">
+  <% if (locals.flashMsg) { %>
+    <div class="alert" style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:12px 20px;border-radius:6px;margin-bottom:20px;font-size:0.85rem;"><%= flashMsg %></div>
+  <% } %>
+
+  <div class="admin-header">
+    <h1>Reviews</h1>
+    <div class="admin-actions">
+      <a href="/admin" class="btn-outline">← Dashboard</a>
+    </div>
+  </div>
+
+  <p style="font-size:0.82rem;color:#888;margin:-8px 0 20px;">
+    <%= stats.total %> review<%= stats.total === 1 ? '' : 's' %><% if (stats.total) { %>, average <%= stats.avg.toFixed(1) %> ★<% } %><% if (stats.hidden) { %> · <%= stats.hidden %> hidden<% } %>.
+    Reviews come only from customers whose order is marked <strong>delivered</strong>. Hidden reviews don't appear on the website.
+  </p>
+
+  <% if (!reviews.length) { %>
+    <p style="color:#888;padding:40px 0;text-align:center;">No reviews yet.</p>
+  <% } else { %>
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr><th>Date</th><th>Product</th><th>Rating</th><th>Review</th><th>Customer</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <% reviews.forEach(function (r) { %>
+          <tr style="<%= r.hidden ? 'opacity:0.55;' : '' %>">
+            <% const __d = new Date(r.created_at); %>
+            <td style="white-space:nowrap;"><%= isNaN(__d) ? '' : __d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %></td>
+            <td><a href="/product/<%= r.product_id %>#reviews" target="_blank" style="color:#898AC4;"><%= r.product_name || ('#' + r.product_id) %></a></td>
+            <td style="white-space:nowrap;color:#F5A623;"><%= '★'.repeat(r.rating) %><span style="color:#ddd;"><%= '★'.repeat(5 - r.rating) %></span></td>
+            <td style="max-width:340px;font-size:0.82rem;"><%= r.comment || '—' %></td>
+            <td style="font-size:0.8rem;"><%= r.user_name || '—' %><br><span style="color:#999;"><%= r.user_email || '' %></span><br><a href="/admin/orders/<%= r.order_id %>" style="color:#898AC4;">Order #<%= r.order_id %></a></td>
+            <td><%= r.hidden ? 'Hidden' : 'Visible' %></td>
+            <td style="white-space:nowrap;">
+              <form method="POST" action="/admin/reviews/<%= r.id %>/toggle" style="display:inline">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn-sm"><%= r.hidden ? 'Show' : 'Hide' %></button>
+              </form>
+              <form method="POST" action="/admin/reviews/<%= r.id %>/delete" style="display:inline" onsubmit="return confirm('Delete this review permanently?')">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn-sm btn-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

@@ -411,6 +411,38 @@ function sendPdf(builder, name) {
   };
 }
 const { buildCatalogue, buildBaskets } = require('./catalogPdf');
+// ===== Reviews moderation =====
+router.get('/reviews', requireAdmin, async (req, res) => {
+  const reviews = await db.all(`
+    SELECT r.*, p.name AS product_name, u.name AS user_name, u.email AS user_email
+    FROM reviews r
+    LEFT JOIN products p ON p.id = r.product_id
+    LEFT JOIN users u ON u.id = r.user_id
+    ORDER BY r.created_at DESC, r.id DESC`);
+  const visible = reviews.filter(r => !r.hidden);
+  const stats = {
+    total: reviews.length,
+    hidden: reviews.length - visible.length,
+    avg: reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0,
+  };
+  res.render('admin/reviews', { reviews, stats, user: req.session.user, flashMsg: req.flash('error')[0] || null });
+});
+
+router.post('/reviews/:id/toggle', requireAdmin, async (req, res) => {
+  const r = await db.get('SELECT id, hidden FROM reviews WHERE id = ?', [req.params.id]);
+  if (r) {
+    await db.run('UPDATE reviews SET hidden = ? WHERE id = ?', [r.hidden ? 0 : 1, r.id]);
+    req.flash('error', r.hidden ? '✓ Review is visible on the website again.' : '✓ Review hidden from the website.');
+  }
+  res.redirect('/admin/reviews');
+});
+
+router.post('/reviews/:id/delete', requireAdmin, async (req, res) => {
+  await db.run('DELETE FROM reviews WHERE id = ?', [req.params.id]);
+  req.flash('error', '✓ Review deleted.');
+  res.redirect('/admin/reviews');
+});
+
 // ===== Email diagnostics: send a test email to the shop inbox =====
 router.post('/email-test', requireAdmin, async (req, res) => {
   const { sendMail, isConfigured, fromAddress } = require('./mailer');

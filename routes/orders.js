@@ -213,8 +213,26 @@ router.get('/order-confirmation/:id', async (req, res) => {
 });
 
 router.get('/orders', requireLogin, async (req, res) => {
-  const orders = await db.all('SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC', [req.session.user.id]);
-  res.render('orders', { orders, user: req.session.user });
+  const userId = req.session.user.id;
+  const orders = await db.all('SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC', [userId]);
+  // Items per order, with the customer's review (if any) so delivered items can be reviewed
+  const items = orders.length ? await db.all(`
+    SELECT oi.order_id, oi.product_id, oi.quantity, p.name, p.image, p.images, r.rating AS my_rating
+    FROM order_items oi
+    JOIN orders o ON o.id = oi.order_id
+    LEFT JOIN products p ON p.id = oi.product_id
+    LEFT JOIN reviews r ON r.order_id = oi.order_id AND r.product_id = oi.product_id AND r.user_id = ?
+    WHERE o.user_id = ?
+    ORDER BY oi.id`, [userId, userId]) : [];
+  for (const o of orders) {
+    o.items = items.filter(i => i.order_id === o.id).map(i => {
+      let imgs = [];
+      try { imgs = i.images ? JSON.parse(i.images) : []; } catch (_) {}
+      const img = imgs[0] || i.image || 'placeholder.jpg';
+      return { ...i, imageUrl: img.startsWith('http') ? img : '/uploads/' + img };
+    });
+  }
+  res.render('orders', { orders, user: req.session.user, success: req.flash('success'), error: req.flash('error') });
 });
 
 module.exports = router;
