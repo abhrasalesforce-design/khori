@@ -132,6 +132,19 @@ app.use('/admin/invoices', require('./routes/invoices'));
 app.use('/reviews', require('./routes/reviews'));
 app.use('/', require('./routes/baskets'));
 
+// Deployment check: which code version is running and whether email is configured
+// (never exposes secret values).
+const STARTED_AT = new Date().toISOString();
+app.get('/version', (req, res) => {
+  const mailer = require('./routes/mailer');
+  res.set('Cache-Control', 'no-store').json({
+    commit: (process.env.RAILWAY_GIT_COMMIT_SHA || '').slice(0, 7) || null,
+    startedAt: STARTED_AT,
+    emailConfigured: mailer.isConfigured(),
+    emailSender: mailer.fromAddress('Hathekhori'),
+  });
+});
+
 // Contact form — sends email via Resend SMTP
 app.post('/contact', async (req, res) => {
   const { name, email, message } = req.body || {};
