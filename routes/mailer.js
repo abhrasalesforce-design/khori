@@ -1,22 +1,12 @@
-// Sends email through Resend's SMTP service.
+// Sends email through Resend's HTTPS API (https://resend.com/docs/api-reference/emails/send-email).
+// The HTTPS API is used instead of SMTP because Railway blocks outgoing SMTP
+// connections on its Free/Trial/Hobby plans, which made sends hang (502).
 //
-// Sender address: set EMAIL_FROM in Railway (e.g. "no-reply@hathekhori.com") once
-// hathekhori.com is verified in Resend. Until then Resend's test sender
-// onboarding@resend.dev is used, which Resend only delivers to the email address
-// that owns the Resend account — fine for shop notifications to the owner, but
-// customer emails (password resets) are rejected.
-const nodemailer = require('nodemailer');
-
-let transporter = null;
-function getTransporter() {
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      host: 'smtp.resend.com', port: 465, secure: true,
-      auth: { user: 'resend', pass: process.env.RESEND_API_KEY },
-    });
-  }
-  return transporter;
-}
+// Sender address: EMAIL_FROM in Railway (e.g. "no-reply@hathekhori.com"), which
+// must be on a domain verified in Resend. Without it Resend's test sender
+// onboarding@resend.dev is used, which only delivers to the Resend account owner.
+const RESEND_URL = process.env.RESEND_API_URL || 'https://api.resend.com/emails';
+const TIMEOUT_MS = 15000;
 
 function isConfigured() {
   return !!process.env.RESEND_API_KEY;
@@ -29,9 +19,31 @@ function fromAddress(label = 'Hathekhori') {
   return addr.includes('<') ? addr : `${label} <${addr}>`;
 }
 
-async function sendMail({ label, ...message }) {
+async function sendMail({ label, to, subject, text, html, replyTo }) {
   if (!isConfigured()) throw new Error('RESEND_API_KEY is not set');
-  return getTransporter().sendMail({ from: fromAddress(label), ...message });
+  const body = { from: fromAddress(label), to: Array.isArray(to) ? to : [to], subject };
+  if (text) body.text = text;
+  if (html) body.html = html;
+  if (replyTo) body.reply_to = replyTo;
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+  let res;
+  try {
+    res = await fetch(RESEND_URL, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: ctrl.signal,
+    });
+  } catch (err) {
+    throw new Error(err.name === 'AbortError' ? `Resend did not respond within ${TIMEOUT_MS / 1000}s` : `Could not reach Resend: ${err.message}`);
+  } finally {
+    clearTimeout(timer);
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`Resend error ${res.status}: ${data.message || data.name || 'unknown error'}`);
+  return data; // { id }
 }
 
 const escapeHtml = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
