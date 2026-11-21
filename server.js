@@ -227,6 +227,8 @@ async function start() {
     app.locals.cdn = {};
   }
 
+  const mailer = require('./routes/mailer');
+  console.log(`[Email] ${mailer.isConfigured() ? 'RESEND_API_KEY found' : 'RESEND_API_KEY NOT SET — emails disabled'}; sender: ${mailer.fromAddress('Hathekhori')}`);
   app.listen(PORT, () => console.log(`Khori running at http://localhost:${PORT}`));
 }
 

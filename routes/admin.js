@@ -411,6 +411,29 @@ function sendPdf(builder, name) {
   };
 }
 const { buildCatalogue, buildBaskets } = require('./catalogPdf');
+// ===== Email diagnostics: send a test email to the shop inbox =====
+router.post('/email-test', requireAdmin, async (req, res) => {
+  const { sendMail, isConfigured, fromAddress } = require('./mailer');
+  const from = fromAddress('Hathekhori');
+  if (!isConfigured()) {
+    req.flash('error', '✗ Email test: RESEND_API_KEY is not set on this deployment. Add it in Railway → your web service → Variables, then deploy.');
+    return res.redirect('/admin');
+  }
+  try {
+    await sendMail({
+      label: 'Hathekhori',
+      to: 'contact.hathekhori@gmail.com',
+      subject: 'Hathekhori test email',
+      text: `This is a test email from your website.\n\nSender: ${from}\nSent: ${new Date().toISOString()}`,
+    });
+    req.flash('error', `✓ Test email sent from ${from} to contact.hathekhori@gmail.com. Password reset emails will use the same sender.`);
+  } catch (err) {
+    console.error('[Email test] failed:', err.message);
+    req.flash('error', `✗ Email test failed (sender ${from}): ${err.message}`);
+  }
+  res.redirect('/admin');
+});
+
 router.get('/pdf/catalogue', requireAdmin, sendPdf(buildCatalogue, 'Hathekhori-Product-Catalogue'));
 router.get('/pdf/baskets', requireAdmin, sendPdf(buildBaskets, 'Hathekhori-Create-Your-Basket'));
 

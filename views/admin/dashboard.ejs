@@ -2,7 +2,8 @@
 
 <div class="admin-container">
   <% if (locals.flashMsg) { %>
-    <div class="alert" style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:12px 20px;border-radius:6px;margin-bottom:20px;font-size:0.85rem;"><%= flashMsg %></div>
+    <% const __bad = String(flashMsg).startsWith('✗'); %>
+    <div class="alert" style="background:<%= __bad ? '#fef2f2' : '#f0fdf4' %>;border:1px solid <%= __bad ? '#fca5a5' : '#86efac' %>;color:<%= __bad ? '#991b1b' : '#166534' %>;padding:12px 20px;border-radius:6px;margin-bottom:20px;font-size:0.85rem;"><%= flashMsg %></div>
   <% } %>
   <div class="admin-header">
     <h1>Admin Dashboard</h1>
@@ -49,6 +50,10 @@
       <a href="/admin/products/export" class="btn-outline" style="font-size:0.78rem;">⬇ Download Excel</a>
       <a href="/admin/pdf/catalogue" class="btn-outline pdf-dl" style="font-size:0.78rem;" title="All products as a printable catalogue">⬇ Catalogue PDF</a>
       <a href="/admin/pdf/baskets" class="btn-outline pdf-dl" style="font-size:0.78rem;" title="Create Your Basket combos and their options">⬇ Basket PDF</a>
+      <form method="POST" action="/admin/email-test" style="display:inline;">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button type="submit" class="btn-outline" style="font-size:0.78rem;cursor:pointer;" title="Sends a test email to contact.hathekhori@gmail.com">✉ Send test email</button>
+      </form>
       <form method="POST" action="/admin/products/import" enctype="multipart/form-data" class="bulk-import-form">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <label class="btn-outline" style="font-size:0.78rem;cursor:pointer;">
