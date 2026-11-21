@@ -135,6 +135,41 @@ router.post('/register/quick', authLimiter, async (req, res) => {
   }
 });
 
+// ── Change password (signed-in users) ──────────────────────────────────────
+function requireSignedIn(req, res, next) {
+  if (!req.session.user) return res.redirect('/login');
+  next();
+}
+
+router.get('/account/password', requireSignedIn, (req, res) => {
+  res.render('change-password', {
+    error: req.flash('error'),
+    success: req.flash('success'),
+    user: req.session.user,
+  });
+});
+
+router.post('/account/password', requireSignedIn, authLimiter, async (req, res) => {
+  const { current_password, password, confirm_password } = req.body;
+  const user = await db.get('SELECT * FROM users WHERE id = ?', [req.session.user.id]);
+  if (!user) return res.redirect('/login');
+  if (user.password && !(await bcrypt.compare(current_password || '', user.password))) {
+    req.flash('error', 'Your current password is incorrect.');
+    return res.redirect('/account/password');
+  }
+  if (!password || password.length < 6) {
+    req.flash('error', 'New password must be at least 6 characters.');
+    return res.redirect('/account/password');
+  }
+  if (password !== confirm_password) {
+    req.flash('error', 'New passwords do not match.');
+    return res.redirect('/account/password');
+  }
+  await db.run('UPDATE users SET password = ? WHERE id = ?', [await bcrypt.hash(password, 10), user.id]);
+  req.flash('success', 'Password changed.');
+  res.redirect('/account/password');
+});
+
 router.get('/logout', (req, res) => {
   req.session.destroy();
   res.redirect('/');

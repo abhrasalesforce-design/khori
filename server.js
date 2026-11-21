@@ -204,19 +204,6 @@ app.get('/sitemap.xml', async (req, res) => {
   res.send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>`);
 });
 
-// One-time admin reset — remove after use
-app.get('/setup-admin-khori2026', async (req, res) => {
-  const { db } = require('./database');
-  const bcrypt = require('bcrypt');
-  const hash = await bcrypt.hash('admin123', 10);
-  await db.run('DELETE FROM users WHERE email = ?', ['admin@khori.com']);
-  await db.run(
-    'INSERT INTO users (name, email, password, is_admin) VALUES (?, ?, ?, 1)',
-    ['Admin', 'admin@khori.com', hash]
-  );
-  res.send('Admin account created. Login: admin@khori.com / admin123 — Visit <a href="/login">/login</a>');
-});
-
 const PORT = process.env.PORT || 3000;
 
 async function start() {
