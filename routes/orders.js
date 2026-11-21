@@ -131,17 +131,13 @@ router.post('/checkout/place', async (req, res) => {
 
     // Email notification via Resend
     try {
-      if (!process.env.RESEND_API_KEY) {
+      const { sendMail, isConfigured } = require('./mailer');
+      if (!isConfigured()) {
         console.warn('[Email] RESEND_API_KEY not set — skipping notification.');
       } else {
-        const nodemailer = require('nodemailer');
-        const transporter = nodemailer.createTransport({
-          host: 'smtp.resend.com', port: 465, secure: true,
-          auth: { user: 'resend', pass: process.env.RESEND_API_KEY }
-        });
         const itemLines = items.map(i => `• ${i.name} × ${i.quantity} — ₹${i.price * i.quantity}`).join('\n');
-        await transporter.sendMail({
-          from: 'Hathekhori Orders <onboarding@resend.dev>',
+        await sendMail({
+          label: 'Hathekhori Orders',
           to: 'contact.hathekhori@gmail.com',
           subject: `✅ New Order #${orderId} — ₹${total} — PAID`,
           text: `New paid order!\n\nOrder #${orderId}\nAmount: ₹${total}\nRazorpay Payment ID: ${razorpay_payment_id}\n\nCustomer:\nName: ${name}\nEmail: ${email}\nPhone: ${phone || '—'}\nAddress: ${address}, ${city}, ${zip}, ${country}\n\nItems:\n${itemLines}\n\nhttps://www.hathekhori.com/admin`,

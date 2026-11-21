@@ -142,5 +142,6 @@ async function sendContactBanner(e) {
     i.src = 'data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAQAcJZACdAEO/gHOAAA=';
   })();
 </script>
+<% if (!locals.user) { %><%- include('signup-banner') %><% } %>
 </body>
 </html>

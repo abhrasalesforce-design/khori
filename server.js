@@ -136,25 +136,19 @@ app.use('/', require('./routes/baskets'));
 app.post('/contact', async (req, res) => {
   const { name, email, message } = req.body || {};
   if (!name || !email || !message) return res.status(400).json({ error: 'All fields required' });
-  if (!process.env.RESEND_API_KEY) {
+  const { sendMail, isConfigured, escapeHtml } = require('./routes/mailer');
+  if (!isConfigured()) {
     console.warn('[Email] RESEND_API_KEY not set — contact form email skipped.');
     return res.status(500).json({ error: 'Failed to send' });
   }
   try {
-    const nodemailer = require('nodemailer');
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.resend.com',
-      port: 465,
-      secure: true,
-      auth: { user: 'resend', pass: process.env.RESEND_API_KEY }
-    });
-    await transporter.sendMail({
-      from: 'Hathekhori Contact <onboarding@resend.dev>',
+    await sendMail({
+      label: 'Hathekhori Contact',
       to: 'contact.hathekhori@gmail.com',
       replyTo: email,
       subject: `Message from ${name} via hathekhori.com`,
       text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
-      html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><hr><p>${message.replace(/\n/g,'<br>')}</p>`
+      html: `<p><strong>Name:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><hr><p>${escapeHtml(message).replace(/\n/g,'<br>')}</p>`
     });
     res.json({ ok: true });
   } catch (err) {

@@ -97,6 +97,44 @@ router.post('/register', authLimiter, async (req, res) => {
   res.redirect('/login');
 });
 
+// Quick sign-up from the welcome banner (views/partials/signup-banner.ejs).
+// Same rules as /register, but answers JSON and signs the visitor in straight away.
+router.post('/register/quick', authLimiter, async (req, res) => {
+  try {
+    const name = String(req.body.name || '').trim().slice(0, 100);
+    const email = String(req.body.email || '').trim().toLowerCase().slice(0, 200);
+    const password = String(req.body.password || '');
+    if (!name || !email || !password) return res.status(400).json({ error: 'Please fill in all fields.' });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Please enter a valid email address.' });
+    if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+
+    const existing = await db.get('SELECT id FROM users WHERE LOWER(email) = ?', [email]);
+    if (existing) return res.status(409).json({ error: 'You already have an account with this email.', login: true });
+
+    const hash = await bcrypt.hash(password, 10);
+    await db.run('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, hash]);
+    const user = await db.get('SELECT id, name, email, is_admin FROM users WHERE email = ?', [email]);
+    req.session.user = { id: user.id, name: user.name, email: user.email, is_admin: user.is_admin };
+
+    // Let the shop owner know, so the welcome offer can be honoured on the first order
+    const { sendMail, isConfigured, escapeHtml } = require('./mailer');
+    if (isConfigured()) {
+      sendMail({
+        label: 'Hathekhori',
+        to: 'contact.hathekhori@gmail.com',
+        subject: `New sign-up via welcome banner: ${name}`,
+        text: `${name} (${email}) created an account from the welcome banner and was shown the 10% first-order offer.`,
+        html: `<p><strong>${escapeHtml(name)}</strong> (${escapeHtml(email)}) created an account from the welcome banner and was shown the <strong>10% first-order offer</strong>.</p>`,
+      }).catch(err => console.error('[Signup] Owner notification failed:', err.message));
+    }
+
+    req.session.save(() => res.json({ ok: true, name: user.name }));
+  } catch (err) {
+    console.error('Quick register error:', err);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
 router.get('/logout', (req, res) => {
   req.session.destroy();
   res.redirect('/');
@@ -132,24 +170,20 @@ router.post('/forgot-password', authLimiter, async (req, res) => {
   const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
   const resetUrl = `${baseUrl}/reset-password/${token}`;
 
-  if (!process.env.RESEND_API_KEY) {
+  const { sendMail, isConfigured, escapeHtml } = require('./mailer');
+  if (!isConfigured()) {
     console.error('[ForgotPassword] RESEND_API_KEY is not set');
     req.flash('error', 'Email service is not configured. Please contact support.');
     return res.redirect('/forgot-password');
   }
 
   try {
-    const nodemailer = require('nodemailer');
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.resend.com', port: 465, secure: true,
-      auth: { user: 'resend', pass: process.env.RESEND_API_KEY }
-    });
-    await transporter.sendMail({
-      from: 'Hathekhori <onboarding@resend.dev>',
+    await sendMail({
+      label: 'Hathekhori',
       to: user.email,
       subject: 'Reset your Hathekhori password',
       text: `Hi ${user.name},\n\nClick the link below to reset your password. It expires in 1 hour.\n\n${resetUrl}\n\nIf you didn't request this, you can ignore this email.\n\n– Hathekhori`,
-      html: `<p>Hi ${user.name},</p><p>Click the button below to reset your password. The link expires in <strong>1 hour</strong>.</p><p><a href="${resetUrl}" style="display:inline-block;padding:12px 28px;background:#898AC4;color:#fff;border-radius:6px;text-decoration:none;font-family:Inter,sans-serif;font-weight:600;">Reset Password</a></p><p style="font-size:0.82rem;color:#888;">Or copy this link: ${resetUrl}</p><p style="font-size:0.82rem;color:#aaa;">If you didn't request this, ignore this email.</p>`
+      html: `<p>Hi ${escapeHtml(user.name)},</p><p>Click the button below to reset your password. The link expires in <strong>1 hour</strong>.</p><p><a href="${resetUrl}" style="display:inline-block;padding:12px 28px;background:#898AC4;color:#fff;border-radius:6px;text-decoration:none;font-family:Inter,sans-serif;font-weight:600;">Reset Password</a></p><p style="font-size:0.82rem;color:#888;">Or copy this link: ${resetUrl}</p><p style="font-size:0.82rem;color:#aaa;">If you didn't request this, ignore this email.</p>`
     });
   } catch (err) {
     console.error('[ForgotPassword] Email error:', err.message);
