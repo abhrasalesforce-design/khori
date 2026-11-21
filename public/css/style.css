@@ -2947,3 +2947,17 @@ a.stars:hover .stars-text { color: #898AC4; text-decoration: underline; }
 .order-item .reviewed { font-size: 0.75rem; color: #2e6b35; white-space: nowrap; }
 .review-page .auth-form textarea { width: 100%; padding: 13px 16px; margin: 6px 0 8px; border: 1px solid var(--rose); background: var(--white); font-size: 0.9rem; font-family: inherit; color: #3a3a5c; outline: none; resize: vertical; display: block; }
 .review-page .auth-form textarea:focus { border-color: #898AC4; }
+
+/* ===== Review-from-email page ===== */
+.review-order-page { max-width: 720px; }
+.review-order-page .ro-lede { color: #6b6b8a; margin: -6px 0 24px; font-size: 0.92rem; }
+.review-order-page .ro-lede a { color: #898AC4; }
+.ro-item { display: flex; gap: 18px; padding: 20px; margin-bottom: 14px; background: #fff; border: 1px solid #eee8f2; border-radius: 10px; scroll-margin-top: 120px; }
+.ro-item.ro-focus { border-color: #898AC4; box-shadow: 0 0 0 3px rgba(137,138,196,0.15); }
+.ro-item img { width: 84px; height: 84px; object-fit: cover; border-radius: 8px; border: 1px solid #e8dde3; flex-shrink: 0; }
+.ro-body { flex: 1; min-width: 0; }
+.ro-name { display: block; font-weight: 600; color: #3a3a5c; margin-bottom: 8px; text-decoration: none; }
+.ro-body textarea { width: 100%; margin-top: 8px; padding: 10px 12px; border: 1px solid #e8dde3; border-radius: 6px; font-family: inherit; font-size: 16px; color: #3a3a5c; resize: vertical; outline: none; }
+.ro-body textarea:focus { border-color: #898AC4; }
+.ro-submit { width: 100%; padding: 14px; margin-top: 6px; background: #898AC4; border-color: #898AC4; color: #fff; }
+@media (max-width: 520px) { .ro-item { padding: 14px; gap: 12px; } .ro-item img { width: 60px; height: 60px; } }

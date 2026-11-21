@@ -70,7 +70,7 @@ async function getRatingMap(productIds) {
 // Visible reviews for one product, newest first, with the reviewer's first name
 async function getProductReviews(productId) {
   const rows = await db.all(
-    `SELECT r.id, r.rating, r.comment, r.created_at, u.name AS user_name
+    `SELECT r.id, r.rating, r.comment, r.created_at, COALESCE(u.name, r.reviewer_name) AS user_name
      FROM reviews r LEFT JOIN users u ON u.id = r.user_id
      WHERE r.product_id = ? AND COALESCE(r.hidden, 0) = 0
      ORDER BY r.created_at DESC, r.id DESC`, [productId]);
@@ -135,6 +135,61 @@ router.post('/write/:orderId/:productId', requireLoginPage, async (req, res) => 
   }
   req.flash('success', existing ? 'Your review has been updated.' : 'Thank you! Your review is now live on the product page.');
   res.redirect('/orders');
+});
+
+// ===== One-click review page from the "How was your order?" email =====
+// No login needed: the link's token proves it came from the email for this order.
+async function loadOrderForReview(req) {
+  const { validToken, orderItems, imageUrl } = require('./reviewRequests');
+  const orderId = parseInt(req.params.orderId);
+  if (!orderId || !validToken(orderId, req.params.token)) return null;
+  const order = await db.get('SELECT id, user_id, name, status FROM orders WHERE id = ?', [orderId]);
+  if (!order || order.status !== 'delivered') return null;
+  const reviewerId = order.user_id || 0; // 0 = guest checkout
+  const items = (await orderItems(order.id)).map(it => ({ ...it, imageUrl: imageUrl(it) }));
+  const existing = await db.all('SELECT product_id, rating, comment FROM reviews WHERE order_id = ? AND user_id = ?', [order.id, reviewerId]);
+  for (const it of items) {
+    const e = existing.find(x => x.product_id === it.product_id);
+    it.rating = e ? e.rating : null;
+    it.comment = e ? e.comment : '';
+  }
+  return { order, reviewerId, items };
+}
+
+router.get('/order/:orderId/:token', async (req, res) => {
+  const data = await loadOrderForReview(req);
+  if (!data) return res.status(404).render('review-order', { user: req.session.user || null, invalid: true });
+  // Pre-select the star the customer tapped in the email
+  const p = parseInt(req.query.p), r = parseInt(req.query.r);
+  if (p && r >= 1 && r <= 5) {
+    const it = data.items.find(i => i.product_id === p);
+    if (it && !it.rating) it.rating = r;
+  }
+  res.render('review-order', { user: req.session.user || null, invalid: false, saved: false, focus: p || null, ...data, token: req.params.token });
+});
+
+router.post('/order/:orderId/:token', async (req, res) => {
+  const data = await loadOrderForReview(req);
+  if (!data) return res.status(404).render('review-order', { user: req.session.user || null, invalid: true });
+  const { order, reviewerId, items } = data;
+  const reviewerName = String(order.name || '').trim().slice(0, 100) || null;
+  let saved = 0;
+  for (const it of items) {
+    const rating = parseInt(req.body['rating_' + it.product_id]);
+    if (!(rating >= 1 && rating <= 5)) continue;
+    const comment = String(req.body['comment_' + it.product_id] || '').trim().slice(0, 2000) || null;
+    const existing = await db.get('SELECT id FROM reviews WHERE user_id = ? AND product_id = ? AND order_id = ?', [reviewerId, it.product_id, order.id]);
+    if (existing) {
+      await db.run('UPDATE reviews SET rating = ?, comment = ?, reviewer_name = ? WHERE id = ?', [rating, comment, reviewerName, existing.id]);
+    } else {
+      await db.run('INSERT INTO reviews (user_id, product_id, order_id, rating, comment, reviewer_name) VALUES (?, ?, ?, ?, ?, ?)',
+        [reviewerId, it.product_id, order.id, rating, comment, reviewerName]);
+    }
+    it.rating = rating; it.comment = comment || '';
+    saved++;
+  }
+  res.render('review-order', { user: req.session.user || null, invalid: false, saved, focus: null, ...data, token: req.params.token,
+    error: saved ? null : 'Please tap the stars for at least one product.' });
 });
 
 module.exports = router;

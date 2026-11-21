@@ -358,14 +358,49 @@ router.get('/orders/:id', requireAdmin, async (req, res) => {
     'SELECT oi.*, p.name AS product_name, p.image, p.images FROM order_items oi LEFT JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?',
     [order.id]
   );
-  res.render('admin/order-detail', { order, items, user: req.session.user });
+  res.render('admin/order-detail', { order, items, user: req.session.user, flashMsg: req.flash('error')[0] || null });
 });
 
 router.post('/orders/status/:id', requireAdmin, async (req, res) => {
   const { status } = req.body;
   const ref = req.get('Referer') || '/admin';
   await db.run('UPDATE orders SET status = ? WHERE id = ?', [status, req.params.id]);
+  if (status === 'delivered') {
+    // Ask the customer for a review (once per order; runs after the redirect)
+    const { sendReviewRequest } = require('./reviewRequests');
+    sendReviewRequest(req.params.id)
+      .then(r => r.sent && console.log(`[Reviews] Review request emailed for order #${req.params.id}`))
+      .catch(err => console.error(`[Reviews] Review request for order #${req.params.id} failed:`, err.message));
+  }
   res.redirect(ref);
+});
+
+// Send (or re-send) the "How was your order?" email for one delivered order
+router.post('/orders/:id/review-request', requireAdmin, async (req, res) => {
+  const { sendReviewRequest } = require('./reviewRequests');
+  try {
+    const r = await sendReviewRequest(req.params.id, { force: true });
+    req.flash('error', r.sent ? '✓ Review request email sent to the customer.' : `✗ Not sent: ${r.reason}.`);
+  } catch (err) {
+    req.flash('error', `✗ Review request failed: ${err.message}`);
+  }
+  res.redirect('/admin/orders/' + req.params.id);
+});
+
+// Email every delivered order that hasn't been asked yet (for orders delivered before this feature)
+router.post('/reviews/request-all', requireAdmin, async (req, res) => {
+  const { sendReviewRequest } = require('./reviewRequests');
+  const pending = await db.all(
+    "SELECT id FROM orders WHERE status = 'delivered' AND review_request_sent_at IS NULL AND email IS NOT NULL AND email != '' ORDER BY id");
+  let sent = 0; const failed = [];
+  for (const o of pending) {
+    try { (await sendReviewRequest(o.id)).sent ? sent++ : null; }
+    catch (err) { failed.push(`#${o.id}`); console.error(`[Reviews] request for #${o.id} failed:`, err.message); }
+  }
+  req.flash('error', failed.length
+    ? `✗ Sent ${sent} review request${sent === 1 ? '' : 's'}; failed for orders ${failed.join(', ')} (see logs).`
+    : `✓ Sent ${sent} review request email${sent === 1 ? '' : 's'}.`);
+  res.redirect('/admin/reviews');
 });
 
 // ===== Bulk Export =====
@@ -414,7 +449,7 @@ const { buildCatalogue, buildBaskets } = require('./catalogPdf');
 // ===== Reviews moderation =====
 router.get('/reviews', requireAdmin, async (req, res) => {
   const reviews = await db.all(`
-    SELECT r.*, p.name AS product_name, u.name AS user_name, u.email AS user_email
+    SELECT r.*, p.name AS product_name, COALESCE(u.name, r.reviewer_name || ' (guest)') AS user_name, u.email AS user_email
     FROM reviews r
     LEFT JOIN products p ON p.id = r.product_id
     LEFT JOIN users u ON u.id = r.user_id
@@ -425,7 +460,9 @@ router.get('/reviews', requireAdmin, async (req, res) => {
     hidden: reviews.length - visible.length,
     avg: reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0,
   };
-  res.render('admin/reviews', { reviews, stats, user: req.session.user, flashMsg: req.flash('error')[0] || null });
+  const unasked = (await db.get(
+    "SELECT COUNT(*) AS n FROM orders WHERE status = 'delivered' AND review_request_sent_at IS NULL AND email IS NOT NULL AND email != ''")).n;
+  res.render('admin/reviews', { reviews, stats, unasked: Number(unasked), user: req.session.user, flashMsg: req.flash('error')[0] || null });
 });
 
 router.post('/reviews/:id/toggle', requireAdmin, async (req, res) => {

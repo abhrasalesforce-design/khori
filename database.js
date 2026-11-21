@@ -177,6 +177,8 @@ async function initDb() {
       UNIQUE(user_id, product_id, order_id)
     )`);
     await pool.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS hidden INTEGER DEFAULT 0`).catch(() => {});
+    await pool.query(`ALTER TABLE reviews ADD COLUMN IF NOT EXISTS reviewer_name TEXT`).catch(() => {});
+    await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS review_request_sent_at TEXT`).catch(() => {});
     await pool.query(`CREATE TABLE IF NOT EXISTS banners (
       id SERIAL PRIMARY KEY, image TEXT NOT NULL, eyebrow TEXT, heading TEXT,
       subheading TEXT, cta_text TEXT, cta_link TEXT, active INTEGER DEFAULT 1,
@@ -234,6 +236,8 @@ async function initDb() {
     try { sqliteDb.exec(`ALTER TABLE orders ADD COLUMN discount REAL DEFAULT 0`); } catch (_) {}
     try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, product_id INTEGER NOT NULL, order_id INTEGER NOT NULL, rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5), comment TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, UNIQUE(user_id, product_id, order_id))`); } catch (_) {}
     try { sqliteDb.exec(`ALTER TABLE reviews ADD COLUMN hidden INTEGER DEFAULT 0`); } catch (_) {}
+    try { sqliteDb.exec(`ALTER TABLE reviews ADD COLUMN reviewer_name TEXT`); } catch (_) {}
+    try { sqliteDb.exec(`ALTER TABLE orders ADD COLUMN review_request_sent_at TEXT`); } catch (_) {}
     try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS banners (id INTEGER PRIMARY KEY AUTOINCREMENT, image TEXT NOT NULL, eyebrow TEXT, heading TEXT, subheading TEXT, cta_text TEXT, cta_link TEXT, active INTEGER DEFAULT 1, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`); } catch (_) {}
     try { sqliteDb.exec(`ALTER TABLE banners ADD COLUMN sort_order INTEGER DEFAULT 0`); } catch (_) {}
     try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS invoices (id INTEGER PRIMARY KEY AUTOINCREMENT, customer_name TEXT NOT NULL, customer_phone TEXT, customer_address TEXT, shipping_name TEXT, shipping_phone TEXT, shipping_address TEXT, shipping_city TEXT, shipping_state TEXT, shipping_pincode TEXT, total REAL NOT NULL, discount_amount REAL DEFAULT 0, notes TEXT, created_by INTEGER, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`); } catch (_) {}

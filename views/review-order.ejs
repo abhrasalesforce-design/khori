@@ -1,0 +1,39 @@
+<%- include('partials/header') %>
+
+<div class="page-container review-order-page">
+  <% if (invalid) { %>
+    <h1>Review link not valid</h1>
+    <p class="ro-lede">This review link has expired or isn't quite right. If you have an account, you can review your delivered orders from <a href="/orders">My Orders</a>.</p>
+  <% } else { %>
+    <h1>How was your order?</h1>
+    <p class="ro-lede">Order #<%= order.id %> · Your first name and review will appear on each product page.</p>
+
+    <% if (saved) { %>
+      <div class="alert alert-success">Thank you! Your review<%= saved > 1 ? 's are' : ' is' %> now live. You can change them any time from this page.</div>
+    <% } %>
+    <% if (locals.error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+    <form method="POST" action="/reviews/order/<%= order.id %>/<%= token %>">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <% items.forEach(function (it) { %>
+        <div class="ro-item<%= focus === it.product_id ? ' ro-focus' : '' %>" id="p<%= it.product_id %>">
+          <img src="<%= it.imageUrl %>" alt="" width="84" height="84" onerror="this.onerror=null;this.src='/images/no-image.jpg'">
+          <div class="ro-body">
+            <a href="/product/<%= it.product_id %>" class="ro-name"><%= it.name %></a>
+            <fieldset class="star-picker">
+              <legend>Your rating</legend>
+              <% for (let n = 5; n >= 1; n--) { %>
+                <input type="radio" id="s<%= it.product_id %>_<%= n %>" name="rating_<%= it.product_id %>" value="<%= n %>" <%= it.rating === n ? 'checked' : '' %>>
+                <label for="s<%= it.product_id %>_<%= n %>" title="<%= n %> star<%= n > 1 ? 's' : '' %>">★</label>
+              <% } %>
+            </fieldset>
+            <textarea name="comment_<%= it.product_id %>" rows="3" maxlength="2000" placeholder="What did you love about it? (optional)"><%= it.comment || '' %></textarea>
+          </div>
+        </div>
+      <% }) %>
+      <button type="submit" class="btn-primary ro-submit"><%= saved ? 'Update my reviews' : 'Submit review' + (items.length > 1 ? 's' : '') %></button>
+    </form>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>

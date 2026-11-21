@@ -2,13 +2,20 @@
 
 <div class="admin-container">
   <% if (locals.flashMsg) { %>
-    <div class="alert" style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:12px 20px;border-radius:6px;margin-bottom:20px;font-size:0.85rem;"><%= flashMsg %></div>
+    <% const __bad = String(flashMsg).startsWith('✗'); %>
+    <div class="alert" style="background:<%= __bad ? '#fef2f2' : '#f0fdf4' %>;border:1px solid <%= __bad ? '#fca5a5' : '#86efac' %>;color:<%= __bad ? '#991b1b' : '#166534' %>;padding:12px 20px;border-radius:6px;margin-bottom:20px;font-size:0.85rem;"><%= flashMsg %></div>
   <% } %>
 
   <div class="admin-header">
     <h1>Reviews</h1>
     <div class="admin-actions">
       <a href="/admin" class="btn-outline">← Dashboard</a>
+      <% if (unasked > 0) { %>
+        <form method="POST" action="/admin/reviews/request-all" style="display:inline" onsubmit="return confirm('Email a review request to <%= unasked %> customer<%= unasked === 1 ? '' : 's' %> with delivered orders who haven\'t been asked yet?')">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn-primary">✉ Ask <%= unasked %> past customer<%= unasked === 1 ? '' : 's' %> for reviews</button>
+        </form>
+      <% } %>
     </div>
   </div>
 
