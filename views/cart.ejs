@@ -41,8 +41,10 @@
       <div class="cart-summary">
         <h2>Order Summary</h2>
         <div class="summary-row"><span>Subtotal</span><span>₹<%= subtotal %></span></div>
+        <% if (discount > 0) { %><div class="summary-row coupon-discount-row"><span>Coupon (<%= couponCode %>)</span><span>−₹<%= discount %></span></div><% } %>
         <div class="summary-row"><span>Shipping</span><span><%= shipping === 0 ? 'Free' : '₹' + shipping %></span></div>
         <div class="summary-row total-row"><span>Total</span><span>₹<%= total %></span></div>
+        <%- include('partials/coupon-box', { from: 'cart' }) %>
         <a href="/checkout" class="btn-primary full-width">Proceed to Checkout</a>
         <% if (!user) { %>
           <p style="font-size:0.78rem;color:#888;text-align:center;margin:10px 0 0;">

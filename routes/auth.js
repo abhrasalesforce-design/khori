@@ -123,8 +123,8 @@ router.post('/register/quick', authLimiter, async (req, res) => {
         label: 'Hathekhori',
         to: 'contact.hathekhori@gmail.com',
         subject: `New sign-up via welcome banner: ${name}`,
-        text: `${name} (${email}) created an account from the welcome banner and was shown the 10% first-order offer.`,
-        html: `<p><strong>${escapeHtml(name)}</strong> (${escapeHtml(email)}) created an account from the welcome banner and was shown the <strong>10% first-order offer</strong>.</p>`,
+        text: `${name} (${email}) created an account from the welcome banner and received coupon HATHEKHORI10 (10% off the first order, up to ₹50).`,
+        html: `<p><strong>${escapeHtml(name)}</strong> (${escapeHtml(email)}) created an account from the welcome banner and received coupon <strong>HATHEKHORI10</strong> (10% off the first order, up to ₹50).</p>`,
       }).catch(err => console.error('[Signup] Owner notification failed:', err.message));
     }
 

@@ -22,6 +22,7 @@
         <span>₹<%= (item.price * item.quantity).toFixed(2) %></span>
       </div>
     <% }) %>
+    <% if (order.discount > 0) { %><div class="confirm-total" style="font-weight:400;color:#2e6b35;">Coupon <%= order.coupon_code %>: −₹<%= Number(order.discount).toFixed(2) %></div><% } %>
     <div class="confirm-total"><strong>Total: ₹<%= order.total.toFixed(2) %></strong></div>
   </div>
 

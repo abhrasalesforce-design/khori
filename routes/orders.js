@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
 const { db } = require('../database');
-const { resolveCartItems } = require('./cartPricing');
 const { gaItem, ecommerce, queueGaEvent } = require('./analytics');
+const { priceCart, couponFlash } = require('./coupons');
 
 function requireLogin(req, res, next) {
   if (!req.session.user) {
@@ -24,13 +24,12 @@ function getRazorpay() {
 router.get('/checkout', async (req, res) => {
   const cart = req.session.cart || [];
   if (cart.length === 0) return res.redirect('/cart');
-  const items = await resolveCartItems(cart);
-  const subtotal = items.reduce((sum, i) => sum + i.subtotal, 0);
-  const shipping = subtotal < 699 ? 50 : 0;
-  const total = subtotal + shipping;
+  const pricing = await priceCart(req);
+  const { items } = pricing;
   res.render('checkout', {
-    gaPageEvents: [{ name: 'begin_checkout', params: ecommerce(items.map(i => gaItem(i, i.quantity, i.discountedPrice))) }],
-    items, subtotal, shipping, total,
+    gaPageEvents: [{ name: 'begin_checkout', params: ecommerce(items.map(i => gaItem(i, i.quantity, i.discountedPrice)), pricing.couponCode ? { coupon: pricing.couponCode } : {}) }],
+    ...pricing,
+    ...couponFlash(req, pricing),
     user: req.session.user || null,
     razorpayKeyId: process.env.RAZORPAY_KEY_ID || ''
   });
@@ -42,10 +41,8 @@ router.post('/checkout/create-order', async (req, res) => {
     const cart = req.session.cart || [];
     if (cart.length === 0) return res.status(400).json({ error: 'Cart is empty' });
 
-    const items = await resolveCartItems(cart);
-
-    const productTotal = items.reduce((sum, i) => sum + i.discountedPrice * i.quantity, 0);
-    const total = productTotal + (productTotal < 699 ? 50 : 0);
+    // Same pricing as the cart/checkout pages, coupon re-checked on the server
+    const { items, total, discount, couponCode } = await priceCart(req);
 
     const razorpay = getRazorpay();
     const rzpOrder = await razorpay.orders.create({
@@ -58,6 +55,8 @@ router.post('/checkout/create-order', async (req, res) => {
     req.session.pendingOrder = {
       rzpOrderId: rzpOrder.id,
       total,
+      discount,
+      couponCode,
       items: items.map(i => ({ id: i.id, name: i.name, quantity: i.quantity, price: i.discountedPrice }))
     };
     req.session.save(() => {
@@ -96,11 +95,13 @@ router.post('/checkout/place', async (req, res) => {
     }
 
     const { total, items } = pending;
+    const discount = pending.discount || 0;
+    const couponCode = pending.couponCode || null;
 
     // Save order (user_id is null for guest checkouts)
     const result = await db.run(
-      'INSERT INTO orders (user_id, total, status, name, email, phone, address, city, zip, country, upi_txn_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [req.session.user?.id || null, total, 'paid', name, email, phone || null, address, city, zip, country, razorpay_payment_id]
+      'INSERT INTO orders (user_id, total, status, name, email, phone, address, city, zip, country, upi_txn_id, coupon_code, discount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [req.session.user?.id || null, total, 'paid', name, email, phone || null, address, city, zip, country, razorpay_payment_id, couponCode, discount]
     );
     const orderId = result.lastInsertRowid;
 
@@ -113,10 +114,10 @@ router.post('/checkout/place', async (req, res) => {
     // Auto-generate invoice
     try {
       const invResult = await db.run(
-        'INSERT INTO invoices (customer_name, customer_phone, customer_address, shipping_name, shipping_phone, shipping_address, shipping_city, shipping_state, shipping_pincode, total, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO invoices (customer_name, customer_phone, customer_address, shipping_name, shipping_phone, shipping_address, shipping_city, shipping_state, shipping_pincode, total, discount_amount, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [name, phone || null, `${address}, ${city}, ${zip}, ${country}`,
          name, phone || null, address, city, zip, country,
-         total, `Razorpay payment ${razorpay_payment_id} — order #${orderId}`, null]
+         total, discount, `Razorpay payment ${razorpay_payment_id} — order #${orderId}${couponCode ? ` — coupon ${couponCode} (−₹${discount})` : ''}`, null]
       );
       const invoiceId = invResult.lastInsertRowid;
       for (const item of items) {
@@ -140,11 +141,12 @@ router.post('/checkout/place', async (req, res) => {
           label: 'Hathekhori Orders',
           to: 'contact.hathekhori@gmail.com',
           subject: `✅ New Order #${orderId} — ₹${total} — PAID`,
-          text: `New paid order!\n\nOrder #${orderId}\nAmount: ₹${total}\nRazorpay Payment ID: ${razorpay_payment_id}\n\nCustomer:\nName: ${name}\nEmail: ${email}\nPhone: ${phone || '—'}\nAddress: ${address}, ${city}, ${zip}, ${country}\n\nItems:\n${itemLines}\n\nhttps://www.hathekhori.com/admin`,
+          text: `New paid order!\n\nOrder #${orderId}\nAmount: ₹${total}${couponCode ? `\nCoupon: ${couponCode} (−₹${discount})` : ''}\nRazorpay Payment ID: ${razorpay_payment_id}\n\nCustomer:\nName: ${name}\nEmail: ${email}\nPhone: ${phone || '—'}\nAddress: ${address}, ${city}, ${zip}, ${country}\n\nItems:\n${itemLines}\n\nhttps://www.hathekhori.com/admin`,
           html: `
             <h2 style="color:#898AC4;">✅ New Paid Order #${orderId}</h2>
             <table style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:14px;">
               <tr><td style="padding:6px 12px;color:#888;">Amount</td><td style="padding:6px 12px;font-weight:700;font-size:16px;">₹${total}</td></tr>
+              ${couponCode ? `<tr><td style="padding:6px 12px;color:#888;">Coupon</td><td style="padding:6px 12px;">${couponCode} (−₹${discount})</td></tr>` : ''}
               <tr style="background:#f9f7f7;"><td style="padding:6px 12px;color:#888;">Payment ID</td><td style="padding:6px 12px;color:#898AC4;">${razorpay_payment_id}</td></tr>
               <tr><td style="padding:6px 12px;color:#888;">Customer</td><td style="padding:6px 12px;">${name}</td></tr>
               <tr style="background:#f9f7f7;"><td style="padding:6px 12px;color:#888;">Phone</td><td style="padding:6px 12px;">${phone || '—'}</td></tr>
@@ -170,13 +172,15 @@ router.post('/checkout/place', async (req, res) => {
       queueGaEvent(req, 'purchase', ecommerce(gaItems, {
         transaction_id: String(orderId),
         value: Number(total),
-        shipping: Math.max(0, Number(total) - itemsTotal),
+        shipping: Math.max(0, Number(total) + discount - itemsTotal),
+        ...(couponCode ? { coupon: couponCode } : {}),
       }));
     } catch (err) {
       console.error('GA purchase event failed:', err.message);
     }
 
     req.session.cart = [];
+    req.session.coupon = null;
     req.session.pendingOrder = null;
     req.session.lastOrderId = orderId;
     await db.run('DELETE FROM carts WHERE session_id = ?', [req.sessionID]);

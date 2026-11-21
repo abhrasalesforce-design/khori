@@ -1,0 +1,30 @@
+<%# Coupon entry + applied state for the cart and checkout summaries.
+    Expects: couponCode, couponDescription, discount, couponError, couponSuccess, couponLogin, csrfToken; `from` = 'cart' | 'checkout' %>
+<div class="coupon-box">
+  <% if (couponCode) { %>
+    <div class="coupon-applied">
+      <span><strong><%= couponCode %></strong> applied<br><small><%= couponDescription %></small></span>
+      <form method="POST" action="/cart/coupon/remove">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="from" value="<%= from %>">
+        <button type="submit" class="coupon-remove">Remove</button>
+      </form>
+    </div>
+  <% } else { %>
+    <form method="POST" action="/cart/coupon" class="coupon-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="from" value="<%= from %>">
+      <label for="couponCode-<%= from %>">Have a coupon code?</label>
+      <div class="coupon-row">
+        <input type="text" id="couponCode-<%= from %>" name="code" placeholder="Enter code" autocomplete="off" autocapitalize="characters" maxlength="30">
+        <button type="submit">Apply</button>
+      </div>
+    </form>
+  <% } %>
+  <% if (couponSuccess && !couponCode) { %><p class="coupon-msg coupon-ok"><%= couponSuccess %></p><% } %>
+  <% if (couponError) { %>
+    <p class="coupon-msg coupon-err"><%= couponError %>
+      <% if (couponLogin) { %><a href="/login">Log in</a> or <a href="/register">sign up</a><% } %>
+    </p>
+  <% } %>
+</div>

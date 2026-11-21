@@ -85,7 +85,10 @@
       <% }) %>
     </div>
 
-    <div style="margin-top:20px;text-align:right;font-size:0.92rem;color:#3a2e2e;">
+    <% if (order.discount > 0) { %>
+    <div style="margin-top:20px;text-align:right;font-size:0.86rem;color:#2e6b35;">Coupon <strong><%= order.coupon_code %></strong>: −₹<%= Number(order.discount).toFixed(2) %></div>
+    <% } %>
+    <div style="margin-top:<%= order.discount > 0 ? 6 : 20 %>px;text-align:right;font-size:0.92rem;color:#3a2e2e;">
       Order Total: <strong style="font-size:1.05rem;color:#898AC4;">₹<%= order.total.toFixed(2) %></strong>
     </div>
   <% } %>

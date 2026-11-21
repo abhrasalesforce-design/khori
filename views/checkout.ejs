@@ -55,9 +55,11 @@
       <% }) %>
       <div class="summary-divider"></div>
       <div class="summary-item"><span>Subtotal</span><span>₹<%= subtotal %></span></div>
-      <div class="summary-item"><span>Shipping</span><span><%= shipping === 0 ? 'Free' : '₹' + shipping %></span></div>
+      <% if (discount > 0) { %><div class="summary-item coupon-discount-row"><span>Coupon (<%= couponCode %>)</span><span>−₹<%= discount %></span></div><% } %>
+        <div class="summary-item"><span>Shipping</span><span><%= shipping === 0 ? 'Free' : '₹' + shipping %></span></div>
       <div class="summary-divider"></div>
       <div class="summary-total"><span>Total</span><span>₹<%= total %></span></div>
+      <%- include('partials/coupon-box', { from: 'checkout' }) %>
     </div>
 
   </div>

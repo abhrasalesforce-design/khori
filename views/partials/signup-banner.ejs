@@ -1,6 +1,6 @@
 <%# Welcome sign-up banner: shown to logged-out visitors after 30s on the site.
     Offer text lives here; account creation is POST /register/quick (routes/auth.js). %>
-<% const __offerPct = 10; %>
+<% const __offerPct = 10, __offerCode = 'HATHEKHORI10', __offerCap = 50; %>
 <div id="hkSignup" class="hk-signup" role="dialog" aria-modal="true" aria-labelledby="hkSignupTitle" hidden>
   <div class="hk-signup-backdrop" data-close></div>
   <div class="hk-signup-card">
@@ -25,7 +25,12 @@
     <div class="hk-signup-body" id="hkSignupDone" hidden>
       <img src="/icon-192.png" alt="" width="56" height="56" class="hk-signup-icon">
       <h2 class="hk-signup-title">Welcome, <span id="hkSignupName"></span>!</h2>
-      <p class="hk-signup-text">Your account is ready and you're signed in. We'll apply your <%= __offerPct %>% welcome discount to your first order.</p>
+      <p class="hk-signup-text">Your account is ready and you're signed in. Here's your welcome code:</p>
+      <div class="hk-coupon">
+        <span class="hk-coupon-code" id="hkCouponCode"><%= __offerCode %></span>
+        <button type="button" class="hk-coupon-copy" id="hkCouponCopy">Copy</button>
+      </div>
+      <p class="hk-signup-small" style="margin:0 0 18px;"><%= __offerPct %>% off your first order (up to ₹<%= __offerCap %>). Enter it in your cart or at checkout.</p>
       <button type="button" class="hk-signup-btn" id="hkSignupContinue">Continue shopping</button>
     </div>
   </div>
@@ -52,6 +57,9 @@
   .hk-signup-small { margin: 16px 0 0; font-size: .78rem; color: #8a8aa3; }
   .hk-signup-small a { color: #898AC4; font-weight: 600; }
   .hk-signup-link { background: none; border: none; padding: 0; color: #8a8aa3; font-size: .78rem; text-decoration: underline; cursor: pointer; font-family: inherit; }
+  .hk-coupon { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 auto 10px; max-width: 300px; padding: 10px 10px 10px 18px; border: 2px dashed #898AC4; border-radius: 10px; background: #f7f6fc; }
+  .hk-coupon-code { font-family: 'Courier New', monospace; font-size: 1.25rem; font-weight: 700; letter-spacing: .12em; color: #3a3a5c; }
+  .hk-coupon-copy { padding: 8px 14px; border: none; border-radius: 6px; background: #898AC4; color: #fff; font-size: .78rem; font-weight: 600; cursor: pointer; font-family: Inter, sans-serif; }
   .hk-signup-x { position: absolute; top: 10px; right: 12px; width: 34px; height: 34px; border: none; background: none; font-size: 1.1rem; color: #aaa; cursor: pointer; border-radius: 50%; }
   .hk-signup-x:hover { background: #f3f0f8; color: #3a3a5c; }
   @media (max-width: 520px) {
@@ -142,6 +150,13 @@
     } finally {
       btn.disabled = false; btn.textContent = label;
     }
+  });
+  document.getElementById('hkCouponCopy').addEventListener('click', function () {
+    var b = this, code = document.getElementById('hkCouponCode').textContent.trim();
+    function done() { b.textContent = 'Copied!'; setTimeout(function () { b.textContent = 'Copy'; }, 2000); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done, function () { selectCode(); });
+    else selectCode();
+    function selectCode() { var r = document.createRange(); r.selectNodeContents(document.getElementById('hkCouponCode')); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
   });
   // Reload so the header shows the signed-in menu
   document.getElementById('hkSignupContinue').addEventListener('click', function () { location.reload(); });

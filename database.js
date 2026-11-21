@@ -168,6 +168,8 @@ async function initDb() {
     await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS images TEXT`);
     await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS phone TEXT`);
     await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS upi_txn_id TEXT`);
+    await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS coupon_code TEXT`);
+    await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount REAL DEFAULT 0`);
     await pool.query(`CREATE TABLE IF NOT EXISTS reviews (
       id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL, product_id INTEGER NOT NULL,
       order_id INTEGER NOT NULL, rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
@@ -227,6 +229,8 @@ async function initDb() {
     try { sqliteDb.exec(`ALTER TABLE products ADD COLUMN images TEXT`); } catch (_) {}
     try { sqliteDb.exec(`ALTER TABLE orders ADD COLUMN phone TEXT`); } catch (_) {}
     try { sqliteDb.exec(`ALTER TABLE orders ADD COLUMN upi_txn_id TEXT`); } catch (_) {}
+    try { sqliteDb.exec(`ALTER TABLE orders ADD COLUMN coupon_code TEXT`); } catch (_) {}
+    try { sqliteDb.exec(`ALTER TABLE orders ADD COLUMN discount REAL DEFAULT 0`); } catch (_) {}
     try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, product_id INTEGER NOT NULL, order_id INTEGER NOT NULL, rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5), comment TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, UNIQUE(user_id, product_id, order_id))`); } catch (_) {}
     try { sqliteDb.exec(`CREATE TABLE IF NOT EXISTS banners (id INTEGER PRIMARY KEY AUTOINCREMENT, image TEXT NOT NULL, eyebrow TEXT, heading TEXT, subheading TEXT, cta_text TEXT, cta_link TEXT, active INTEGER DEFAULT 1, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`); } catch (_) {}
     try { sqliteDb.exec(`ALTER TABLE banners ADD COLUMN sort_order INTEGER DEFAULT 0`); } catch (_) {}
