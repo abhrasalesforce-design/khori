@@ -21,6 +21,69 @@ function getRazorpay() {
   });
 }
 
+// Owner notification for a paid order: customer details + product table.
+function ownerOrderEmail(o) {
+  const { escapeHtml: e } = require('./mailer');
+  const SITE = 'https://www.hathekhori.com';
+  const digits = String(o.phone || '').replace(/\D/g, '');
+  const wa = digits ? (digits.length === 10 ? '91' + digits : digits) : '';
+  const subtotal = o.items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const shipping = Math.max(0, Number(o.total) + Number(o.discount || 0) - subtotal);
+  const addr = [o.address, o.city, o.zip, o.country].filter(Boolean).join(', ');
+  const td = 'padding:8px 10px;border-bottom:1px solid #eee;';
+  const row = (label, value) => `<tr><td style="padding:6px 12px;color:#888;white-space:nowrap;vertical-align:top;">${label}</td><td style="padding:6px 12px;">${value}</td></tr>`;
+  const itemRows = o.items.map(i => `
+    <tr>
+      <td style="${td}color:#999;font-size:12px;">HK-${String(i.id).padStart(3, '0')}</td>
+      <td style="${td}"><a href="${SITE}/product/${i.id}" style="color:#3a3a5c;">${e(i.name)}</a></td>
+      <td style="${td}text-align:center;">${i.quantity}</td>
+      <td style="${td}text-align:right;">₹${i.price}</td>
+      <td style="${td}text-align:right;font-weight:600;">₹${i.price * i.quantity}</td>
+    </tr>`).join('');
+  const sumRow = (label, value, bold) => `<tr><td colspan="4" style="padding:6px 10px;text-align:right;color:#666;">${label}</td><td style="padding:6px 10px;text-align:right;${bold ? 'font-weight:700;font-size:15px;' : ''}">${value}</td></tr>`;
+  const html = `
+  <div style="font-family:Arial,sans-serif;font-size:14px;color:#3a3a5c;max-width:640px;">
+    <h2 style="color:#898AC4;margin:0 0 4px;">✅ New Paid Order #${o.orderId}</h2>
+    <p style="margin:0 0 16px;color:#666;">₹${o.total} paid via Razorpay · ${o.items.reduce((s, i) => s + i.quantity, 0)} item(s)</p>
+
+    <h3 style="color:#898AC4;margin:18px 0 6px;">Customer</h3>
+    <table style="border-collapse:collapse;font-size:14px;">
+      ${row('Name', `<strong>${e(o.name)}</strong>`)}
+      ${row('Phone', o.phone ? `<a href="tel:${e(o.phone)}" style="color:#3a3a5c;">${e(o.phone)}</a>${wa ? ` &nbsp;·&nbsp; <a href="https://wa.me/${wa}" style="color:#25a244;">WhatsApp</a>` : ''}` : '—')}
+      ${row('Email', o.email ? `<a href="mailto:${e(o.email)}" style="color:#3a3a5c;">${e(o.email)}</a>` : '—')}
+      ${row('Ship to', e(addr) || '—')}
+    </table>
+
+    <h3 style="color:#898AC4;margin:22px 0 6px;">Products</h3>
+    <table style="border-collapse:collapse;width:100%;font-size:14px;">
+      <tr style="background:#f6f4fb;">
+        <th style="padding:8px 10px;text-align:left;font-size:12px;color:#888;">Code</th>
+        <th style="padding:8px 10px;text-align:left;font-size:12px;color:#888;">Product</th>
+        <th style="padding:8px 10px;font-size:12px;color:#888;">Qty</th>
+        <th style="padding:8px 10px;text-align:right;font-size:12px;color:#888;">Price</th>
+        <th style="padding:8px 10px;text-align:right;font-size:12px;color:#888;">Total</th>
+      </tr>
+      ${itemRows}
+      ${sumRow('Subtotal', `₹${subtotal}`)}
+      ${o.couponCode ? sumRow(`Coupon ${e(o.couponCode)}`, `−₹${o.discount}`) : ''}
+      ${sumRow('Shipping', shipping ? `₹${shipping}` : 'Free')}
+      ${sumRow('Total paid', `₹${o.total}`, true)}
+    </table>
+
+    <p style="margin:16px 0 0;font-size:12px;color:#999;">Razorpay payment ID: ${e(o.razorpay_payment_id)}</p>
+    <p style="margin-top:20px;"><a href="${SITE}/admin/orders/${o.orderId}" style="background:#898AC4;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;">View order in Admin →</a></p>
+    <p style="font-size:12px;color:#999;">Reply to this email to contact the customer directly.</p>
+  </div>`;
+  const text = [
+    `New paid order #${o.orderId} — ₹${o.total}`, '',
+    'CUSTOMER', `Name: ${o.name}`, `Phone: ${o.phone || '—'}${wa ? ` (WhatsApp: https://wa.me/${wa})` : ''}`, `Email: ${o.email || '—'}`, `Ship to: ${addr || '—'}`, '',
+    'PRODUCTS', ...o.items.map(i => `• HK-${String(i.id).padStart(3, '0')} ${i.name} × ${i.quantity} @ ₹${i.price} = ₹${i.price * i.quantity}`), '',
+    `Subtotal: ₹${subtotal}`, ...(o.couponCode ? [`Coupon ${o.couponCode}: −₹${o.discount}`] : []), `Shipping: ${shipping ? '₹' + shipping : 'Free'}`, `Total paid: ₹${o.total}`, '',
+    `Razorpay payment ID: ${o.razorpay_payment_id}`, `${SITE}/admin/orders/${o.orderId}`,
+  ].join('\n');
+  return { html, text };
+}
+
 router.get('/checkout', async (req, res) => {
   const cart = req.session.cart || [];
   if (cart.length === 0) return res.redirect('/cart');
@@ -130,33 +193,19 @@ router.post('/checkout/place', async (req, res) => {
       console.error('Auto-invoice failed:', err.message);
     }
 
-    // Email notification via Resend
+    // Email the shop owner about the new order (Resend HTTPS API)
     try {
       const { sendMail, isConfigured } = require('./mailer');
       if (!isConfigured()) {
-        console.warn('[Email] RESEND_API_KEY not set — skipping notification.');
+        console.warn('[Email] RESEND_API_KEY not set — skipping order notification.');
       } else {
-        const itemLines = items.map(i => `• ${i.name} × ${i.quantity} — ₹${i.price * i.quantity}`).join('\n');
+        const { html, text } = ownerOrderEmail({ orderId, total, discount, couponCode, razorpay_payment_id, name, email, phone, address, city, zip, country, items });
         await sendMail({
           label: 'Hathekhori Orders',
           to: 'contact.hathekhori@gmail.com',
-          subject: `✅ New Order #${orderId} — ₹${total} — PAID`,
-          text: `New paid order!\n\nOrder #${orderId}\nAmount: ₹${total}${couponCode ? `\nCoupon: ${couponCode} (−₹${discount})` : ''}\nRazorpay Payment ID: ${razorpay_payment_id}\n\nCustomer:\nName: ${name}\nEmail: ${email}\nPhone: ${phone || '—'}\nAddress: ${address}, ${city}, ${zip}, ${country}\n\nItems:\n${itemLines}\n\nhttps://www.hathekhori.com/admin`,
-          html: `
-            <h2 style="color:#898AC4;">✅ New Paid Order #${orderId}</h2>
-            <table style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:14px;">
-              <tr><td style="padding:6px 12px;color:#888;">Amount</td><td style="padding:6px 12px;font-weight:700;font-size:16px;">₹${total}</td></tr>
-              ${couponCode ? `<tr><td style="padding:6px 12px;color:#888;">Coupon</td><td style="padding:6px 12px;">${couponCode} (−₹${discount})</td></tr>` : ''}
-              <tr style="background:#f9f7f7;"><td style="padding:6px 12px;color:#888;">Payment ID</td><td style="padding:6px 12px;color:#898AC4;">${razorpay_payment_id}</td></tr>
-              <tr><td style="padding:6px 12px;color:#888;">Customer</td><td style="padding:6px 12px;">${name}</td></tr>
-              <tr style="background:#f9f7f7;"><td style="padding:6px 12px;color:#888;">Phone</td><td style="padding:6px 12px;">${phone || '—'}</td></tr>
-              <tr><td style="padding:6px 12px;color:#888;">Email</td><td style="padding:6px 12px;">${email}</td></tr>
-              <tr style="background:#f9f7f7;"><td style="padding:6px 12px;color:#888;">Address</td><td style="padding:6px 12px;">${address}, ${city}, ${zip}, ${country}</td></tr>
-            </table>
-            <h3 style="color:#898AC4;margin-top:20px;">Items</h3>
-            <ul style="font-family:Arial,sans-serif;font-size:14px;">${items.map(i => `<li>${i.name} × ${i.quantity} — ₹${i.price * i.quantity}</li>`).join('')}</ul>
-            <p style="margin-top:20px;"><a href="https://www.hathekhori.com/admin" style="background:#898AC4;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-family:Arial,sans-serif;font-weight:600;">View in Admin →</a></p>
-          `
+          replyTo: email || undefined,
+          subject: `✅ New Order #${orderId} — ₹${total} — ${name}`,
+          html, text,
         });
         console.log(`[Email] Order #${orderId} notification sent.`);
       }
