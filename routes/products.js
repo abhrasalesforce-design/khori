@@ -1,6 +1,7 @@
 const express = require('express');
 const { gaItem, ecommerce } = require('./analytics');
 const { getRatingMap, getProductReviews } = require('./reviews');
+const seo = require('./seo');
 const router = express.Router();
 const { db } = require('../database');
 const { getDiscountMap, applyDiscount } = require('./cartPricing');
@@ -113,11 +114,15 @@ router.get('/', async (req, res) => {
 
   const categories = baseCategories;
 
-  const lcpImageUrl = (req.app.locals.cdn && req.app.locals.cdn['mini-canvas.jpg']) || '/images/mini-canvas.jpg';
   const slides = await db.all('SELECT * FROM banners WHERE active = 1 ORDER BY sort_order ASC, id ASC');
+  // Preload the first hero slide (the image visitors actually see first)
+  const lcpImageUrl = slides.length ? seo.cdnImg(slides[0].image, 1600) : null;
   const discountMap = await getDiscountMap();
   res.render('index', {
     lcpImageUrl,
+    jsonLd: seo.siteJsonLd,
+    ogImage: slides.length ? seo.ogImg(slides[0].image) : undefined,
+    ...(search || category || (page && page !== '1') ? { noindex: true } : {}),
     products,
     categories,
     search,
@@ -157,7 +162,16 @@ router.get('/product/:id', async (req, res) => {
   const salePrice = applyDiscount(product.price, product.category, discountMap);
   const reviews = await getProductReviews(product.id);
   const rating = reviews.length ? { avg: reviews.reduce((s, r) => s + r.rating, 0) / reviews.length, count: reviews.length } : null;
+  let pdImgs = [];
+  try { pdImgs = product.images ? JSON.parse(product.images) : []; } catch (_) {}
+  if (!pdImgs.length && product.image && product.image !== 'placeholder.jpg') pdImgs = [product.image];
+  const catName = (product.category || '').replace(/-/g, ' ');
   res.render('product', {
+    pageTitle: product.name,
+    pageDescription: seo.shorten(product.description) || `${product.name} – handmade ${catName} from Hathekhori. ₹${salePrice}, crafted by artisans in India.`,
+    ogImage: seo.ogImg(pdImgs[0]),
+    ogType: 'product',
+    jsonLd: seo.productJsonLd(product, { salePrice, images: pdImgs, rating, reviews }),
     reviews, rating,
     gaPageEvents: [{ name: 'view_item', params: ecommerce([gaItem(product, 1, salePrice)]) }],
     product,
@@ -170,7 +184,11 @@ router.get('/product/:id', async (req, res) => {
 });
 
 router.get('/about', (req, res) => {
-  res.render('about', { user: req.session.user });
+  res.render('about', {
+    user: req.session.user,
+    pageTitle: 'About Us – Our Artisans and Story',
+    pageDescription: 'Meet Hathekhori: handmade crafts rooted in Bengali tradition. Learn about our artisans, the folk art forms we work with, and how every piece is made by hand.',
+  });
 });
 
 // ===== Collection pages =====
@@ -216,7 +234,15 @@ router.get('/collection/:slug', async (req, res, next) => {
   const custom = `collection-${slug}`;
   const view = fs.existsSync(path.join(__dirname, '..', 'views', custom + '.ejs')) ? custom : 'collection';
   const ratingMap = await getRatingMap(products.map(p => p.id));
-  res.render(view, { user: req.session.user || null, products, sub, subName, collection: group, discountMap, applyDiscount, ratingMap });
+  const firstImg = products.map(p => p.image).find(i => i && i !== 'placeholder.jpg');
+  res.render(view, {
+    user: req.session.user || null, products, sub, subName, collection: group, discountMap, applyDiscount, ratingMap,
+    pageTitle: subName ? `${subName} – ${group.name}` : `${group.name} – Handmade Collection`,
+    pageDescription: subName
+      ? `Shop handmade ${subName.toLowerCase()} from Hathekhori's ${group.name} collection. ${products.length} pieces crafted by Indian artisans.`
+      : `Shop Hathekhori's ${group.name} collection${group.children.length ? ': ' + group.children.map(c => c.name).join(', ') : ''}. Handmade by artisans across India.`,
+    ogImage: seo.ogImg(firstImg),
+  });
 });
 
 module.exports = router;

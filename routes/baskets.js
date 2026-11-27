@@ -66,6 +66,8 @@ async function getOrCreateBasketAddon() {
 // Landing — show all combo types
 router.get('/baskets', (req, res) => {
   res.render('baskets', {
+    pageTitle: 'Create Your Basket – Handmade Gift Sets',
+    pageDescription: 'Build a personalised handmade gift set: pick a combo, choose your favourite pieces, and add a gift basket for ₹50. Jewellery, totes, mini canvases and hand block keepsakes.',
     user: req.session.user || null,
     baskets: BASKET_DEFS,
   });
@@ -89,6 +91,8 @@ router.get('/baskets/:type', async (req, res) => {
   }));
 
   res.render('basket-builder', {
+    pageTitle: `${def.label} – Create Your Basket`,
+    pageDescription: `${def.tagline} Build your ${def.label} handmade gift set at Hathekhori.`,
     user: req.session.user || null,
     basketType: req.params.type,
     basketLabel: def.label,

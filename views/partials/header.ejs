@@ -3,9 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Hathekhori — handmade crafts rooted in Bengali tradition. Shop pottery, textiles, decor, jewellery and more, crafted by artisans across India.">
+  <% const __seo = locals.seoDefaults || { title: 'Hathekhori – Handmade Crafts', description: '' };
+     const __title = locals.pageTitle ? pageTitle + ' | Hathekhori' : __seo.title;
+     const __desc = locals.pageDescription || __seo.description;
+     const __og = locals.ogImage || 'https://www.hathekhori.com/icon-512.png'; %>
+  <meta name="description" content="<%= __desc %>">
+  <% if (locals.noindex) { %><meta name="robots" content="noindex, follow"><% } else if (locals.canonicalUrl) { %><link rel="canonical" href="<%= canonicalUrl %>"><% } %>
+  <meta property="og:site_name" content="Hathekhori">
+  <meta property="og:type" content="<%= locals.ogType || 'website' %>">
+  <meta property="og:title" content="<%= __title %>">
+  <meta property="og:description" content="<%= __desc %>">
+  <meta property="og:image" content="<%= __og %>">
+  <% if (locals.canonicalUrl) { %><meta property="og:url" content="<%= canonicalUrl %>"><% } %>
+  <meta property="og:locale" content="en_IN">
+  <meta name="twitter:card" content="summary_large_image">
+  <% (locals.jsonLd ? [].concat(jsonLd) : []).forEach(function (d) { %>
+  <script type="application/ld+json"><%- locals.jsonLdScript ? jsonLdScript(d) : '' %></script>
+  <% }) %>
   <meta name="theme-color" content="#F6F4E8">
-  <title>Hathekhori – Handmade Crafts</title>
+  <title><%= __title %></title>
   <link rel="icon" href="/favicon.ico" sizes="48x48">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -46,8 +62,8 @@
   <div class="header-inner">
     <a href="/" class="logo">
       <picture>
-        <source srcset="<%= cdn && cdn['logo.webp'] ? cdn['logo.webp'] : '/images/logo.webp' %>" type="image/webp">
-        <img src="<%= cdn && cdn['logo.png'] ? cdn['logo.png'] : '/images/logo.png' %>" alt="Hathekhori – Handmade Crafts" width="900" height="297" loading="eager" fetchpriority="high">
+        <source srcset="<%= cdn && cdn['logo.webp'] ? cdnImg(cdn['logo.webp'], 600) : '/images/logo.webp' %>" type="image/webp">
+        <img src="<%= cdn && cdn['logo.png'] ? cdnImg(cdn['logo.png'], 600) : '/images/logo.png' %>" alt="Hathekhori – Handmade Crafts" width="900" height="297" loading="eager" fetchpriority="high">
       </picture>
     </a>
 

@@ -15,7 +15,7 @@
           <a href="/product/<%= p.id %>" class="wishlist-card-img-link">
             <div class="wishlist-card-img">
               <img
-                src="<%= p.image && p.image.startsWith('http') ? p.image : '/uploads/' + p.image %>"
+                src="<%= cdnImg(p.image, 600) %>"
                 alt="<%= p.name %>"
                 loading="lazy"
                 onerror="this.onerror=null;this.src='/images/no-image.jpg'"

@@ -110,6 +110,15 @@ app.use((req, res, next) => {
   next();
 });
 
+// SEO: optimised image URLs, per-page titles/canonical/noindex, robots.txt (routes/seo.js)
+{
+  const seo = require('./routes/seo');
+  app.locals.cdnImg = seo.cdnImg;
+  app.locals.jsonLdScript = seo.jsonLdScript;
+  app.use(seo.seoMiddleware);
+  app.get('/robots.txt', seo.robotsTxt);
+}
+
 // Google Analytics e-commerce events queued in the session (see routes/analytics.js)
 app.use(require('./routes/analytics').gaMiddleware);
 
@@ -192,8 +201,8 @@ app.get('/sitemap.xml', async (req, res) => {
     { loc: '/collection/artisan-totes', priority: '0.9', changefreq: 'weekly' },
     { loc: '/collection/canvas-tales', priority: '0.9', changefreq: 'weekly' },
     { loc: '/collection/handmade-treasures', priority: '0.9', changefreq: 'weekly' },
-    { loc: '/login', priority: '0.4', changefreq: 'yearly' },
-    { loc: '/register', priority: '0.4', changefreq: 'yearly' },
+    { loc: '/baskets', priority: '0.8', changefreq: 'weekly' },
+    ...Object.keys(require('./routes/baskets').BASKET_DEFS || {}).map(k => ({ loc: '/baskets/' + k, priority: '0.7', changefreq: 'weekly' })),
   ];
   // Add any collection created in Admin → Manage categories
   try {

@@ -23,7 +23,7 @@
         try { pdImages = product.images ? JSON.parse(product.images) : []; } catch(e) {}
         if (pdImages.length === 0 && product.image) pdImages = [product.image];
         if (pdImages.length === 0) pdImages = ['placeholder.jpg'];
-        const toUrl = img => img.startsWith('http') ? img : '/uploads/' + img;
+        const toUrl = img => cdnImg(img, 1000);
       %>
       <% if (pdImages.length > 1) { %>
       <div class="pd-carousel" id="pdCarousel">

@@ -76,7 +76,7 @@
                    data-max="<%= slot.max %>"
                    onclick="selectProduct(this)">
                 <img
-                  src="<%= product.image && product.image.startsWith('http') ? product.image : '/uploads/' + product.image %>"
+                  src="<%= cdnImg(product.image, 600) %>"
                   alt="<%= product.name %>"
                   onerror="this.onerror=null;this.src='/images/no-image.jpg'"
                   loading="lazy">
