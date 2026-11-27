@@ -125,7 +125,7 @@
     <% products.forEach(product => { %>
       <div class="cc-card">
         <a href="/product/<%= product.id %>" class="cc-card-img-wrap">
-          <img src="<%= cdnImg(product.image, 600) %>" alt="<%= product.name %>" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/images/no-image.jpg'">
+          <img src="<%= cdnImg(product.image, 600) %>" srcset="<%= cdnSrcset(product.image, [300, 450, 600]) %>" sizes="(max-width: 768px) 50vw, 300px" alt="<%= product.name %>" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/images/no-image.jpg'">
           <span class="cc-card-overlay">
             <span class="cc-card-view">View Product</span>
           </span>
@@ -200,7 +200,7 @@
     <div class="artforms-carousel" id="artformsCarousel">
       <div class="artforms-track" id="artformsTrack">
 
-        <div class="artform-card artform-card-img" style="background-image: url('<%= cdn["handblock.jpeg"] ? cdnImg(cdn["handblock.jpeg"], 800) : "/images/handblock.jpeg" %>');">
+        <div class="artform-card artform-card-img" style="background-image: url('<%= cdn["handblock.jpeg"] ? cdnImg(cdn["handblock.jpeg"], 600) : "/images/handblock.jpeg" %>');">
           <div class="artform-inner artform-inner-overlay">
             <h3>Hand Block Fabric</h3>
             <span class="artform-origin">Rajasthan · Gujarat</span>
@@ -209,7 +209,7 @@
           </div>
         </div>
 
-        <div class="artform-card artform-card-img" style="background-image: url('<%= cdn["madhubani.jpg"] ? cdnImg(cdn["madhubani.jpg"], 800) : "/images/madhubani.jpg" %>');">
+        <div class="artform-card artform-card-img" style="background-image: url('<%= cdn["madhubani.jpg"] ? cdnImg(cdn["madhubani.jpg"], 600) : "/images/madhubani.jpg" %>');">
           <div class="artform-inner artform-inner-overlay">
             <h3>Madhubani</h3>
             <span class="artform-origin">Mithila · Bihar</span>
@@ -218,7 +218,7 @@
           </div>
         </div>
 
-        <div class="artform-card artform-card-img" style="background-image: url('<%= cdn["warli.jpeg"] ? cdnImg(cdn["warli.jpeg"], 800) : "/images/warli.jpeg" %>');">
+        <div class="artform-card artform-card-img" style="background-image: url('<%= cdn["warli.jpeg"] ? cdnImg(cdn["warli.jpeg"], 600) : "/images/warli.jpeg" %>');">
           <div class="artform-inner artform-inner-overlay">
             <h3>Warli</h3>
             <span class="artform-origin">Maharashtra · Tribal</span>
@@ -227,7 +227,7 @@
           </div>
         </div>
 
-        <div class="artform-card artform-card-img" style="background-image: url('<%= cdn["boho.jpg"] ? cdnImg(cdn["boho.jpg"], 800) : "/images/boho.jpg" %>');">
+        <div class="artform-card artform-card-img" style="background-image: url('<%= cdn["boho.jpg"] ? cdnImg(cdn["boho.jpg"], 600) : "/images/boho.jpg" %>');">
           <div class="artform-inner artform-inner-overlay">
             <h3>Boho</h3>
             <span class="artform-origin">Free Spirit · Wanderer</span>
