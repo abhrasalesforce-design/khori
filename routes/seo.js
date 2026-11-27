@@ -7,11 +7,18 @@ const DEFAULT_DESCRIPTION = 'Hathekhori — handmade crafts rooted in Bengali tr
 // Cloudinary images in a modern format (WebP/AVIF), auto quality, sized for where they show.
 function cdnImg(src, width = 600) {
   if (!src || src === 'placeholder.jpg') return '/images/no-image.jpg';
+  if (src.startsWith('/')) return src;                 // already a site path, e.g. /images/x.jpg
   if (!/^https?:\/\//.test(src)) return '/uploads/' + src;
   if (src.includes('res.cloudinary.com') && src.includes('/image/upload/') && !/\/image\/upload\/[a-z]{1,2}_[^/]*\//.test(src)) {
     return src.replace('/image/upload/', `/image/upload/f_auto,q_auto,w_${width}/`);
   }
   return src;
+}
+
+// srcset with several widths so phones download smaller files
+function cdnSrcset(src, widths = [400, 700, 1000]) {
+  if (!src || !/res\.cloudinary\.com\/.*\/image\/upload\//.test(src) || /\/image\/upload\/[a-z]{1,2}_[^/]*\//.test(src)) return '';
+  return widths.map(w => `${cdnImg(src, w)} ${w}w`).join(', ');
 }
 
 // A 1200×630 JPEG for link previews (WhatsApp, Facebook, Instagram, X)
@@ -95,4 +102,4 @@ const siteJsonLd = [
   { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Hathekhori', url: SITE },
 ];
 
-module.exports = { SITE, cdnImg, ogImg, shorten, seoMiddleware, robotsTxt, jsonLdScript, productJsonLd, siteJsonLd, DEFAULT_TITLE, DEFAULT_DESCRIPTION };
+module.exports = { SITE, cdnImg, cdnSrcset, ogImg, shorten, seoMiddleware, robotsTxt, jsonLdScript, productJsonLd, siteJsonLd, DEFAULT_TITLE, DEFAULT_DESCRIPTION };

@@ -117,9 +117,10 @@ router.get('/', async (req, res) => {
   const slides = await db.all('SELECT * FROM banners WHERE active = 1 ORDER BY sort_order ASC, id ASC');
   // Preload the first hero slide (the image visitors actually see first)
   const lcpImageUrl = slides.length ? seo.cdnImg(slides[0].image, 1600) : null;
+  const lcpSrcset = slides.length ? seo.cdnSrcset(slides[0].image, [640, 960, 1280, 1600]) : '';
   const discountMap = await getDiscountMap();
   res.render('index', {
-    lcpImageUrl,
+    lcpImageUrl, lcpSrcset, lcpSizes: '100vw',
     jsonLd: seo.siteJsonLd,
     ogImage: slides.length ? seo.ogImg(slides[0].image) : undefined,
     ...(search || category || (page && page !== '1') ? { noindex: true } : {}),
@@ -171,6 +172,9 @@ router.get('/product/:id', async (req, res) => {
     pageDescription: seo.shorten(product.description) || `${product.name} – handmade ${catName} from Hathekhori. ₹${salePrice}, crafted by artisans in India.`,
     ogImage: seo.ogImg(pdImgs[0]),
     ogType: 'product',
+    lcpImageUrl: pdImgs[0] ? seo.cdnImg(pdImgs[0], 1000) : null,
+    lcpSrcset: pdImgs[0] ? seo.cdnSrcset(pdImgs[0]) : '',
+    lcpSizes: '(max-width: 768px) 100vw, 560px',
     jsonLd: seo.productJsonLd(product, { salePrice, images: pdImgs, rating, reviews }),
     reviews, rating,
     gaPageEvents: [{ name: 'view_item', params: ecommerce([gaItem(product, 1, salePrice)]) }],

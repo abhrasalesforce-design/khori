@@ -5,7 +5,7 @@
       <a href="/" class="footer-logo">
         <picture>
           <source srcset="<%= cdn && cdn['logo.webp'] ? cdn['logo.webp'] : '/images/logo.webp' %>" type="image/webp">
-          <img src="<%= cdn && cdn['logo.png'] ? cdn['logo.png'] : '/images/logo.png' %>" alt="Hathekhori – Handmade Crafts" width="900" height="297" loading="lazy" decoding="async">
+          <img src="<%= cdn && cdn['logo.png'] ? cdnImg(cdn['logo.png'], 500) : '/images/logo.png' %>" alt="Hathekhori – Handmade Crafts" width="900" height="297" loading="lazy" decoding="async">
         </picture>
       </a>
       <p>Handmade with love and intention. Every piece tells a story of craft, culture, and care.</p>
@@ -29,7 +29,8 @@
       <h4>Contact Information</h4>
       <p style="font-size:0.8rem;color:#b0a0a0;margin-bottom:10px;">For bulk orders, DM us on Instagram</p>
       <img
-        src="/images/instagram-qr.png"
+        src="/images/instagram-qr-sm.png"
+        width="110" height="110"
         alt="Instagram QR – DM for bulk orders"
         onclick="openQrZoom()"
         style="width:110px;height:110px;object-fit:cover;border-radius:8px;cursor:zoom-in;border:2px solid #e8dde3;display:block;"
@@ -50,7 +51,7 @@
   background:rgba(0,0,0,0.75); align-items:center; justify-content:center;
   cursor:zoom-out;
 ">
-  <img src="/images/instagram-qr.png" alt="Instagram QR" style="
+  <img src="/images/instagram-qr-lg.png" alt="Instagram QR" loading="lazy" style="
     max-width:88vw; max-height:88vh; border-radius:12px;
     box-shadow:0 8px 40px rgba(0,0,0,0.5);
   ">

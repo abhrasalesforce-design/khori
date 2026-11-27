@@ -36,7 +36,8 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Static files — no cache for CSS/JS so updates show immediately, long cache for images
 app.use('/images', express.static(path.join(__dirname, 'public/images'), { maxAge: '30d', immutable: true }));
-app.use('/css', express.static(path.join(__dirname, 'public/css'), { maxAge: '1h', etag: true }));
+// style.css is requested as style.css?v=<deploy time>, so each deploy gets a fresh URL and browsers can cache it long-term
+app.use('/css', express.static(path.join(__dirname, 'public/css'), { maxAge: '30d', immutable: true, etag: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads'), { maxAge: '30d', immutable: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -114,6 +115,7 @@ app.use((req, res, next) => {
 {
   const seo = require('./routes/seo');
   app.locals.cdnImg = seo.cdnImg;
+  app.locals.cdnSrcset = seo.cdnSrcset;
   app.locals.jsonLdScript = seo.jsonLdScript;
   app.use(seo.seoMiddleware);
   app.get('/robots.txt', seo.robotsTxt);

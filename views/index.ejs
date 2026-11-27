@@ -9,7 +9,7 @@
     const isFirst = i === 0;
   %>
   <div class="hero-slide <%= isFirst ? 'active' : '' %> hero-img-slide" <% if (!isFirst) { %>data-bg="<%= imgSrc %>"<% } %>>
-    <% if (isFirst) { %><img class="hero-bg-img" src="<%= imgSrc %>" alt="" fetchpriority="high" decoding="sync"><% } %>
+    <% if (isFirst) { %><img class="hero-bg-img" src="<%= imgSrc %>" srcset="<%= cdnSrcset(slide.image, [640, 960, 1280, 1600]) %>" sizes="100vw" alt="" fetchpriority="high" decoding="sync"><% } %>
     <div class="hero-slide-inner hero-slide-overlay">
       <% if (slide.eyebrow) { %><span class="hero-eyebrow"><%= slide.eyebrow %></span><% } %>
       <% if (slide.heading) { %><h1><%- slide.heading.replace(/\*(.*?)\*/g, '<em>$1</em>') %></h1><% } %>

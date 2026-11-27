@@ -32,8 +32,10 @@
             <div class="pd-carousel-slide">
               <img
                 src="<%= toUrl(img) %>"
+                srcset="<%= cdnSrcset(img) %>" sizes="(max-width: 768px) 100vw, 560px"
                 alt="<%= product.name %> — image <%= i + 1 %>"
                 loading="<%= i === 0 ? 'eager' : 'lazy' %>"
+                <% if (i === 0) { %>fetchpriority="high"<% } %>
                 decoding="async"
                 onerror="this.onerror=null;this.src='/images/no-image.jpg'"
               >
@@ -54,7 +56,9 @@
       <div class="pd-image-wrap">
         <img
           src="<%= toUrl(pdImages[0]) %>"
+          srcset="<%= cdnSrcset(pdImages[0]) %>" sizes="(max-width: 768px) 100vw, 560px"
           alt="<%= product.name %>"
+          fetchpriority="high"
           loading="eager"
           decoding="async"
           onerror="this.onerror=null;this.src='/images/no-image.jpg'"

@@ -32,7 +32,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
   <% if (locals.lcpImageUrl) { %>
-  <link rel="preload" as="image" href="<%= locals.lcpImageUrl %>">
+  <link rel="preload" as="image" href="<%= locals.lcpImageUrl %>"<% if (locals.lcpSrcset) { %> imagesrcset="<%= lcpSrcset %>" imagesizes="<%= locals.lcpSizes || '100vw' %>"<% } %> fetchpriority="high">
   <% } %>
 
   <!-- Non-render-blocking font load -->
@@ -62,8 +62,9 @@
   <div class="header-inner">
     <a href="/" class="logo">
       <picture>
-        <source srcset="<%= cdn && cdn['logo.webp'] ? cdnImg(cdn['logo.webp'], 600) : '/images/logo.webp' %>" type="image/webp">
-        <img src="<%= cdn && cdn['logo.png'] ? cdnImg(cdn['logo.png'], 600) : '/images/logo.png' %>" alt="Hathekhori – Handmade Crafts" width="900" height="297" loading="eager" fetchpriority="high">
+        <% const __logo = cdn && cdn['logo.png']; %>
+        <% if (!__logo) { %><source srcset="/images/logo.webp" type="image/webp"><% } %>
+        <img src="<%= __logo ? cdnImg(__logo, 600) : '/images/logo.png' %>"<% if (__logo) { %> srcset="<%= cdnSrcset(__logo, [300, 450, 600]) %>" sizes="(max-width: 768px) 54vw, 220px"<% } %> alt="Hathekhori – Handmade Crafts" width="900" height="297" loading="eager" fetchpriority="high">
       </picture>
     </a>
 
